@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 using System.IO;
 using AvaloniaEdit;
 using AvaloniaEdit.Document;
@@ -74,6 +75,22 @@ public sealed class DiffPane : TextEditor
     protected override Type StyleKeyOverride => typeof(TextEditor);
 
     public IReadOnlyList<PaneRow> Rows => _rows;
+
+    /// <summary>
+    /// The editor's own ScrollToVerticalOffset does nothing with our template, so the pane's scroll viewer is driven directly. Both
+    /// the synced scrolling of the two panes and the overview map depend on this.
+    /// </summary>
+    public new void ScrollToVerticalOffset(double offset)
+    {
+        if (this.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault() is { } viewer)
+        {
+            viewer.Offset = new Vector(viewer.Offset.X, Math.Max(0, offset));
+        }
+        else
+        {
+            base.ScrollToVerticalOffset(offset);
+        }
+    }
 
     /// <summary>
     /// Filler rows are real (empty) lines in the document. An anchor on each one keeps track of it while the user types, so the
