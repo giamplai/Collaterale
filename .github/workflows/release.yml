@@ -9,7 +9,7 @@ jobs:
   release:
     runs-on: ubuntu-latest   # Linux packages and the Windows zip are cross-published from Linux; macOS and the Windows setup have their own jobs below
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v4
         with: { global-json-file: global.json }
       - name: Tag must match the project version
@@ -27,7 +27,7 @@ jobs:
   windows-installer:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v4
         with: { global-json-file: global.json }
       - name: Publish and build the setup program (Inno Setup)
@@ -53,7 +53,7 @@ jobs:
   macos-app:
     runs-on: macos-latest      # code signing (ad-hoc) and the launch check need a Mac
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v4
         with: { global-json-file: global.json }
       - name: Package (builds, ad-hoc signs)
