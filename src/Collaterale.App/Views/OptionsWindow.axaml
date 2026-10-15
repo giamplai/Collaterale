@@ -1,0 +1,231 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Collaterale.App.ViewModels"
+        xmlns:c="using:Collaterale.App.Controls"
+        x:Class="Collaterale.App.Views.OptionsWindow"
+        x:DataType="vm:OptionsViewModel"
+        Title="Options" Width="1060" Height="740" MinWidth="760" MinHeight="520" WindowStartupLocation="CenterOwner">
+  <Window.Styles>
+    <Style Selector="StackPanel.page"><Setter Property="Spacing" Value="12" /><Setter Property="Margin" Value="22,18" /></Style>
+    <Style Selector="TextBlock.title"><Setter Property="FontSize" Value="20" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+    <Style Selector="TextBlock.hint"><Setter Property="FontSize" Value="12" /><Setter Property="Opacity" Value="0.65" /><Setter Property="TextWrapping" Value="Wrap" /></Style>
+    <Style Selector="TabItem"><Setter Property="FontSize" Value="13" /><Setter Property="Padding" Value="14,4" /><Setter Property="MinHeight" Value="34" /><Setter Property="MinWidth" Value="200" /></Style>
+  </Window.Styles>
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Padding="16,10" Background="{DynamicResource PanelBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Content="Cancel" Click="OnCancel" Padding="18,6" />
+        <Button Classes="accent" Content="OK" Click="OnOk" Padding="22,6" IsDefault="True" />
+      </StackPanel>
+    </Border>
+
+    <TabControl TabStripPlacement="Left" Padding="0">
+      <!-- startup -->
+      <TabItem Header="Startup"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="Startup" />
+        <TextBlock Classes="hint" Text="With no command line Collaterale shows the Home view. To come back to the sessions of the last time, give the same workspace name below twice." />
+        <TextBlock Text="Load workspace" /><TextBox Text="{Binding Prefs.Startup.LoadWorkspace}" PlaceholderText="(none: show the Home view)" />
+        <TextBlock Text="On exit, save workspace as" /><TextBox Text="{Binding Prefs.Startup.SaveWorkspaceOnExit}" PlaceholderText="(none)" />
+        <Separator />
+        <CheckBox Content="When starting with a pair of files, show a quick compare dialog first" IsChecked="{Binding Prefs.Startup.QuickCompareDialog}" />
+        <StackPanel Orientation="Horizontal" Spacing="10" Margin="28,0,0,0"><TextBlock Text="Kind" VerticalAlignment="Center" /><ComboBox ItemsSource="{x:Static vm:OptionsViewModel.QuickCompareChoices}" SelectedItem="{Binding Prefs.Startup.QuickCompare}" MinWidth="160" /></StackPanel>
+        <CheckBox Margin="28,0,0,0" Content="Open the full view automatically if the files are different (the dialog then appears only when they match)" IsChecked="{Binding Prefs.Startup.OpenViewIfDifferent}" />
+        <Separator />
+        <CheckBox Content="Run the clipboard compare when I log in" IsChecked="{Binding Prefs.Startup.RunClipboardCompareOnLogin}" />
+        <TextBlock Classes="hint" Text="The clipboard compare is a small window that remembers recent clipboard entries and compares two of them (collaterale --clipboard)." />
+        <Button Content="Install the file-manager context menu entries…" Click="OnShellIntegration" HorizontalAlignment="Left" />
+      </StackPanel></ScrollViewer></TabItem>
+
+      <!-- tabs -->
+      <TabItem Header="Tabs"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="Tabs" />
+        <TextBlock Classes="hint" Text="Sessions can open in independent windows or under tabs of one window." />
+        <TextBlock Text="New sessions open in" /><ComboBox ItemsSource="{x:Static vm:OptionsViewModel.OpenInChoices}" SelectedItem="{Binding Prefs.Tabs.NewSessions}" MinWidth="160" />
+        <TextBlock Text="File sessions opened from a folder session open in" /><ComboBox ItemsSource="{x:Static vm:OptionsViewModel.OpenInChoices}" SelectedItem="{Binding Prefs.Tabs.ChildSessions}" MinWidth="160" />
+        <CheckBox Content="Closing the last remaining tab closes the window" IsChecked="{Binding Prefs.Tabs.ClosingLastTabClosesWindow}" />
+        <CheckBox Content="Hide the tab bar when there is only one tab" IsChecked="{Binding Prefs.Tabs.HideTabBarIfSingleTab}" />
+        <TextBlock Classes="hint" Text="If both are off, closing the last tab returns to the Home view." />
+      </StackPanel></ScrollViewer></TabItem>
+
+      <!-- text editing -->
+      <TabItem Header="Text editing"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="Text editing" />
+        <CheckBox Content="Auto indent: a new line starts at the indentation of the previous one" IsChecked="{Binding Prefs.TextEditing.AutoIndent}" />
+        <CheckBox Content="Backspace unindents when the cursor is in the leading whitespace" IsChecked="{Binding Prefs.TextEditing.BackspaceUnindents}" />
+        <CheckBox Content="Initialize “Text to find” to the current word" IsChecked="{Binding Prefs.TextEditing.InitFindFromWord}" />
+        <CheckBox Content="Show how many lines the display filters hide" IsChecked="{Binding Prefs.TextEditing.ShowFilteredLineCounts}" />
+        <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="Context lines around a difference when unchanged text is folded" VerticalAlignment="Center" /><NumericUpDown Minimum="0" Maximum="50" FormatString="0" Width="120" Value="{Binding Prefs.TextEditing.ContextLines, Converter={x:Static c:Converters.IntToDecimal}}" /></StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="Tab width (spaces)" VerticalAlignment="Center" /><NumericUpDown Minimum="1" Maximum="16" FormatString="0" Width="120" Value="{Binding Prefs.TextEditing.TabSize, Converter={x:Static c:Converters.IntToDecimal}}" /></StackPanel>
+      </StackPanel></ScrollViewer></TabItem>
+
+      <!-- next difference -->
+      <TabItem Header="Next difference"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="Next difference" />
+        <CheckBox Content="When loading new files, go to the first difference" IsChecked="{Binding Prefs.NextDifference.GoToFirstOnLoad}" />
+        <CheckBox Content="Go to the next difference after copying one to the other side" IsChecked="{Binding Prefs.NextDifference.GoToNextAfterCopy}" />
+        <CheckBox Content="Limit “Next difference file” to the current folder" IsChecked="{Binding Prefs.NextDifference.LimitFilesToCurrentFolder}" />
+        <CheckBox Content="Wrap around to the first difference after the end is reached" IsChecked="{Binding Prefs.NextDifference.WrapAround}" />
+        <CheckBox Content="Show a message when there is no difference to go to" IsChecked="{Binding Prefs.NextDifference.ShowMessagePanel}" />
+      </StackPanel></ScrollViewer></TabItem>
+
+      <!-- backup -->
+      <TabItem Header="Backup"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="Backup" />
+        <TextBlock Classes="hint" Text="A copy of a file can be kept before it is overwritten by a copy or move, or before an edited file is saved." />
+        <TextBlock Text="Keep backups" /><ComboBox ItemsSource="{x:Static vm:OptionsViewModel.BackupModes}" SelectedItem="{Binding Prefs.Backup.Mode}" MinWidth="240" />
+        <TextBlock Text="Suffix (for “SameFolderSuffix”)" /><TextBox Text="{Binding Prefs.Backup.Suffix}" Width="160" HorizontalAlignment="Left" />
+        <TextBlock Text="Backup folder (for “BackupFolder”)" /><TextBox Text="{Binding Prefs.Backup.Folder}" PlaceholderText="/path/to/backups" />
+        <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="Versions to keep (numbered or time-stamped; 0 keeps all)" VerticalAlignment="Center" /><NumericUpDown Minimum="0" Maximum="1000" FormatString="0" Width="120" Value="{Binding Prefs.Backup.KeepVersions, Converter={x:Static c:Converters.IntToDecimal}}" /></StackPanel>
+      </StackPanel></ScrollViewer></TabItem>
+
+      <!-- file operations -->
+      <TabItem Header="File operations"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="File operations" />
+        <TextBlock Classes="hint" Text="By default Collaterale asks before acting. Turn a question off to stop being asked." />
+        <CheckBox Content="Confirm copies" IsChecked="{Binding Prefs.FileOperations.ConfirmCopy}" />
+        <CheckBox Content="Confirm moves" IsChecked="{Binding Prefs.FileOperations.ConfirmMove}" />
+        <CheckBox Content="Confirm deletes" IsChecked="{Binding Prefs.FileOperations.ConfirmDelete}" />
+        <CheckBox Content="Confirm overwriting files" IsChecked="{Binding Prefs.FileOperations.ConfirmOverwrite}" />
+        <TextBlock Text="Synchronize confirmations" /><ComboBox ItemsSource="{x:Static vm:OptionsViewModel.Confirmations}" SelectedItem="{Binding Prefs.FileOperations.SyncConfirmation}" MinWidth="160" />
+        <TextBlock Classes="hint" Text="Prompt asks at each synchronize; Yes to all goes ahead without asking; No to all never runs it." />
+      </StackPanel></ScrollViewer></TabItem>
+
+      <!-- archives -->
+      <TabItem Header="Archive types"><DockPanel Margin="22,18"><StackPanel DockPanel.Dock="Top" Spacing="8">
+        <TextBlock Classes="title" Text="Archive types" />
+        <TextBlock Classes="hint" Text="File masks (separated by semicolons) that make a file an archive Collaterale can browse as a folder. Clear a mask to drop support for that format." />
+      </StackPanel>
+        <Button DockPanel.Dock="Bottom" Content="Restore defaults" Click="OnRestoreArchives" HorizontalAlignment="Left" Margin="0,10,0,0" />
+        <ItemsControl ItemsSource="{Binding Archives}" Margin="0,10,0,0">
+          <ItemsControl.ItemTemplate><DataTemplate>
+            <Grid ColumnDefinitions="160,*" Margin="0,3"><TextBlock Text="{Binding Format}" VerticalAlignment="Center" /><TextBox Grid.Column="1" Text="{Binding Mask}" /></Grid>
+          </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl></DockPanel></TabItem>
+
+      <!-- commands -->
+      <TabItem Header="Commands"><DockPanel Margin="22,18">
+        <StackPanel DockPanel.Dock="Top" Spacing="8">
+          <TextBlock Classes="title" Text="Commands" />
+          <TextBlock Classes="hint" Text="Click in a shortcut box and press the keys you want. Remove clears it; Default restores the factory setting. If a shortcut is already used, you are asked whether to take it over." />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBox Text="{Binding CommandSearch}" PlaceholderText="Search commands" Width="260" />
+            <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.ViewChoices}" SelectedItem="{Binding CommandView}" MinWidth="140" PlaceholderText="All views" />
+          </StackPanel>
+        </StackPanel>
+        <ScrollViewer Margin="0,10,0,0"><ItemsControl ItemsSource="{Binding Commands}">
+          <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:CommandRow">
+            <Grid ColumnDefinitions="*,150,Auto,Auto" Margin="0,3" ToolTip.Tip="{Binding Description}">
+              <StackPanel VerticalAlignment="Center"><TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" /><TextBlock Text="{Binding ViewName}" Classes="hint" /></StackPanel>
+              <TextBox Grid.Column="1" Text="{Binding Shortcut}" IsReadOnly="True" KeyDown="OnShortcutKeyDown" PlaceholderText="(none)" />
+              <Button Grid.Column="2" Classes="mini" Content="Remove" Click="OnRemoveShortcut" Margin="8,0,4,0" />
+              <Button Grid.Column="3" Classes="mini" Content="Default" Click="OnDefaultShortcut" />
+            </Grid>
+          </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl></ScrollViewer>
+      </DockPanel></TabItem>
+
+      <!-- open with -->
+      <TabItem Header="“Open with” applications"><DockPanel Margin="22,18">
+        <StackPanel DockPanel.Dock="Top" Spacing="8">
+          <TextBlock Classes="title" Text="“Open with” applications" />
+          <TextBlock Classes="hint" Text="Programs that appear in the Open with menu. In the arguments, %1 is the file and %2 the file on the other side (when there is one)." />
+          <StackPanel Orientation="Horizontal" Spacing="8"><Button Content="New" Click="OnAddApp" /><Button Content="Remove" Click="OnRemoveApp" /></StackPanel>
+        </StackPanel>
+        <Grid ColumnDefinitions="240,*" Margin="0,10,0,0">
+          <ListBox ItemsSource="{Binding OpenWith}" SelectedItem="{Binding SelectedApp}"><ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" /></DataTemplate></ListBox.ItemTemplate></ListBox>
+          <StackPanel Grid.Column="1" Margin="16,0,0,0" Spacing="6" DataContext="{Binding SelectedApp}" IsVisible="{Binding $parent[Window].((vm:OptionsViewModel)DataContext).SelectedApp, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Text="Name" /><TextBox Text="{Binding Name}" />
+            <TextBlock Text="Program" /><TextBox Text="{Binding Command}" PlaceholderText="code, /usr/bin/kate, C:\Tools\editor.exe" />
+            <TextBlock Text="Arguments" /><TextBox Text="{Binding Arguments}" PlaceholderText="&quot;%1&quot;" />
+          </StackPanel>
+        </Grid>
+      </DockPanel></TabItem>
+
+      <!-- tweaks -->
+      <TabItem Header="Tweaks"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="Tweaks" />
+        <TextBlock Text="UPDATES" Classes="hint" />
+        <CheckBox Content="Check for updates every" IsChecked="{Binding Prefs.Updates.Check}" />
+        <StackPanel Orientation="Horizontal" Spacing="10" Margin="28,0,0,0"><NumericUpDown Minimum="1" Maximum="365" FormatString="0" Width="110" Value="{Binding Prefs.Updates.EveryDays, Converter={x:Static c:Converters.IntToDecimal}}" /><TextBlock Text="days" VerticalAlignment="Center" /></StackPanel>
+        <TextBox Margin="28,0,0,0" Text="{Binding Prefs.Updates.FeedUrl}" PlaceholderText="Address of the update feed (a JSON file with version and url)" />
+        <Separator />
+        <TextBlock Text="EDITOR DISPLAY" Classes="hint" />
+        <CheckBox Content="Show syntax highlighting on difference lines" IsChecked="{Binding Prefs.Editor.SyntaxOnDifferenceLines}" />
+        <CheckBox Content="Use crosshatching for the space beyond the end of the file" IsChecked="{Binding Prefs.Editor.CrosshatchBeyondEnd}" />
+        <CheckBox Content="Use a separate color for lines that exist on one side only" IsChecked="{Binding Prefs.Editor.UseOrphanColor}" />
+        <StackPanel Orientation="Horizontal" Spacing="10" Margin="28,0,0,0"><TextBlock Text="Color (#RRGGBB)" VerticalAlignment="Center" /><TextBox Text="{Binding Prefs.Editor.OrphanColor}" Width="120" /></StackPanel>
+        <CheckBox Content="Dim the pane that is not active" IsChecked="{Binding Prefs.Editor.DimInactivePane}" />
+        <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="Font for the merge input panes" VerticalAlignment="Center" /><TextBox Text="{Binding Prefs.Editor.MergeInputFont}" Width="220" PlaceholderText="(same as the others)" /><NumericUpDown Minimum="8" Maximum="40" FormatString="0" Width="100" Value="{Binding Prefs.Editor.MergeInputFontSize, Converter={x:Static c:Converters.IntToDecimal}}" /></StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="Show a column line at (0 hides it)" VerticalAlignment="Center" /><NumericUpDown Minimum="0" Maximum="400" FormatString="0" Width="110" Value="{Binding Prefs.Editor.ColumnLine, Converter={x:Static c:Converters.IntToDecimal}}" /></StackPanel>
+        <Separator />
+        <TextBlock Text="FILE OPERATIONS" Classes="hint" />
+        <CheckBox Content="Beep after a long file operation (over 3 seconds)" IsChecked="{Binding Prefs.Files.BeepAfterLongOperations}" />
+        <CheckBox Content="Remove the read-only flag when copying from a CD or DVD" IsChecked="{Binding Prefs.Files.RemoveReadOnlyFromOptical}" />
+        <CheckBox Content="Check for files changed on disk when returning to a file view" IsChecked="{Binding Prefs.Files.CheckFilesChangedOnDisk}" />
+        <CheckBox Margin="28,0,0,0" Content="Reload automatically unless that would discard your changes" IsChecked="{Binding Prefs.Files.AutoReloadUnlessEdited}" />
+        <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="Comparison priority" VerticalAlignment="Center" /><ComboBox ItemsSource="{x:Static vm:OptionsViewModel.Priorities}" SelectedItem="{Binding Prefs.Files.Priority}" MinWidth="140" /></StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="Buffer size for binary compare (bytes)" VerticalAlignment="Center" /><NumericUpDown Minimum="4096" Maximum="16777216" Increment="4096" FormatString="0" Width="150" Value="{Binding Prefs.Files.BinaryBufferSize, Converter={x:Static c:Converters.IntToDecimal}}" /></StackPanel>
+        <Separator />
+        <TextBlock Text="INTERFACE" Classes="hint" />
+        <CheckBox Content="Show hints for toolbar buttons" IsChecked="{Binding Prefs.Interface.ShowHints}" />
+        <CheckBox Content="The Esc key closes file views" IsChecked="{Binding Prefs.Interface.EscClosesFileViews}" />
+        <CheckBox Content="Sticky splitter position (keep the size of the panes you set)" IsChecked="{Binding Prefs.Interface.StickySplitter}" />
+        <CheckBox Content="Sticky tile on the Home view (start on the one you used last)" IsChecked="{Binding Prefs.Interface.StickySessionSelection}" />
+      </StackPanel></ScrollViewer></TabItem>
+
+      <!-- log -->
+      <TabItem Header="Log panel"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="Log panel" />
+        <CheckBox Content="Operation summaries" IsChecked="{Binding Prefs.Log.Summaries}" />
+        <CheckBox Content="Operation details, including each file affected" IsChecked="{Binding Prefs.Log.Details}" />
+        <CheckBox Content="Warnings and errors" IsChecked="{Binding Prefs.Log.Warnings}" />
+        <CheckBox Content="Debug messages (useful when reporting a problem)" IsChecked="{Binding Prefs.Log.Debug}" />
+        <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="Display up to" VerticalAlignment="Center" /><NumericUpDown Minimum="10" Maximum="100000" FormatString="0" Width="130" Value="{Binding Prefs.Log.MaxMessages, Converter={x:Static c:Converters.IntToDecimal}}" /><TextBlock Text="messages" VerticalAlignment="Center" /></StackPanel>
+        <TextBlock Text="Automatically save messages to file" /><TextBox Text="{Binding Prefs.Log.AutoSaveFile}" PlaceholderText="(not saved)" />
+      </StackPanel></ScrollViewer></TabItem>
+
+      <!-- metrics -->
+      <TabItem Header="Metrics"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="Metrics" />
+        <StackPanel Orientation="Horizontal" Spacing="10"><NumericUpDown Minimum="0" Maximum="500" FormatString="0" Width="110" Value="{Binding Prefs.Metrics.MaxAutoSavedSessions, Converter={x:Static c:Converters.IntToDecimal}}" /><TextBlock Text="Max auto-saved sessions (0 turns the feature off)" VerticalAlignment="Center" /></StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="10"><NumericUpDown Minimum="1" Maximum="500" FormatString="0" Width="110" Value="{Binding Prefs.Metrics.MaxRecentItems, Converter={x:Static c:Converters.IntToDecimal}}" /><TextBlock Text="Max most recently used items" VerticalAlignment="Center" /></StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="10"><NumericUpDown Minimum="0" Maximum="5000" Increment="50" FormatString="0" Width="110" Value="{Binding Prefs.Metrics.HintAppearMs, Converter={x:Static c:Converters.IntToDecimal}}" /><TextBlock Text="Milliseconds before a help hint appears" VerticalAlignment="Center" /></StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="10"><NumericUpDown Minimum="0" Maximum="10000" Increment="100" FormatString="0" Width="110" Value="{Binding Prefs.Metrics.IncrementalSearchResetMs, Converter={x:Static c:Converters.IntToDecimal}}" /><TextBlock Text="Milliseconds before the type-ahead search starts over" VerticalAlignment="Center" /></StackPanel>
+      </StackPanel></ScrollViewer></TabItem>
+
+      <!-- name filter presets -->
+      <TabItem Header="Name filter presets"><DockPanel Margin="22,18">
+        <StackPanel DockPanel.Dock="Top" Spacing="8">
+          <TextBlock Classes="title" Text="Name filter presets" />
+          <TextBlock Classes="hint" Text="Ready-made filters for the folder view toolbar. Masks are separated by semicolons, for example *.htm;*.html;*.jpg" />
+          <StackPanel Orientation="Horizontal" Spacing="8"><Button Content="New" Click="OnAddPreset" /><Button Content="Remove" Click="OnRemovePreset" /></StackPanel>
+        </StackPanel>
+        <Grid ColumnDefinitions="240,*" Margin="0,10,0,0">
+          <ListBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}"><ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" /></DataTemplate></ListBox.ItemTemplate></ListBox>
+          <StackPanel Grid.Column="1" Margin="16,0,0,0" Spacing="6" DataContext="{Binding SelectedPreset}" IsVisible="{Binding $parent[Window].((vm:OptionsViewModel)DataContext).SelectedPreset, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Text="Name" /><TextBox Text="{Binding Name}" />
+            <TextBlock Text="Include files" /><TextBox Text="{Binding Include}" />
+            <TextBlock Text="Exclude files" /><TextBox Text="{Binding ExcludeFiles}" />
+            <TextBlock Text="Include folders" /><TextBox Text="{Binding IncludeFolders}" />
+            <TextBlock Text="Exclude folders" /><TextBox Text="{Binding ExcludeFolders}" />
+          </StackPanel>
+        </Grid>
+      </DockPanel></TabItem>
+
+      <!-- scripts -->
+      <TabItem Header="Scripts"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="Scripts" />
+        <CheckBox Content="Beep when finished" IsChecked="{Binding Prefs.Scripts.BeepWhenFinished}" />
+        <CheckBox Content="Close when finished" IsChecked="{Binding Prefs.Scripts.CloseWhenFinished}" />
+        <TextBlock Text="Shared scripts folder" /><TextBox Text="{Binding Prefs.Scripts.SharedFolder}" PlaceholderText="A script that is not in the current folder is looked for here" />
+      </StackPanel></ScrollViewer></TabItem>
+
+      <!-- shared sessions -->
+      <TabItem Header="Shared sessions"><ScrollViewer><StackPanel Classes="page">
+        <TextBlock Classes="title" Text="Shared sessions" />
+        <TextBlock Classes="hint" Text="If a shared sessions file is set, its sessions appear next to yours. You can use them but not change them. Create such a file from Tools ▸ Export sessions." />
+        <TextBox Text="{Binding Prefs.SharedSessionsFile}" PlaceholderText="Path of the shared sessions file" />
+      </StackPanel></ScrollViewer></TabItem>
+    </TabControl>
+  </DockPanel>
+</Window>

@@ -1,0 +1,5 @@
++     ·    1 | # Copyright (c) 2026 Example
++     ·    2 | # Licensed under MIT
++     ·    3 | 
+=     1    4 | def main():
+=     2    5 |     run()

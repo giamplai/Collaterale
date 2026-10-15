@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Collaterale
+GenericName=File and Folder Compare
+Comment=Compare files and folders, and merge changes, side by side
+Exec=collaterale %F
+Icon=collaterale
+Terminal=false
+Categories=Development;Utility;
+Keywords=diff;compare;merge;folder;sync;
+StartupWMClass=Collaterale

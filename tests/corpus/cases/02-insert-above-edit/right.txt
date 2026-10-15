@@ -1,0 +1,4 @@
+header
+// recalculated below because of the new tax rules
+total = compute(price, discount)
+footer

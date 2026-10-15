@@ -1,0 +1,1 @@
+Only indentation changes. With -w there must be no differences at all; the rows are 'same under the options'.

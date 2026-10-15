@@ -1,0 +1,7 @@
+=     1    1 | name = tool
+*     2    2 | version = 1.4.2
+             | version = 1.5.0
+*     3    3 | requires = lib>=1.4.2
+             | requires = lib>=1.5.0
+*     4    4 | docs = https://x/1.4.2/
+             | docs = https://x/1.5.0/

@@ -1,0 +1,93 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Collaterale.App.ViewModels"
+        xmlns:v="using:Collaterale.App.Views"
+        x:Class="Collaterale.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        x:Name="Root"
+        Icon="/Assets/icon.png"
+        RequestedThemeVariant="{Binding ThemeVariant}"
+        DragDrop.AllowDrop="True"
+        Title="Collaterale" Width="1360" Height="840" MinWidth="900" MinHeight="520">
+  <Window.Styles>
+    <Style Selector="TabControl.hideStrip /template/ ItemsPresenter#PART_ItemsPresenter"><Setter Property="IsVisible" Value="False" /></Style>
+  </Window.Styles>
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Padding="10,4" Background="{DynamicResource PanelBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+      <DockPanel>
+        <Menu DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center">
+          <MenuItem Header="_Session">
+            <MenuItem Header="New text compare" Command="{Binding NewTextTabCommand}" InputGesture="Ctrl+T" />
+            <MenuItem Header="New folder compare" Command="{Binding NewFolderTabCommand}" />
+            <MenuItem Header="New three-way merge" Command="{Binding NewMergeTabCommand}" />
+            <MenuItem Header="New hex compare" Command="{Binding NewHexTabCommand}" />
+            <MenuItem Header="New table compare" Command="{Binding NewTableTabCommand}" />
+            <MenuItem Header="New picture compare" Command="{Binding NewImageTabCommand}" />
+            <MenuItem Header="New text edit" Command="{Binding NewEditTabCommand}" />
+            <MenuItem Header="Compare the last two clipboard texts" Click="OnClipboardCompare" />
+            <MenuItem Header="Compare the clipboard with a file…" Click="OnClipboardFile" />
+            <Separator />
+            <MenuItem Header="Save session as…" Click="OnSaveSession" />
+            <MenuItem Header="Open session…" Click="OnOpenSession" />
+            <Separator />
+            <MenuItem Header="Save workspace as…" Click="OnSaveWorkspace" />
+            <MenuItem Header="Load workspace…" Click="OnOpenWorkspace" />
+            <Separator />
+            <MenuItem Header="Close tab" Command="{Binding CloseTabCommand}" CommandParameter="{Binding SelectedTab}" InputGesture="Ctrl+W" />
+          </MenuItem>
+          <MenuItem Header="_Tools">
+            <MenuItem Header="Options…" Click="OnOptions" InputGesture="Ctrl+," />
+            <Separator />
+            <MenuItem Header="Run script…" Click="OnRunScript" />
+            <MenuItem Header="Export settings…" Click="OnExportSettings" />
+            <MenuItem Header="Import settings…" Click="OnImportSettings" />
+            <MenuItem Header="Export sessions…" Click="OnExportSessions" />
+          </MenuItem>
+          <MenuItem Header="_Help">
+            <MenuItem Header="About Collaterale" Click="OnAbout" />
+          </MenuItem>
+        </Menu>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4">
+          <Button Classes="tool" Content="＋ Text" Command="{Binding NewTextTabCommand}" ToolTip.Tip="New text compare" />
+          <Button Classes="tool" Content="＋ Folders" Command="{Binding NewFolderTabCommand}" ToolTip.Tip="New folder compare" />
+          <Button Classes="tool" Content="＋ Hex" Command="{Binding NewHexTabCommand}" ToolTip.Tip="New hex (binary) compare" />
+          <Button Classes="tool" Content="＋ Table" Command="{Binding NewTableTabCommand}" ToolTip.Tip="New table (CSV) compare" />
+          <Button Classes="tool" Content="＋ Picture" Command="{Binding NewImageTabCommand}" ToolTip.Tip="New picture compare" />
+          <Button Classes="tool" Content="⚙" Click="OnOptions" ToolTip.Tip="Options" />
+          <Button Classes="tool" Content="{Binding ThemeLabel}" Command="{Binding CycleThemeCommand}" ToolTip.Tip="Switch theme" />
+        </StackPanel>
+        <TextBlock Text="{Binding Message}" Foreground="{DynamicResource ErrorBrush}" VerticalAlignment="Center" IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      </DockPanel>
+    </Border>
+
+    <TabControl ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" Padding="0" Classes.hideStrip="{Binding !ShowTabStrip}">
+      <TabControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:SessionTab">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="{Binding Glyph}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding Content.Title}" VerticalAlignment="Center" MaxWidth="260" TextTrimming="CharacterEllipsis" />
+            <Button Classes="tool" Content="✕" Padding="4,0" FontSize="11" IsVisible="{Binding Closable}"
+                    Command="{Binding #Root.((vm:MainWindowViewModel)DataContext).CloseTabCommand}" CommandParameter="{Binding}" />
+          </StackPanel>
+        </DataTemplate>
+      </TabControl.ItemTemplate>
+      <TabControl.ContentTemplate>
+        <DataTemplate x:DataType="vm:SessionTab">
+          <ContentControl Content="{Binding Content}">
+            <ContentControl.DataTemplates>
+              <DataTemplate DataType="vm:HomeViewModel"><v:HomeView DataContext="{Binding}" /></DataTemplate>
+              <DataTemplate DataType="vm:TextCompareViewModel"><v:TextCompareView DataContext="{Binding}" /></DataTemplate>
+              <DataTemplate DataType="vm:FolderCompareViewModel"><v:FolderCompareView DataContext="{Binding}" /></DataTemplate>
+              <DataTemplate DataType="vm:MergeViewModel"><v:MergeView DataContext="{Binding}" /></DataTemplate>
+              <DataTemplate DataType="vm:HexCompareViewModel"><v:HexCompareView DataContext="{Binding}" /></DataTemplate>
+              <DataTemplate DataType="vm:TableCompareViewModel"><v:TableCompareView DataContext="{Binding}" /></DataTemplate>
+              <DataTemplate DataType="vm:ImageCompareViewModel"><v:ImageCompareView DataContext="{Binding}" /></DataTemplate>
+              <DataTemplate DataType="vm:TextEditViewModel"><v:TextEditView DataContext="{Binding}" /></DataTemplate>
+              <DataTemplate DataType="vm:ScriptViewModel"><v:ScriptView DataContext="{Binding}" /></DataTemplate>
+            </ContentControl.DataTemplates>
+          </ContentControl>
+        </DataTemplate>
+      </TabControl.ContentTemplate>
+    </TabControl>
+  </DockPanel>
+</Window>

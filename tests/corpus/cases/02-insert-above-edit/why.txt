@@ -1,0 +1,1 @@
+A new comment line is inserted right above an edited line. The edited line must face its old version; the comment must be a pure insertion.

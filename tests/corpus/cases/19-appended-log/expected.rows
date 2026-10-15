@@ -1,0 +1,4 @@
+=     1    1 | boot ok
+=     2    2 | net up
++     ·    3 | disk mounted
++     ·    4 | ready

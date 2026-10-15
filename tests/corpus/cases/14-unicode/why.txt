@@ -1,0 +1,1 @@
+Accents, CJK and an emoji. Word-level pairing must not split surrogate pairs; unchanged lines stay same.

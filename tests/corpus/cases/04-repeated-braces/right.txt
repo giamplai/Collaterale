@@ -1,0 +1,14 @@
+int a()
+{
+    return 1;
+}
+
+int helper()
+{
+    return 9;
+}
+
+int b()
+{
+    return 2;
+}

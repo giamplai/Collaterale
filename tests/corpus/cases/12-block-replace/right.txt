@@ -1,0 +1,6 @@
+step 1: open the file
+step 2: read the header and the footer
+step 3: validate the checksum
+step 4: parse the body
+step 5: close the file
+step 6: exit

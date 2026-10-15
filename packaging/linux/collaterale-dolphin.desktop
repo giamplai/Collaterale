@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=application/octet-stream;inode/directory;text/plain;
+Actions=compare;
+X-KDE-Submenu=Collaterale
+
+[Desktop Action compare]
+Name=Compare the two selected items
+Icon=collaterale
+Exec=collaterale %F

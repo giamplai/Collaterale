@@ -1,0 +1,1 @@
+One line deleted and its neighbour edited. Expect: limit paired with its edit, retries as a pure deletion.

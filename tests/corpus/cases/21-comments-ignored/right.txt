@@ -1,0 +1,4 @@
+// Pricing v2, reviewed
+int total = 0;
+// discounts are upstream now
+return total * 1.22;   // 22% tax

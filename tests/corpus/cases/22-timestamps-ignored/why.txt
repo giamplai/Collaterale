@@ -1,0 +1,1 @@
+Both timestamps change on every run and carry no meaning; only the row count is a real difference (--ignore-timestamps).

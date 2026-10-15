@@ -1,0 +1,1 @@
+Identical lines, but the left file lacks the final newline. Rows are all 'same' (the unified diff, not the rows view, reports the newline difference).

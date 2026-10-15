@@ -1,0 +1,159 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Collaterale.App.ViewModels"
+             xmlns:c="using:Collaterale.App.Controls"
+             x:Class="Collaterale.App.Views.TextCompareView"
+             x:DataType="vm:TextCompareViewModel">
+
+  <DockPanel>
+    <!-- toolbar -->
+    <Border DockPanel.Dock="Top" Padding="8,6" Background="{DynamicResource PanelBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+          <Button Classes="tool" Content="💾 Left" Command="{Binding SaveLeftCommand}" ToolTip.Tip="Save the left file" />
+          <Button Classes="tool" Content="💾 Right" Command="{Binding SaveRightCommand}" ToolTip.Tip="Save the right file" />
+        </StackPanel>
+        <WrapPanel>
+        <Button Classes="tool" Content="▲ Prev" Command="{Binding PreviousDifferenceCommand}" ToolTip.Tip="Previous difference (Alt+Up)" />
+        <Button Classes="tool" Content="▼ Next" Command="{Binding NextDifferenceCommand}" ToolTip.Tip="Next difference (Alt+Down)" />
+        <TextBlock Text="{Binding DifferenceText}" Classes="muted" VerticalAlignment="Center" Margin="6,0,6,0" MinWidth="100" />
+        <Button Classes="tool" Content="◂ Word" Command="{Binding PreviousItemCommand}" ToolTip.Tip="Previous individual difference: a changed word or line (Shift+F7)" />
+        <Button Classes="tool" Content="Word ▸" Command="{Binding NextItemCommand}" ToolTip.Tip="Next individual difference: a changed word or line, even inside one long line (F7)" Margin="0,0,10,0" />
+        <Button Classes="tool" Content="← Left" Command="{Binding CopyToLeftCommand}" ToolTip.Tip="Copy to left: replace this difference on the left with the right side (Alt+Left)" />
+        <Button Classes="tool" Content="Right →" Command="{Binding CopyToRightCommand}" ToolTip.Tip="Copy to right: replace this difference on the right with the left side (Alt+Right)" />
+        <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
+        <Button Classes="tool" Content="↶" Command="{Binding UndoCommand}" ToolTip.Tip="Undo (Ctrl+Z)" />
+        <Button Classes="tool" Content="↷" Command="{Binding RedoCommand}" ToolTip.Tip="Redo (Ctrl+Y)" />
+        <Button Classes="tool" Content="⇄" Command="{Binding SwapCommand}" ToolTip.Tip="Swap left and right" />
+        <Button Classes="tool" Content="⟳" Command="{Binding ReloadCommand}" ToolTip.Tip="Re-read both files (F5)" />
+        <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
+        <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.WhitespaceModes}" SelectedItem="{Binding Whitespace}" MinWidth="185" VerticalAlignment="Center">
+          <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.WhitespaceLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+        </ComboBox>
+        <ToggleButton Classes="tool" Content="Aa" IsChecked="{Binding IgnoreCase}" ToolTip.Tip="Ignore case" Margin="6,0,0,0" />
+        <ToggleButton Classes="tool" Content="⇕ Collapse" IsChecked="{Binding CollapseUnchanged}" ToolTip.Tip="Fold long stretches of unchanged lines (3 lines of context stay around each difference); click a marker to show them" />
+        <ToggleButton Classes="tool" Content="⤳ Moves" IsChecked="{Binding DetectMoves}" ToolTip.Tip="Show blocks that were moved elsewhere in purple" />
+        <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.Algorithms}" SelectedItem="{Binding Algorithm}" MinWidth="140" VerticalAlignment="Center" Margin="6,0,0,0">
+          <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.AlgorithmLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+        </ComboBox>
+        <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
+        <ToggleButton Classes="tool" Content="💬 Comments" IsChecked="{Binding IgnoreComments}" ToolTip.Tip="Ignore comments: a changed comment, or a line with only a comment, is not a difference" />
+        <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.Languages}" SelectedItem="{Binding Language}" MinWidth="160" VerticalAlignment="Center" Margin="2,0,0,0" ToolTip.Tip="Comment syntax. Auto picks it from the file name.">
+          <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:LanguageChoice"><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
+        </ComboBox>
+        <ToggleButton Classes="tool" Content="🕒 Dates" IsChecked="{Binding IgnoreTimestamps}" ToolTip.Tip="Ignore dates and times in the text" Margin="6,0,0,0" />
+        <Button Classes="tool" Content="✎ Rules" ToolTip.Tip="Custom rules: regular expressions whose matches are ignored (one per line)">
+          <Button.Flyout>
+            <Flyout Placement="BottomEdgeAlignedLeft">
+              <StackPanel Spacing="6" Width="380">
+                <CheckBox Content="Ignore blank lines (added or removed empty lines are not differences)" IsChecked="{Binding IgnoreBlankLines}" />
+                <TextBlock Text="Ignore text matching (one regular expression per line)" FontWeight="SemiBold" />
+                <TextBox AcceptsReturn="True" Height="110" FontFamily="monospace" Text="{Binding IgnorePatterns, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="e.g.  \$Id:.*\$&#x0a;      build \d+" />
+                <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="Matches are removed from both sides before comparing: lines that then match are not differences." />
+              </StackPanel>
+            </Flyout>
+          </Button.Flyout>
+        </Button>
+        <Button Classes="tool" Content="◂◂ File" Command="{Binding PreviousFileCommand}" IsVisible="{Binding HasFileNavigator}" ToolTip.Tip="The previous file with differences in the folder this file came from" />
+        <Button Classes="tool" Content="File ▸▸" Command="{Binding NextFileCommand}" IsVisible="{Binding HasFileNavigator}" ToolTip.Tip="The next file with differences in the folder this file came from" />
+        <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
+        <Button Classes="tool" Content="🔍 Find" Command="{Binding ShowFindCommand}" CommandParameter="{x:False}" ToolTip.Tip="Find text (Ctrl+F); Ctrl+H to replace" />
+        <ToggleButton Classes="tool" Content="· Whitespace" IsChecked="{Binding ShowWhitespace}" ToolTip.Tip="Show spaces, tabs and line endings as symbols" />
+        <ToggleButton Classes="tool" Content="↩ Wrap" IsChecked="{Binding WordWrap}" ToolTip.Tip="Wrap long lines to the pane width (the panes then scroll together only approximately)" />
+        <ToggleButton Classes="tool" Content="▤ Over-under" IsChecked="{Binding OverUnder}" ToolTip.Tip="Put the left file above the right one" />
+        <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.DetailsChoices}" SelectedItem="{Binding Details}" MinWidth="120" VerticalAlignment="Center" Margin="4,0,0,0" ToolTip.Tip="A panel under the panes with the current line of each file in full">
+          <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.DetailsLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button Classes="tool" Content="{}{} Structure" Command="{Binding CompareStructureCommand}" ToolTip.Tip="JSON and XML: compare the structure — formatting and key/attribute order are ignored — in a new tab" />
+        </WrapPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- find and replace -->
+    <Border DockPanel.Dock="Top" IsVisible="{Binding FindVisible}" Padding="10,8" Background="{DynamicResource PanelAltBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+      <StackPanel Spacing="6">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="mini" Content="✕" Command="{Binding CloseFindCommand}" ToolTip.Tip="Close (Esc)" Margin="8,0,0,0" />
+          <TextBlock DockPanel.Dock="Right" Text="{Binding FindStatus}" Classes="muted" FontSize="12" VerticalAlignment="Center" Margin="10,0,0,0" />
+          <WrapPanel>
+            <AutoCompleteBox x:Name="FindBox" Text="{Binding FindText, Mode=TwoWay}" ItemsSource="{Binding FindHistory}" MinimumPrefixLength="0" Width="260" PlaceholderText="Find" KeyDown="OnFindKeyDown" />
+            <Button Classes="tool" Content="▲" Command="{Binding FindPreviousCommand}" ToolTip.Tip="Find previous (Shift+F3)" />
+            <Button Classes="tool" Content="▼ Next" Command="{Binding FindNextCommand}" ToolTip.Tip="Find next (F3)" />
+            <Button Classes="tool" Content="Select all" Command="{Binding SelectAllMatchesCommand}" ToolTip.Tip="Highlight every match and report the lines that hold one" />
+            <Rectangle Width="1" Margin="6,4" Fill="{DynamicResource LineBrush}" />
+            <ToggleButton Classes="tool" Content=".*" IsChecked="{Binding FindRegex}" ToolTip.Tip="Regular expression (Perl compatible)" />
+            <ToggleButton Classes="tool" Content="Aa" IsChecked="{Binding FindMatchCase}" ToolTip.Tip="Match character case" />
+            <ToggleButton Classes="tool" Content="ab|" IsChecked="{Binding FindWholeWords}" ToolTip.Tip="Whole words only: apple does not match apples or snapple" />
+            <ToggleButton Classes="tool" Content="↻ Wrap" IsChecked="{Binding FindWrap}" ToolTip.Tip="Continue at the other end when one end is reached" />
+            <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.FindSideChoices}" SelectedItem="{Binding FindSides}" MinWidth="100" VerticalAlignment="Center" ToolTip.Tip="Which side to search" />
+            <ToggleButton Classes="tool" Content="Close after find" IsChecked="{Binding FindCloseAutomatically}" ToolTip.Tip="Hide this panel once a search is started" />
+          </WrapPanel>
+        </DockPanel>
+        <DockPanel IsVisible="{Binding ReplaceMode}">
+          <Button DockPanel.Dock="Right" Classes="soft" Content="Replace all" Command="{Binding ReplaceAllCommand}" Margin="6,0,0,0" />
+          <Button DockPanel.Dock="Right" Classes="soft" Content="Replace" Command="{Binding ReplaceCommand}" Margin="6,0,0,0" />
+          <TextBox Text="{Binding ReplaceText}" PlaceholderText="Replace with" Width="260" HorizontalAlignment="Left" />
+        </DockPanel>
+      </StackPanel>
+    </Border>
+
+    <!-- details of the current line -->
+    <Border DockPanel.Dock="Bottom" IsVisible="{Binding ShowAnyDetails}" Padding="10,6" Background="{DynamicResource PanelAltBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
+      <Grid ColumnDefinitions="*,10,*">
+        <StackPanel>
+          <TextBlock Text="{Binding LeftDetailLabel}" Classes="section" />
+          <TextBox x:Name="LeftDetail" IsVisible="{Binding ShowTextDetails}" Text="{Binding LeftDetailText, Mode=OneWay}" FontFamily="monospace" LostFocus="OnDetailCommitted" KeyDown="OnDetailKeyDown" Tag="left" />
+          <TextBlock IsVisible="{Binding ShowHexDetails}" Text="{Binding LeftHexText}" FontFamily="monospace" FontSize="12" MinHeight="18" />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock Text="{Binding RightDetailLabel}" Classes="section" />
+          <TextBox x:Name="RightDetail" IsVisible="{Binding ShowTextDetails}" Text="{Binding RightDetailText, Mode=OneWay}" FontFamily="monospace" LostFocus="OnDetailCommitted" KeyDown="OnDetailKeyDown" Tag="right" />
+          <TextBlock IsVisible="{Binding ShowHexDetails}" Text="{Binding RightHexText}" FontFamily="monospace" FontSize="12" MinHeight="18" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- status bar -->
+    <Border DockPanel.Dock="Bottom" Padding="12,4" Background="{DynamicResource PanelBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Right" Text="{Binding Status}" Classes="muted" FontSize="12" />
+        <TextBlock DockPanel.Dock="Right" Text="{Binding FilteredLinesText}" Classes="muted" FontSize="12" Margin="0,0,16,0" />
+        <TextBlock DockPanel.Dock="Left" Text="{Binding LockText}" FontSize="12" Margin="0,0,16,0" Foreground="{DynamicResource MutedBrush}" IsVisible="{Binding LockText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        <TextBlock DockPanel.Dock="Left" Text="{Binding Notice}" FontSize="12" Margin="0,0,16,0" FontWeight="SemiBold" IsVisible="{Binding Notice, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        <TextBlock Text="{Binding Error}" Foreground="{DynamicResource ErrorBrush}" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      </DockPanel>
+    </Border>
+
+    <Grid x:Name="Layout" Margin="12,8,12,12" RowDefinitions="Auto,*,0,0" ColumnDefinitions="*,56,*,14">
+      <!-- file headers -->
+      <Border x:Name="HeaderLeft" Grid.Row="0" Grid.Column="0" Classes="panel" CornerRadius="12,12,0,0" Padding="12,8">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="mini" Content="Open…" Click="OnOpenLeft" />
+          <StackPanel>
+            <TextBlock Text="{Binding LeftTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding LeftFullPath}" />
+            <TextBlock Text="{Binding LeftInfo}" Classes="muted" FontSize="11" />
+          </StackPanel>
+        </DockPanel>
+      </Border>
+      <Border x:Name="HeaderRight" Grid.Row="0" Grid.Column="2" Classes="panel" CornerRadius="12,12,0,0" Padding="12,8">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="mini" Content="Open…" Click="OnOpenRight" />
+          <StackPanel>
+            <TextBlock Text="{Binding RightTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding RightFullPath}" />
+            <TextBlock Text="{Binding RightInfo}" Classes="muted" FontSize="11" />
+          </StackPanel>
+        </DockPanel>
+      </Border>
+
+      <!-- panes, gutter, overview -->
+      <Border x:Name="LeftBox" Grid.Row="1" Grid.Column="0" Classes="panel" CornerRadius="0,0,0,12" BorderThickness="1,0,1,1" ClipToBounds="True">
+        <c:DiffPane x:Name="LeftPane" />
+      </Border>
+      <c:DiffGutter x:Name="Gutter" Grid.Row="1" Grid.Column="1" />
+      <Border x:Name="RightBox" Grid.Row="1" Grid.Column="2" Classes="panel" CornerRadius="0,0,0,12" BorderThickness="1,0,1,1" ClipToBounds="True">
+        <c:DiffPane x:Name="RightPane" />
+      </Border>
+      <c:OverviewMap x:Name="Map" Grid.Row="1" Grid.Column="3" Margin="4,0,0,0" />
+    </Grid>
+  </DockPanel>
+</UserControl>

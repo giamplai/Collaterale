@@ -1,0 +1,5 @@
+# Copyright (c) 2026 Example
+# Licensed under MIT
+
+def main():
+    run()

@@ -1,0 +1,1 @@
+A # inside a string literal is code, not a comment: the string line stays equal because it is identical, and the real change (+1 to +2) is found while the reworded trailing comment is ignored (--lang python).

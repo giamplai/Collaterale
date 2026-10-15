@@ -1,0 +1,1 @@
+Blank lines added, removed and shifted around. A sensible diff keeps the non-blank lines in sync and shows only blank-line insertions/deletions.

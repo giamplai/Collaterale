@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Collaterale.App.ViewModels"
+             xmlns:c="using:Collaterale.App.Controls"
+             x:Class="Collaterale.App.Views.HexCompareView"
+             x:DataType="vm:HexCompareViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Alt+Down" Command="{Binding NextDifferenceCommand}" />
+    <KeyBinding Gesture="Alt+Up" Command="{Binding PreviousDifferenceCommand}" />
+    <KeyBinding Gesture="F8" Command="{Binding NextDifferenceCommand}" />
+    <KeyBinding Gesture="Shift+F8" Command="{Binding PreviousDifferenceCommand}" />
+    <KeyBinding Gesture="Alt+Right" Command="{Binding CopyToRightCommand}" />
+    <KeyBinding Gesture="Alt+Left" Command="{Binding CopyToLeftCommand}" />
+    <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}" />
+  </UserControl.KeyBindings>
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Padding="8,6" Background="{DynamicResource PanelBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+          <Button Classes="tool" Content="💾 Left" Command="{Binding SaveLeftCommand}" ToolTip.Tip="Save the left file" />
+          <Button Classes="tool" Content="💾 Right" Command="{Binding SaveRightCommand}" ToolTip.Tip="Save the right file" />
+        </StackPanel>
+        <WrapPanel>
+          <Button Classes="tool" Content="Open…" Click="OnOpenLeft" ToolTip.Tip="Choose the left file" />
+          <Button Classes="tool" Content="Open…" Click="OnOpenRight" ToolTip.Tip="Choose the right file" />
+          <Rectangle Width="1" Margin="6,4" Fill="{DynamicResource LineBrush}" />
+          <Button Classes="tool" Content="▲ Prev" Command="{Binding PreviousDifferenceCommand}" ToolTip.Tip="Previous difference (Alt+Up)" />
+          <Button Classes="tool" Content="▼ Next" Command="{Binding NextDifferenceCommand}" ToolTip.Tip="Next difference (Alt+Down)" />
+          <TextBlock Text="{Binding DifferenceText}" Classes="muted" VerticalAlignment="Center" Margin="6,0,10,0" MinWidth="130" />
+          <Button Classes="tool" Content="← Left" Command="{Binding CopyToLeftCommand}" ToolTip.Tip="Overwrite this difference on the left with the right side's bytes (Alt+Left)" />
+          <Button Classes="tool" Content="Right →" Command="{Binding CopyToRightCommand}" ToolTip.Tip="Overwrite this difference on the right with the left side's bytes (Alt+Right)" />
+          <Button Classes="tool" Content="↶" Command="{Binding UndoCommand}" ToolTip.Tip="Undo (Ctrl+Z)" />
+          <Rectangle Width="1" Margin="6,4" Fill="{DynamicResource LineBrush}" />
+          <ComboBox ItemsSource="{x:Static vm:HexCompareViewModel.RowWidths}" SelectedItem="{Binding BytesPerRow}" MinWidth="70" VerticalAlignment="Center" ToolTip.Tip="Bytes per row" />
+          <ToggleButton Classes="tool" Content="Text" IsChecked="{Binding ShowText}" ToolTip.Tip="Show the character column" />
+          <TextBox x:Name="GoBox" PlaceholderText="Go to offset (0x1A40)" Width="170" Margin="6,0,0,0" KeyDown="OnGoKeyDown" />
+        </WrapPanel>
+      </DockPanel>
+    </Border>
+
+    <Border DockPanel.Dock="Bottom" Padding="12,4" Background="{DynamicResource PanelBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Right" Text="{Binding Status}" Classes="muted" FontSize="12" />
+        <TextBlock Text="{Binding Error}" Foreground="{DynamicResource ErrorBrush}" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      </DockPanel>
+    </Border>
+
+    <!-- inspector -->
+    <Border DockPanel.Dock="Right" Width="270" Classes="panel" Margin="0,8,8,8" Padding="12">
+      <ScrollViewer>
+        <StackPanel Spacing="14">
+          <TextBlock Text="DATA INSPECTOR" Classes="section" />
+          <TextBlock Text="Click a byte to see what it means at that offset." Classes="muted" FontSize="12" TextWrapping="Wrap" />
+          <StackPanel Spacing="4">
+            <TextBlock Text="LEFT" Classes="section" />
+            <ItemsControl ItemsSource="{Binding LeftInspector}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:InspectLine">
+                  <Grid ColumnDefinitions="90,*"><TextBlock Text="{Binding Label}" Classes="muted" FontSize="12" /><TextBlock Grid.Column="1" Text="{Binding Value}" FontFamily="Cascadia Mono,DejaVu Sans Mono,Menlo,Consolas,monospace" FontSize="12" TextWrapping="Wrap" /></Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+          <StackPanel Spacing="4">
+            <TextBlock Text="RIGHT" Classes="section" />
+            <ItemsControl ItemsSource="{Binding RightInspector}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:InspectLine">
+                  <Grid ColumnDefinitions="90,*"><TextBlock Text="{Binding Label}" Classes="muted" FontSize="12" /><TextBlock Grid.Column="1" Text="{Binding Value}" FontFamily="Cascadia Mono,DejaVu Sans Mono,Menlo,Consolas,monospace" FontSize="12" TextWrapping="Wrap" /></Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+    </Border>
+
+    <Border Classes="panel" Margin="8,8,8,8" ClipToBounds="True">
+      <DockPanel>
+        <ScrollBar x:Name="VScroll" DockPanel.Dock="Right" Orientation="Vertical" AllowAutoHide="False" />
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+          <c:HexCanvas x:Name="Canvas" />
+        </ScrollViewer>
+      </DockPanel>
+    </Border>
+  </DockPanel>
+</UserControl>

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Documentation gate: code changes must ship with an updated docs/HOWTO.md.
+# Bypass only for changes with no user-visible effect:  DOCS_OK=1 git commit ...
+staged=$(git diff --cached --name-only)
+code=$(echo "$staged" | grep -E '^(src/|tests/Collaterale.App.UiTests/)' || true)
+if [ -n "$code" ] && ! echo "$staged" | grep -qx 'docs/HOWTO.md' && [ -z "${DOCS_OK:-}" ]; then
+  echo "✗ pre-commit: app code changed but docs/HOWTO.md is not staged."
+  echo "  Update the HowTo (and run scripts/update-docs.sh for screenshots), or set DOCS_OK=1 if nothing user-visible changed."
+  exit 1
+fi
+
+# Never commit a tree that does not build (cheap incremental build; tests run via scripts/check.sh).
+if echo "$staged" | grep -qE '\.(cs|axaml|csproj|props)$'; then
+  export PATH="$HOME/.dotnet:$PATH"
+  if ! dotnet build --nologo -v q >/dev/null 2>&1; then
+    echo "✗ pre-commit: the solution does not build. Run 'dotnet build' to see the errors."
+    exit 1
+  fi
+fi
+
+# Every image referenced by the HowTo must exist.
+missing=0
+for img in $(grep -oE 'images/[A-Za-z0-9._-]+\.png' docs/HOWTO.md | sort -u); do
+  if [ ! -f "docs/$img" ]; then echo "✗ pre-commit: docs/HOWTO.md references missing docs/$img"; missing=1; fi
+done
+exit $missing

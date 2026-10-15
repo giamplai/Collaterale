@@ -1,0 +1,6 @@
+=     1    1 | begin
+*     2    2 | const limit = 10;
+             | const limit = 20;
+-     3    · | const retries = 3;
+=     4    3 | const name = 'svc';
+=     5    4 | end

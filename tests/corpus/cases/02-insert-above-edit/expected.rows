@@ -1,0 +1,5 @@
+=     1    1 | header
++     ·    2 | // recalculated below because of the new tax rules
+*     2    3 | total = compute(price, tax)
+             | total = compute(price, discount)
+=     3    4 | footer

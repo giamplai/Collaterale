@@ -1,0 +1,1 @@
+Only letter case differs on the first line. With -i the files are equal.

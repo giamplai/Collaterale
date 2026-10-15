@@ -1,0 +1,40 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  build-test:
+    strategy:
+      fail-fast: false
+      matrix: { os: [ubuntu-latest, windows-latest, macos-latest] }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { global-json-file: global.json }
+      - run: dotnet build -c Release
+      - run: dotnet test -c Release --no-build
+  windows-installers:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { global-json-file: global.json }
+      - name: Publish
+        run: dotnet publish src/Collaterale.App -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o artifacts/publish/win-x64
+      - name: The Inno Setup script must compile
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DAppVersion=0.0.0 packaging/windows/collaterale.iss
+  macos-app:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { global-json-file: global.json }
+      - run: scripts/package.sh osx-arm64
+      - name: Signed app launches
+        run: |
+          cd "$(mktemp -d)"
+          unzip -q "$GITHUB_WORKSPACE"/artifacts/packages/Collaterale-*-osx-arm64.zip
+          codesign --verify --deep --strict Collaterale.app
+          Collaterale.app/Contents/MacOS/Collaterale --version

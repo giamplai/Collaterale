@@ -1,0 +1,1 @@
+Only a trailing comment changes: one changed row, the code before the comment is the unchanged prefix.

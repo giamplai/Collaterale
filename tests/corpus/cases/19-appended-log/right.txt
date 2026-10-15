@@ -1,0 +1,4 @@
+boot ok
+net up
+disk mounted
+ready

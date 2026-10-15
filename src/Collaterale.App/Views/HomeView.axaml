@@ -1,0 +1,96 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Collaterale.App.ViewModels"
+             xmlns:set="using:Collaterale.Core.Settings"
+             x:Class="Collaterale.App.Views.HomeView"
+             x:DataType="vm:HomeViewModel">
+  <ScrollViewer>
+    <StackPanel MaxWidth="900" Margin="32,40,32,32" Spacing="26">
+      <StackPanel Spacing="4">
+        <TextBlock Text="Collaterale" FontSize="36" FontWeight="Bold" />
+        <TextBlock Text="Compare and merge files and folders, side by side." Classes="muted" FontSize="15" />
+      </StackPanel>
+
+      <UniformGrid Columns="3">
+        <Button x:Name="TextTile" Classes="card" Height="140" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="5" Padding="18,16" Click="OnNewText">
+          <StackPanel Spacing="6">
+            <TextBlock Text="≋" FontSize="30" Foreground="{DynamicResource AccentBrush}" />
+            <TextBlock Text="Text compare" FontSize="17" FontWeight="SemiBold" />
+            <TextBlock Text="Two files, line by line, with word-level highlights." Classes="muted" TextWrapping="Wrap" FontSize="12.5" />
+          </StackPanel>
+        </Button>
+        <Button x:Name="FolderTile" Classes="card" Height="140" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="5" Padding="18,16" Click="OnNewFolder">
+          <StackPanel Spacing="6">
+            <TextBlock Text="🗀" FontSize="30" Foreground="{DynamicResource AccentBrush}" />
+            <TextBlock Text="Folder compare" FontSize="17" FontWeight="SemiBold" />
+            <TextBlock Text="See what differs between two folders and sync them." Classes="muted" TextWrapping="Wrap" FontSize="12.5" />
+          </StackPanel>
+        </Button>
+        <Button x:Name="MergeTile" Classes="card" Height="140" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="5" Padding="18,16" Click="OnNewMerge">
+          <StackPanel Spacing="6">
+            <TextBlock Text="⑃" FontSize="30" Foreground="{DynamicResource AccentBrush}" />
+            <TextBlock Text="Three-way merge" FontSize="17" FontWeight="SemiBold" />
+            <TextBlock Text="Combine two changed versions of a file." Classes="muted" TextWrapping="Wrap" FontSize="12.5" />
+          </StackPanel>
+        </Button>
+        <Button x:Name="HexTile" Classes="card" Height="140" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="5" Padding="18,16" Click="OnNewHex">
+          <StackPanel Spacing="6">
+            <TextBlock Text="⌗" FontSize="30" Foreground="{DynamicResource AccentBrush}" />
+            <TextBlock Text="Hex compare" FontSize="17" FontWeight="SemiBold" />
+            <TextBlock Text="Two binary files, byte by byte, with a data inspector." Classes="muted" TextWrapping="Wrap" FontSize="12.5" />
+          </StackPanel>
+        </Button>
+        <Button x:Name="TableTile" Classes="card" Height="140" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="5" Padding="18,16" Click="OnNewTable">
+          <StackPanel Spacing="6">
+            <TextBlock Text="▦" FontSize="30" Foreground="{DynamicResource AccentBrush}" />
+            <TextBlock Text="Table compare" FontSize="17" FontWeight="SemiBold" />
+            <TextBlock Text="CSV and TSV files cell by cell, matched by key columns." Classes="muted" TextWrapping="Wrap" FontSize="12.5" />
+          </StackPanel>
+        </Button>
+        <Button x:Name="ImageTile" Classes="card" Height="140" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="5" Padding="18,16" Click="OnNewImage">
+          <StackPanel Spacing="6">
+            <TextBlock Text="◫" FontSize="30" Foreground="{DynamicResource AccentBrush}" />
+            <TextBlock Text="Picture compare" FontSize="17" FontWeight="SemiBold" />
+            <TextBlock Text="Two images, with overlay, swipe and difference views." Classes="muted" TextWrapping="Wrap" FontSize="12.5" />
+          </StackPanel>
+        </Button>
+      </UniformGrid>
+
+      <Border Classes="panel" Padding="16,12" BorderBrush="{DynamicResource LineBrush}">
+        <TextBlock Text="Tip: drag two files or two folders onto this window to compare them." Classes="muted" />
+      </Border>
+
+      <StackPanel Spacing="8" IsVisible="{Binding Sessions.Count}">
+        <TextBlock Text="SESSIONS AND WORKSPACES" Classes="section" />
+        <ItemsControl ItemsSource="{Binding Sessions}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:SessionEntry">
+              <Button Classes="card" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,0,0,6" Padding="14,10" Click="OnOpenSession">
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Text="{Binding Name}" FontWeight="SemiBold" /><TextBlock Text="{Binding Kind}" Classes="muted" FontSize="11" VerticalAlignment="Center" /></StackPanel>
+                  <TextBlock Text="{Binding Detail}" Classes="muted" FontSize="12" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+      <StackPanel Spacing="8" IsVisible="{Binding Recent.Count}">
+        <TextBlock Text="RECENT" Classes="section" />
+        <ItemsControl ItemsSource="{Binding Recent}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="set:RecentSession">
+              <Button Classes="card" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,0,0,6" Padding="14,10" Click="OnOpenRecent">
+                <StackPanel>
+                  <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding Left}" Classes="muted" FontSize="12" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

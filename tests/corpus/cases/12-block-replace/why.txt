@@ -1,0 +1,1 @@
+Several lines are rewritten and one is inserted. Lines that look alike (step 2, step 3/4 parse, step 4/5 close) should face each other.

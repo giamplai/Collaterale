@@ -1,0 +1,189 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Collaterale.App.ViewModels"
+        xmlns:c="using:Collaterale.App.Controls"
+        xmlns:cf="using:Collaterale.Core.Folders"
+        x:Class="Collaterale.App.Views.FolderSettingsWindow"
+        x:DataType="vm:FolderSettingsViewModel"
+        Title="Folder compare — session settings" Width="780" Height="680" MinWidth="620" MinHeight="480" WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="14">
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+      <Button Content="Use as defaults for new sessions" Click="OnSaveDefaults" ToolTip.Tip="Remember these settings (except the folders and the description) for every new folder comparison" />
+      <Button Content="Cancel" Click="OnCancel" />
+      <Button Classes="accent" Content="OK" Padding="22,6" Click="OnOk" />
+    </StackPanel>
+
+    <TabControl x:Name="Tabs">
+      <!-- ───────── spec ───────── -->
+      <TabItem Header="Spec">
+        <ScrollViewer><StackPanel Spacing="10" Margin="12">
+          <TextBlock Text="Base folders" Classes="section" />
+          <TextBox Text="{Binding LeftPath}" IsReadOnly="True" />
+          <TextBox Text="{Binding RightPath}" IsReadOnly="True" />
+          <TextBlock Text="Description" Classes="section" Margin="0,8,0,0" />
+          <TextBox Text="{Binding Description}" AcceptsReturn="True" Height="80" PlaceholderText="Anything you want to remember about this comparison" />
+          <CheckBox Content="Disable editing" IsChecked="{Binding DisableEditing}" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" FontSize="12" Text="Protects the content on disk: copy, delete and synchronize are refused, and files opened from this session cannot be edited or saved." />
+        </StackPanel></ScrollViewer>
+      </TabItem>
+
+      <!-- ───────── comparison ───────── -->
+      <TabItem Header="Comparison">
+        <ScrollViewer><StackPanel Spacing="8" Margin="12">
+          <TextBlock Text="What makes two files different" Classes="section" />
+          <ComboBox ItemsSource="{x:Static vm:FolderSettingsViewModel.CriteriaChoices}" SelectedItem="{Binding Criteria}" MinWidth="280">
+            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.CriteriaLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+
+          <TextBlock Text="Quick tests (need only the folder listing)" Classes="section" Margin="0,10,0,0" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="Times may differ by up to" VerticalAlignment="Center" />
+            <NumericUpDown Value="{Binding ToleranceSeconds}" Minimum="0" Maximum="86400" Increment="1" FormatString="0" Width="130" />
+            <TextBlock Text="seconds" VerticalAlignment="Center" />
+          </StackPanel>
+          <CheckBox Content="Ignore daylight saving differences (exactly one hour)" IsChecked="{Binding IgnoreDaylightSaving}" />
+          <CheckBox Content="Ignore time zone differences (whole hours)" IsChecked="{Binding IgnoreTimeZone}" />
+          <CheckBox Content="Compare file name capitalization" IsChecked="{Binding CompareNameCase}" />
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="Compare attributes:" VerticalAlignment="Center" />
+            <CheckBox Content="read-only" IsChecked="{Binding AttrReadOnly}" />
+            <CheckBox Content="hidden" IsChecked="{Binding AttrHidden}" />
+            <CheckBox Content="system" IsChecked="{Binding AttrSystem}" />
+            <CheckBox Content="archive" IsChecked="{Binding AttrArchive}" />
+          </StackPanel>
+          <CheckBox Content="Compare Unix permissions (read/write/execute…) — not on Windows" IsChecked="{Binding ComparePermissions}" />
+          <CheckBox Content="Align names that differ only in their extension (report.doc ↔ report.pdf)" IsChecked="{Binding AlignExtensions}" />
+          <CheckBox Content="Align names that differ only in their Unicode form (é as one or two characters)" IsChecked="{Binding AlignUnicode}" />
+          <CheckBox Content="Detect renamed and moved files (same contents, different name)" IsChecked="{Binding DetectRenames}" />
+          <CheckBox Content="Compare version information of programs and libraries" IsChecked="{Binding CompareVersions}" />
+
+          <TextBlock Text="Tests that read files" Classes="section" Margin="0,10,0,0" />
+          <ComboBox ItemsSource="{x:Static vm:FolderSettingsViewModel.ContentModes}" SelectedItem="{Binding ContentMode}" MinWidth="360" IsEnabled="{Binding Criteria, Converter={x:Static c:Converters.UsesContents}}">
+            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.ContentModeLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+          <Border IsVisible="{Binding ContentMode, Converter={x:Static c:Converters.IsRulesMode}}" Classes="panel" Padding="10" Margin="12,0,0,0">
+            <StackPanel Spacing="6">
+              <TextBlock Text="Rules for text files (line endings never matter)" Classes="section" />
+              <ComboBox ItemsSource="{x:Static vm:FolderSettingsViewModel.WhitespaceModes}" SelectedItem="{Binding RuleWhitespace}" MinWidth="260">
+                <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.WhitespaceLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+              </ComboBox>
+              <CheckBox Content="Ignore letter case" IsChecked="{Binding RuleIgnoreCase}" />
+              <CheckBox Content="Ignore comments (language from the file name)" IsChecked="{Binding RuleIgnoreComments}" />
+              <CheckBox Content="Ignore dates and times" IsChecked="{Binding RuleIgnoreTimestamps}" />
+              <CheckBox Content="Ignore blank lines" IsChecked="{Binding RuleIgnoreBlankLines}" />
+            </StackPanel>
+          </Border>
+          <CheckBox Content="Skip the content test when the quick tests say the files are the same" IsChecked="{Binding SkipContentIfQuickSame}" IsEnabled="{Binding Criteria, Converter={x:Static c:Converters.IsQuickThenContent}}" />
+          <CheckBox Content="Override quick test results: files with the same contents are the same even if time or attributes differ" IsChecked="{Binding OverrideQuickResults}" IsEnabled="{Binding Criteria, Converter={x:Static c:Converters.IsQuickThenContent}}" />
+        </StackPanel></ScrollViewer>
+      </TabItem>
+
+      <!-- ───────── handling ───────── -->
+      <TabItem Header="Handling">
+        <ScrollViewer><StackPanel Spacing="8" Margin="12">
+          <TextBlock Text="Folders" Classes="section" />
+          <CheckBox Content="Scan subfolders" IsChecked="{Binding Recursive}" />
+          <CheckBox Content="Hide folders that end up empty after filtering" IsChecked="{Binding HideEmptyFolders}" />
+          <ComboBox ItemsSource="{x:Static vm:FolderSettingsViewModel.ExpandModes}" SelectedItem="{Binding ExpandOnLoad}" MinWidth="320">
+            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.ExpandModeLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+          <TextBlock Text="Archives (zip, tar, tar.gz…)" Classes="section" Margin="0,10,0,0" />
+          <ComboBox ItemsSource="{x:Static vm:FolderSettingsViewModel.ArchiveModes}" SelectedItem="{Binding Archives}" MinWidth="320">
+            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.ArchiveModeLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Files inside an archive are temporary copies: they can be compared and opened, but never changed." />
+          <TextBlock Text="Files" Classes="section" Margin="0,10,0,0" />
+          <CheckBox Content="Follow symbolic links (show them as their targets)" IsChecked="{Binding FollowSymbolicLinks}" />
+          <TextBlock Text="Automatic refresh" Classes="section" Margin="0,10,0,0" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="Compare again every" VerticalAlignment="Center" />
+            <NumericUpDown Value="{Binding AutoRefreshSeconds}" Minimum="0" Maximum="86400" Increment="5" FormatString="0" Width="130" />
+            <TextBlock Text="seconds (0 = never)" VerticalAlignment="Center" />
+          </StackPanel>
+        </StackPanel></ScrollViewer>
+      </TabItem>
+
+      <!-- ───────── name filters ───────── -->
+      <TabItem Header="Name filters">
+        <ScrollViewer><StackPanel Spacing="8" Margin="12">
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="File masks: * any characters, ? one character; separate several with ;  — for example *.cs;*.md" />
+          <TextBlock Text="Include files" Classes="section" /><TextBox Text="{Binding Include}" PlaceholderText="everything" />
+          <TextBlock Text="Exclude files" Classes="section" /><TextBox Text="{Binding ExcludeFiles}" PlaceholderText="*.log;*.tmp" />
+          <TextBlock Text="Include folders" Classes="section" /><TextBox Text="{Binding IncludeFolders}" PlaceholderText="every folder (when set, only matching folders are entered)" />
+          <TextBlock Text="Exclude folders" Classes="section" /><TextBox Text="{Binding ExcludeFolders}" PlaceholderText=".git;node_modules;bin;obj" />
+          <StackPanel Orientation="Horizontal" Spacing="8"><Button Content="Clear all" Command="{Binding ClearNameFiltersCommand}" /></StackPanel>
+
+          <TextBlock Text="Presets" Classes="section" Margin="0,12,0,0" />
+          <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}" MinWidth="320" PlaceholderText="Load a preset…">
+            <ComboBox.ItemTemplate><DataTemplate x:DataType="cf:FilterPreset"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBox Text="{Binding PresetName}" PlaceholderText="Name for the preset" Width="260" />
+            <Button Content="Add to presets" Command="{Binding AddPresetCommand}" />
+            <Button Content="Remove selected" Command="{Binding RemovePresetCommand}" />
+          </StackPanel>
+        </StackPanel></ScrollViewer>
+      </TabItem>
+
+      <!-- ───────── other filters ───────── -->
+      <TabItem Header="Other filters">
+        <ScrollViewer><StackPanel Spacing="8" Margin="12">
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Hide files by something other than their name. A file matching any rule is hidden. If a rule hides a file on one side but not its counterpart, both stay visible and the hidden one is shown in teal." />
+          <CheckBox Content="Exclude protected operating system files (.DS_Store, Thumbs.db, desktop.ini, hidden system files)" IsChecked="{Binding ExcludeProtectedFiles}" />
+          <ListBox ItemsSource="{Binding OtherFilters}" Height="130">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:OtherFilterItem">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Classes="mini" Content="Remove" Click="OnRemoveFilter" Tag="{Binding}" />
+                  <TextBlock Text="{Binding Text}" VerticalAlignment="Center" />
+                </DockPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <TextBlock Text="New rule" Classes="section" Margin="0,8,0,0" />
+          <WrapPanel>
+            <ComboBox ItemsSource="{x:Static vm:FolderSettingsViewModel.FilterKinds}" SelectedItem="{Binding NewFilterKind}" MinWidth="240" Margin="0,0,8,0">
+              <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.FilterKindLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBox Text="{Binding NewFilterNumber}" Width="120" Margin="0,0,8,0" IsVisible="{Binding NewFilterKind, Converter={x:Static c:Converters.FilterKindNeedsNumber}}" />
+            <CalendarDatePicker SelectedDate="{Binding NewFilterDate}" Margin="0,0,8,0" IsVisible="{Binding NewFilterKind, Converter={x:Static c:Converters.FilterKindNeedsDate}}" />
+            <Button Content="Add" Command="{Binding AddFilterCommand}" />
+          </WrapPanel>
+          <TextBlock Text="{Binding FilterError}" Foreground="{DynamicResource ErrorBrush}" />
+        </StackPanel></ScrollViewer>
+      </TabItem>
+
+      <!-- ───────── misc ───────── -->
+      <TabItem Header="Alignment">
+        <ScrollViewer><StackPanel Spacing="8" Margin="12">
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="By default files and folders are lined up by name. To compare two items whose names differ, select one that exists only on the left and one that exists only on the right (in the same folder) and choose Align selected in the folder toolbar. The pairs you made are listed here." />
+          <ListBox ItemsSource="{Binding Alignments}" Height="220">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:AlignmentItem">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Classes="mini" Content="Remove" Click="OnRemoveAlignment" Tag="{Binding}" />
+                  <TextBlock Text="{Binding Text}" VerticalAlignment="Center" />
+                </DockPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </StackPanel></ScrollViewer>
+      </TabItem>
+
+      <!-- ───────── appearance ───────── -->
+      <TabItem Header="Colors">
+        <ScrollViewer><StackPanel Spacing="8" Margin="12">
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Colors of the folder view for every session, as #RRGGBB. Empty = the default of the current theme." />
+          <Grid ColumnDefinitions="220,160,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
+            <TextBlock Grid.Row="0" Text="Older / cannot be judged" VerticalAlignment="Center" /><TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ColorOlder}" PlaceholderText="default" />
+            <TextBlock Grid.Row="1" Text="Same" VerticalAlignment="Center" /><TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ColorSame}" PlaceholderText="normal text" />
+            <TextBlock Grid.Row="2" Text="Only on one side" VerticalAlignment="Center" /><TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ColorOrphan}" PlaceholderText="default" />
+            <TextBlock Grid.Row="3" Text="Newer / different" VerticalAlignment="Center" /><TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ColorNewer}" PlaceholderText="default" />
+            <TextBlock Grid.Row="4" Text="Shown only because of its counterpart" VerticalAlignment="Center" /><TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ColorFiltered}" PlaceholderText="default" />
+          </Grid>
+          <Button Content="Reset to the theme's colors" Command="{Binding ResetColorsCommand}" HorizontalAlignment="Left" />
+        </StackPanel></ScrollViewer>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</Window>

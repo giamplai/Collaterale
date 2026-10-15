@@ -1,0 +1,20 @@
+=     1    1 | class Shop
+=     2    2 | {
+m-    3    · |     void Open()
+m-    4    · |     {
+m-    5    · |         lights.On();
+m-    6    · |         door.Unlock();
+-     7    · |     }
+-     8    · | 
+=     9    3 |     void Close()
+=    10    4 |     {
+=    11    5 |         door.Lock();
+=    12    6 |         lights.Off();
++     ·    7 |     }
++     ·    8 | 
+m+    ·    9 |     void Open()
+m+    ·   10 |     {
+m+    ·   11 |         lights.On();
+m+    ·   12 |         door.Unlock();
+=    13   13 |     }
+=    14   14 | }

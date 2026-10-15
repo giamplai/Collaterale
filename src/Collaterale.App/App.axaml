@@ -1,0 +1,76 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ae="using:AvaloniaEdit"
+             x:Class="Collaterale.App.App"
+             RequestedThemeVariant="Default">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <Color x:Key="AccentColor">#5B7CFA</Color>
+          <SolidColorBrush x:Key="AccentBrush" Color="#5B7CFA" />
+          <SolidColorBrush x:Key="WindowBrush" Color="#F4F5F8" />
+          <SolidColorBrush x:Key="PanelBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="PanelAltBrush" Color="#F8F9FB" />
+          <SolidColorBrush x:Key="LineBrush" Color="#E6E9EF" />
+          <SolidColorBrush x:Key="MutedBrush" Color="#6A7283" />
+          <SolidColorBrush x:Key="HoverBrush" Color="#ECEFF8" />
+          <SolidColorBrush x:Key="ErrorBrush" Color="#C73A3F" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <Color x:Key="AccentColor">#8CA2FF</Color>
+          <SolidColorBrush x:Key="AccentBrush" Color="#6C84FF" />
+          <SolidColorBrush x:Key="WindowBrush" Color="#14171E" />
+          <SolidColorBrush x:Key="PanelBrush" Color="#1B1F29" />
+          <SolidColorBrush x:Key="PanelAltBrush" Color="#171B24" />
+          <SolidColorBrush x:Key="LineBrush" Color="#262C3A" />
+          <SolidColorBrush x:Key="MutedBrush" Color="#8E97AA" />
+          <SolidColorBrush x:Key="HoverBrush" Color="#252C3D" />
+          <SolidColorBrush x:Key="ErrorBrush" Color="#FF7B80" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+    <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+
+    <Style Selector="Window"><Setter Property="Background" Value="{DynamicResource WindowBrush}" /></Style>
+    <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
+    <Style Selector="TextBlock.section"><Setter Property="FontSize" Value="11" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="12" />
+    </Style>
+
+    <Style Selector="Button.tool, ToggleButton.tool">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Padding" Value="10,6" />
+      <Setter Property="CornerRadius" Value="8" />
+    </Style>
+    <Style Selector="Button.tool:pointerover /template/ ContentPresenter, ToggleButton.tool:pointerover /template/ ContentPresenter"><Setter Property="Background" Value="{DynamicResource HoverBrush}" /></Style>
+    <Style Selector="ToggleButton.tool:checked /template/ ContentPresenter"><Setter Property="Background" Value="{DynamicResource HoverBrush}" /><Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /><Setter Property="BorderThickness" Value="1" /></Style>
+    <Style Selector="ToggleButton.tool:checked:pointerover /template/ ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" /></Style>
+    <Style Selector="Button.tool:disabled /template/ ContentPresenter, ToggleButton.tool:disabled /template/ ContentPresenter"><Setter Property="Background" Value="Transparent" /><Setter Property="Opacity" Value="0.45" /></Style>
+    <Style Selector="Button.accent"><Setter Property="Background" Value="{DynamicResource AccentBrush}" /><Setter Property="Foreground" Value="White" /></Style>
+    <Style Selector="Button.accent /template/ ContentPresenter"><Setter Property="Background" Value="{DynamicResource AccentBrush}" /><Setter Property="Foreground" Value="White" /></Style>
+    <Style Selector="Button.card">
+      <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="VerticalContentAlignment" Value="Top" />
+    </Style>
+    <Style Selector="Button.card /template/ ContentPresenter"><Setter Property="Background" Value="{DynamicResource PanelBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="CornerRadius" Value="10" /></Style>
+    <Style Selector="Button.card:pointerover /template/ ContentPresenter"><Setter Property="Background" Value="{DynamicResource HoverBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Style>
+    <Style Selector="TabItem"><Setter Property="FontSize" Value="14" /><Setter Property="Padding" Value="14,8" /></Style>
+    <Style Selector="Button.soft"><Setter Property="Background" Value="{DynamicResource PanelAltBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="CornerRadius" Value="8" /><Setter Property="Padding" Value="12,6" /></Style>
+    <Style Selector="TextBox"><Setter Property="CornerRadius" Value="8" /></Style>
+    <Style Selector="ComboBox"><Setter Property="CornerRadius" Value="8" /></Style>
+    <Style Selector="Button"><Setter Property="CornerRadius" Value="8" /></Style>
+    <Style Selector="Button.mini"><Setter Property="Padding" Value="7,1" /><Setter Property="MinHeight" Value="0" /><Setter Property="FontSize" Value="12" /><Setter Property="CornerRadius" Value="5" /></Style>
+  </Application.Styles>
+</Application>

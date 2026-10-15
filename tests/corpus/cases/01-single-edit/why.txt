@@ -1,0 +1,1 @@
+One edited line among unchanged ones: one changed row, everything else same.

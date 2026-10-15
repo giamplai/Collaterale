@@ -1,0 +1,1 @@
+Same text with different line endings. All rows are 'same': line-ending style is reported separately in the file header, never as a difference on every line.

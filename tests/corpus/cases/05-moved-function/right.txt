@@ -1,0 +1,14 @@
+class Shop
+{
+    void Close()
+    {
+        door.Lock();
+        lights.Off();
+    }
+
+    void Open()
+    {
+        lights.On();
+        door.Unlock();
+    }
+}

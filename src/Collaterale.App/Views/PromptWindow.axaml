@@ -1,0 +1,15 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Collaterale.App.Views.PromptWindow"
+        Width="440" Height="230" CanResize="False" WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="22,18" Spacing="10">
+    <TextBlock x:Name="Heading" FontSize="18" FontWeight="SemiBold" />
+    <TextBlock x:Name="Message" TextWrapping="Wrap" Opacity="0.75" />
+    <TextBox x:Name="Input" />
+    <ComboBox x:Name="Choices" IsVisible="False" HorizontalAlignment="Stretch" />
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
+      <Button Content="Cancel" Click="OnCancel" Padding="16,6" />
+      <Button x:Name="Ok" Classes="accent" Content="OK" Click="OnOk" Padding="20,6" IsDefault="True" />
+    </StackPanel>
+  </StackPanel>
+</Window>

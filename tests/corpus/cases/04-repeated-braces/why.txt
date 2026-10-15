@@ -1,0 +1,1 @@
+A whole function is inserted between two similar ones; braces and blank lines repeat everywhere. A good diff shows ONE contiguous insertion (helper), not interleaved braces.

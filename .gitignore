@@ -1,0 +1,12 @@
+artifacts/
+bin/
+obj/
+.vs/
+.idea/
+*.user
+.claude/settings.local.json
+external/
+
+# local assistant tooling
+.claude/
+CLAUDE.md

@@ -1,0 +1,1 @@
+A one-line document pretty-printed. No line survives; the one old line must be replaced by the new block.

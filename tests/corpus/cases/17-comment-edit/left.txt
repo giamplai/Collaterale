@@ -1,0 +1,2 @@
+int speed = 10; // pixels per frame
+int size = 4;

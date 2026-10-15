@@ -1,0 +1,13 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Collaterale.App.ViewModels"
+             x:Class="Collaterale.App.Views.ScriptView"
+             x:DataType="vm:ScriptViewModel">
+  <DockPanel Margin="16">
+    <TextBlock DockPanel.Dock="Top" Text="{Binding Name}" FontWeight="SemiBold" Margin="0,0,0,2" />
+    <TextBlock DockPanel.Dock="Top" Text="{Binding ExitText}" Classes="muted" Margin="0,0,0,10" />
+    <Border Classes="panel" Padding="10">
+      <ScrollViewer><SelectableTextBlock Text="{Binding Output}" FontFamily="monospace" FontSize="13" /></ScrollViewer>
+    </Border>
+  </DockPanel>
+</UserControl>

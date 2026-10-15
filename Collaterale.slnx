@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Collaterale.App/Collaterale.App.csproj" />
+    <Project Path="src/Collaterale.Core/Collaterale.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Collaterale.App.UiTests/Collaterale.App.UiTests.csproj" />
+    <Project Path="tests/Collaterale.Core.Tests/Collaterale.Core.Tests.csproj" />
+  </Folder>
+</Solution>

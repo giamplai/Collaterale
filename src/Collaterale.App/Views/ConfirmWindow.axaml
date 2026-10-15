@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Collaterale.App.Views.ConfirmWindow"
+        Width="560" Height="440" MinWidth="420" MinHeight="260" WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="20">
+    <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,10">
+      <TextBlock x:Name="Heading" FontSize="19" FontWeight="Bold" TextWrapping="Wrap" />
+      <TextBlock x:Name="Message" Classes="muted" TextWrapping="Wrap" />
+    </StackPanel>
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,12,0,0">
+      <Button Content="Cancel" Click="OnCancel" />
+      <Button x:Name="Ok" Classes="accent" Padding="20,6" Click="OnOk" IsDefault="True" />
+    </StackPanel>
+    <Border Classes="panel" x:Name="DetailsBox">
+      <ListBox x:Name="Details" Padding="6">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" FontFamily="Cascadia Mono,DejaVu Sans Mono,Menlo,Consolas,monospace" FontSize="12" /></DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Border>
+  </DockPanel>
+</Window>

@@ -1,0 +1,4 @@
+=     1    1 | if (ready) {
+~     2    2 |     start();
+~     3    3 |     log("started");
+=     4    4 | }

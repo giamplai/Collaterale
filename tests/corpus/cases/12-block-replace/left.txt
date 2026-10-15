@@ -1,0 +1,6 @@
+step 1: open the file
+step 2: read the header
+step 3: parse the body
+step 4: close the file
+step 5: report success
+step 6: exit

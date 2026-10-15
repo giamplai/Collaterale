@@ -1,0 +1,5 @@
+begin
+const limit = 10;
+const retries = 3;
+const name = 'svc';
+end

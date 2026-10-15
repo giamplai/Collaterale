@@ -1,0 +1,1 @@
+A tab replaced by four spaces. With -b (ignore amount of whitespace) tab and spaces are both whitespace runs, so no difference.

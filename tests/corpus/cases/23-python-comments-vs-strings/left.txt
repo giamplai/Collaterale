@@ -1,0 +1,4 @@
+def f(x):
+    # compute
+    s = "# not a comment"
+    return x + 1  # inc

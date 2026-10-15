@@ -1,0 +1,126 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Collaterale.App.ViewModels"
+             xmlns:c="using:Collaterale.App.Controls"
+             x:Class="Collaterale.App.Views.MergeView"
+             x:DataType="vm:MergeViewModel">
+
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Padding="10,6" Background="{DynamicResource PanelBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+      <WrapPanel>
+        <TextBlock Text="Show" Classes="muted" VerticalAlignment="Center" Margin="0,0,6,0" />
+        <ComboBox ItemsSource="{x:Static vm:MergeViewModel.Filters}" SelectedItem="{Binding Filter}" MinWidth="170" ToolTip.Tip="Which sections to show; the others fold into one line">
+          <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.MergeFilterLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+        </ComboBox>
+        <Rectangle Width="1" Margin="10,4" Fill="{DynamicResource LineBrush}" />
+        <Button Classes="tool" Content="▲ Prev" Command="{Binding PreviousChangeCommand}" ToolTip.Tip="Previous change (Alt+Up)" />
+        <Button Classes="tool" Content="▼ Next" Command="{Binding NextChangeCommand}" ToolTip.Tip="Next change (Alt+Down)" />
+        <Button Classes="tool" Content="! Next conflict" Command="{Binding NextConflictCommand}" ToolTip.Tip="Jump to the next unresolved conflict (F8)" />
+        <TextBlock Text="{Binding ChangeText}" Classes="muted" VerticalAlignment="Center" Margin="6,0,12,0" MinWidth="90" />
+        <Rectangle Width="1" Margin="6,4" Fill="{DynamicResource LineBrush}" />
+        <Button Classes="tool" Command="{Binding TakeLeftCommand}" ToolTip.Tip="Use the left version for this section (Alt+Left)"><StackPanel Orientation="Horizontal" Spacing="6"><Ellipse Width="10" Height="10" Fill="#30C8C0" /><TextBlock Text="Take left" /></StackPanel></Button>
+        <Button Classes="tool" Command="{Binding TakeBaseCommand}" ToolTip.Tip="Use the center (base) version: discard both sides' edits for this section"><StackPanel Orientation="Horizontal" Spacing="6"><Ellipse Width="10" Height="10" Fill="#808690" /><TextBlock Text="Take center" /></StackPanel></Button>
+        <Button Classes="tool" Command="{Binding TakeRightCommand}" ToolTip.Tip="Use the right version for this section (Alt+Right)"><StackPanel Orientation="Horizontal" Spacing="6"><Ellipse Width="10" Height="10" Fill="#D06AE0" /><TextBlock Text="Take right" /></StackPanel></Button>
+        <Button Classes="tool" Content="Take both" Command="{Binding TakeBothCommand}" ToolTip.Tip="Left lines followed by right lines" />
+        <Rectangle Width="1" Margin="6,4" Fill="{DynamicResource LineBrush}" />
+        <ToggleButton Classes="tool" Content="Center pane" IsChecked="{Binding ShowBase}" ToolTip.Tip="Show or hide the center (common ancestor) pane" />
+        <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.WhitespaceModes}" SelectedItem="{Binding Whitespace}" MinWidth="205" VerticalAlignment="Center">
+          <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.WhitespaceLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+        </ComboBox>
+        <ToggleButton Classes="tool" Content="Aa" IsChecked="{Binding IgnoreCase}" ToolTip.Tip="Ignore case" Margin="6,0,0,0" />
+      </WrapPanel>
+    </Border>
+
+    <Border DockPanel.Dock="Bottom" Padding="12,5" Background="{DynamicResource PanelBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
+      <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+        <TextBlock Text="{Binding ConflictSections}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource ErrorBrush}" IsVisible="{Binding HasUnresolved}" Margin="0,0,16,0" />
+        <TextBlock Grid.Column="1" Text="{Binding ConflictText}" FontSize="12" Classes="muted" IsVisible="{Binding AllResolved}" Margin="0,0,16,0" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16">
+          <TextBlock Text="{Binding CurrentDescription}" FontSize="12" />
+          <TextBlock Text="{Binding Error}" Foreground="{DynamicResource ErrorBrush}" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          <TextBlock Text="{Binding Status}" Classes="muted" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNullOrEmpty}}" />
+        </StackPanel>
+        <TextBlock Grid.Column="3" Text="Insert" Classes="muted" FontSize="12" Margin="16,0" />
+        <TextBlock Grid.Column="4" Text="{Binding LoadTimeText}" Classes="muted" FontSize="12" />
+      </Grid>
+    </Border>
+
+    <Grid x:Name="MergeGrid" Margin="12,8,12,12" RowDefinitions="*,8,*">
+      <Grid x:Name="TopGrid" ColumnDefinitions="*,*,*" ColumnSpacing="8">
+        <Border Classes="panel" ClipToBounds="True">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Padding="10,6" Background="{DynamicResource PanelAltBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+              <DockPanel>
+                <Button DockPanel.Dock="Right" Classes="mini" Content="Open…" Click="OnOpenLeft" VerticalAlignment="Center" />
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="6"><Rectangle Width="10" Height="10" RadiusX="2" RadiusY="2" Fill="#30C8C0" VerticalAlignment="Center" /><TextBlock Text="LOCAL  ·  left" Classes="section" /></StackPanel>
+                  <TextBlock Text="{Binding LeftTitle}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Text="{Binding LeftInfo}" FontSize="11" Classes="muted" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </DockPanel>
+            </Border>
+            <c:DiffPane x:Name="LeftPane" />
+          </DockPanel>
+        </Border>
+        <Border Grid.Column="1" x:Name="BaseBox" Classes="panel" ClipToBounds="True">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Padding="10,6" Background="{DynamicResource PanelAltBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+              <DockPanel>
+                <Button DockPanel.Dock="Right" Classes="mini" Content="Open…" Click="OnOpenBase" VerticalAlignment="Center" />
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="6"><Rectangle Width="10" Height="10" RadiusX="2" RadiusY="2" Fill="#808690" VerticalAlignment="Center" /><TextBlock Text="BASE  ·  center (common ancestor)" Classes="section" /></StackPanel>
+                  <TextBlock Text="{Binding BaseTitle}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Text="{Binding BaseInfo}" FontSize="11" Classes="muted" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </DockPanel>
+            </Border>
+            <c:DiffPane x:Name="BasePane" />
+          </DockPanel>
+        </Border>
+        <Border Grid.Column="2" Classes="panel" ClipToBounds="True">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Padding="10,6" Background="{DynamicResource PanelAltBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+              <DockPanel>
+                <Button DockPanel.Dock="Right" Classes="mini" Content="Open…" Click="OnOpenRight" VerticalAlignment="Center" />
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="6"><Rectangle Width="10" Height="10" RadiusX="2" RadiusY="2" Fill="#D06AE0" VerticalAlignment="Center" /><TextBlock Text="REMOTE  ·  right" Classes="section" /></StackPanel>
+                  <TextBlock Text="{Binding RightTitle}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Text="{Binding RightInfo}" FontSize="11" Classes="muted" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </DockPanel>
+            </Border>
+            <c:DiffPane x:Name="RightPane" />
+          </DockPanel>
+        </Border>
+      </Grid>
+
+      <GridSplitter Grid.Row="1" Background="Transparent" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" Height="8" />
+
+      <DockPanel Grid.Row="2">
+      <Border DockPanel.Dock="Top" Margin="0,0,0,6" Padding="10,6" Classes="panel">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="accent" Content="💾 Save" Padding="14,5" Margin="8,0,0,0" Click="OnSave" ToolTip.Tip="Write the merged text to the chosen file (Ctrl+S)" />
+          <Button DockPanel.Dock="Right" Classes="soft" Content="↺ Reset" Command="{Binding ResetResultCommand}" IsVisible="{Binding ResultEdited}" ToolTip.Tip="Throw away your typing and go back to the automatic merge" />
+          <TextBlock DockPanel.Dock="Left" Text="Merge to:" VerticalAlignment="Center" Margin="0,0,10,0" />
+          <RadioButton DockPanel.Dock="Left" Content="Left" GroupName="MergeTarget" Margin="0,0,6,0" Click="OnTargetLeft" IsChecked="{Binding Target, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:MergeTarget.Left}, Mode=OneWay}" />
+          <RadioButton DockPanel.Dock="Left" Content="Right" GroupName="MergeTarget" Margin="0,0,6,0" Click="OnTargetRight" IsChecked="{Binding Target, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:MergeTarget.Right}, Mode=OneWay}" />
+          <RadioButton DockPanel.Dock="Left" Content="Other:" GroupName="MergeTarget" Margin="0,0,6,0" Click="OnTargetOther" IsChecked="{Binding Target, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:MergeTarget.Other}, Mode=OneWay}" />
+          <TextBox Text="{Binding OutputPath}" PlaceholderText="Path of the merged file (the result)" />
+        </DockPanel>
+      </Border>
+
+      <Border Classes="panel" ClipToBounds="True" BorderBrush="{DynamicResource AccentBrush}">
+        <DockPanel>
+          <Border DockPanel.Dock="Top" Padding="10,5" Background="{DynamicResource PanelAltBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+            <StackPanel>
+              <TextBlock Text="RESULT  ·  type here, or use the ◀ ▶ buttons beside each section" Classes="section" />
+              <TextBlock Text="{Binding OutputTitle}" FontSize="12" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+          </Border>
+          <c:DiffPane x:Name="ResultPane" />
+        </DockPanel>
+      </Border>
+      </DockPanel>
+    </Grid>
+  </DockPanel>
+</UserControl>

@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+# Nautilus / Nemo / Caja script: select two files or two folders, then Scripts > Compare with Collaterale
+set -e
+if [ -n "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" ]; then
+  printf '%s\n' "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | {
+    IFS= read -r a; IFS= read -r b
+    exec collaterale "$a" "$b"
+  }
+else
+  exec collaterale "$@"
+fi

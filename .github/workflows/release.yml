@@ -1,0 +1,71 @@
+name: Release
+# Push a tag such as v0.2.0 (after bumping <Version> in Directory.Build.props) to publish packages for every OS.
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest   # Linux packages and the Windows zip are cross-published from Linux; macOS and the Windows setup have their own jobs below
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { global-json-file: global.json }
+      - name: Tag must match the project version
+        run: |
+          v="v$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)"
+          test "$v" = "$GITHUB_REF_NAME" || { echo "Tag $GITHUB_REF_NAME does not match $v in Directory.Build.props"; exit 1; }
+      - name: Core tests
+        run: dotnet test tests/Collaterale.Core.Tests -c Release
+      - name: Package
+        run: scripts/package.sh linux-x64 linux-arm64 win-x64
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/packages/*
+          generate_release_notes: true
+  windows-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { global-json-file: global.json }
+      - name: Publish and build the setup program (Inno Setup)
+        shell: pwsh
+        run: |
+          $v = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          dotnet publish src/Collaterale.App -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o artifacts/publish/win-x64
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$v" packaging/windows/collaterale.iss
+      - name: The setup program must install, register and uninstall cleanly
+        shell: pwsh
+        run: |
+          $setup = (Get-ChildItem artifacts/packages/*-setup.exe).FullName
+          $dir = Join-Path $env:RUNNER_TEMP 'collaterale-inst'
+          Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', "/DIR=$dir" -Wait
+          if (-not (Test-Path "$dir\Collaterale.exe")) { throw 'Collaterale.exe was not installed' }
+          if (-not (Test-Path 'HKCU:\Software\Classes\*\shell\CollateraleSelect\command')) { throw 'context menu was not registered' }
+          Start-Process "$dir\unins000.exe" -ArgumentList '/VERYSILENT' -Wait
+          if (Test-Path "$dir\Collaterale.exe") { throw 'uninstall left Collaterale.exe behind' }
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/packages/*-setup.exe
+  macos-app:
+    runs-on: macos-latest      # code signing (ad-hoc) and the launch check need a Mac
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { global-json-file: global.json }
+      - name: Package (builds, ad-hoc signs)
+        run: SUMS_NAME=SHA256SUMS-macos scripts/package.sh osx-arm64 osx-x64
+      - name: The app must launch
+        run: |
+          cd "$(mktemp -d)"
+          unzip -q "$GITHUB_WORKSPACE"/artifacts/packages/Collaterale-*-osx-arm64.zip
+          codesign --verify --deep --strict Collaterale.app
+          Collaterale.app/Contents/MacOS/Collaterale --version
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/packages/*.zip
+            artifacts/packages/SHA256SUMS-macos

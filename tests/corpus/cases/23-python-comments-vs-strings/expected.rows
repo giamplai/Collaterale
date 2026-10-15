@@ -1,0 +1,5 @@
+=     1    1 | def f(x):
+~     2    · |     # compute
+=     3    2 |     s = "# not a comment"
+*     4    3 |     return x + 1  # inc
+             |     return x + 2  # increment

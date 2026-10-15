@@ -1,0 +1,14 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Collaterale.App.Views.GoToLineWindow"
+        Title="Go to line" Width="340" SizeToContent="Height" CanResize="False" WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="20" Spacing="12">
+    <TextBlock x:Name="Heading" FontSize="17" FontWeight="Bold" />
+    <TextBox x:Name="Input" PlaceholderText="Line number" />
+    <TextBlock x:Name="Hint" Classes="muted" FontSize="12" />
+    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+      <Button Content="Cancel" Click="OnCancel" />
+      <Button Classes="accent" Content="Go" Padding="20,6" Click="OnGo" IsDefault="True" />
+    </StackPanel>
+  </StackPanel>
+</Window>

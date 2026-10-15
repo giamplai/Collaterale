@@ -1,0 +1,10 @@
+=     1    1 | step 1: open the file
+*     2    2 | step 2: read the header
+             | step 2: read the header and the footer
++     ·    3 | step 3: validate the checksum
+*     3    4 | step 3: parse the body
+             | step 4: parse the body
+*     4    5 | step 4: close the file
+             | step 5: close the file
+-     5    · | step 5: report success
+=     6    6 | step 6: exit

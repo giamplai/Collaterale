@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Collaterale.App.ViewModels"
+             xmlns:c="using:Collaterale.App.Controls"
+             x:Class="Collaterale.App.Views.ImageCompareView"
+             x:DataType="vm:ImageCompareViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Alt+Down" Command="{Binding NextRegionCommand}" />
+    <KeyBinding Gesture="Alt+Up" Command="{Binding PreviousRegionCommand}" />
+    <KeyBinding Gesture="F8" Command="{Binding NextRegionCommand}" />
+    <KeyBinding Gesture="Shift+F8" Command="{Binding PreviousRegionCommand}" />
+    <KeyBinding Gesture="F5" Command="{Binding ReloadCommand}" />
+  </UserControl.KeyBindings>
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Padding="8,6" Background="{DynamicResource PanelBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+      <StackPanel Spacing="6">
+        <WrapPanel>
+          <Button Classes="tool" Content="Open…" Click="OnOpenLeft" ToolTip.Tip="Choose the left picture" />
+          <Button Classes="tool" Content="Open…" Click="OnOpenRight" ToolTip.Tip="Choose the right picture" />
+          <Rectangle Width="1" Margin="6,4" Fill="{DynamicResource LineBrush}" />
+          <ComboBox x:Name="ModeBox" ItemsSource="{x:Static vm:ImageCompareViewModel.Modes}" SelectedItem="{Binding Mode}" MinWidth="140" VerticalAlignment="Center">
+            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.ImageModeLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+          <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,0,0,0" IsVisible="{Binding Mode, Converter={x:Static c:Converters.IsOverlayMode}}">
+            <TextBlock Text="Opacity" Classes="muted" VerticalAlignment="Center" />
+            <Slider Minimum="0" Maximum="1" Value="{Binding OverlayOpacity}" Width="140" VerticalAlignment="Center" />
+          </StackPanel>
+          <Rectangle Width="1" Margin="6,4" Fill="{DynamicResource LineBrush}" />
+          <Button Classes="tool" Content="▲ Prev" Command="{Binding PreviousRegionCommand}" ToolTip.Tip="Previous changed region (Alt+Up)" />
+          <Button Classes="tool" Content="▼ Next" Command="{Binding NextRegionCommand}" ToolTip.Tip="Next changed region (Alt+Down)" />
+          <TextBlock Text="{Binding RegionText}" Classes="muted" VerticalAlignment="Center" Margin="6,0,10,0" MinWidth="100" />
+          <ToggleButton Classes="tool" Content="Outlines" IsChecked="{Binding ShowRegions}" ToolTip.Tip="Draw a box around each changed region" />
+        </WrapPanel>
+        <WrapPanel>
+          <TextBlock Text="Tolerance" Classes="muted" VerticalAlignment="Center" Margin="4,0,6,0" />
+          <Slider Minimum="0" Maximum="64" Value="{Binding Tolerance}" Width="160" VerticalAlignment="Center" ToolTip.Tip="Colour differences up to this size (0–255 per channel) are ignored" />
+          <TextBlock Text="{Binding Tolerance}" VerticalAlignment="Center" Margin="6,0,10,0" MinWidth="24" />
+          <ToggleButton Classes="tool" Content="Ignore transparency" IsChecked="{Binding IgnoreAlpha}" />
+          <Rectangle Width="1" Margin="6,4" Fill="{DynamicResource LineBrush}" />
+          <Button Classes="tool" Content="Fit" Click="OnFit" ToolTip.Tip="Fit the picture to the window" />
+          <Button Classes="tool" Content="100%" Click="OnZoom100" ToolTip.Tip="Actual pixels" />
+          <Button Classes="tool" Content="＋" Click="OnZoomIn" ToolTip.Tip="Zoom in (or scroll the wheel)" />
+          <Button Classes="tool" Content="－" Click="OnZoomOut" ToolTip.Tip="Zoom out" />
+          <TextBlock x:Name="ZoomText" Classes="muted" VerticalAlignment="Center" Margin="6,0,0,0" />
+        </WrapPanel>
+      </StackPanel>
+    </Border>
+
+    <Border DockPanel.Dock="Bottom" Padding="12,4" Background="{DynamicResource PanelBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Right" Text="{Binding PixelInfo}" Classes="muted" FontSize="12" FontFamily="Cascadia Mono,DejaVu Sans Mono,Menlo,Consolas,monospace" />
+        <TextBlock Text="{Binding Error}" Foreground="{DynamicResource ErrorBrush}" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        <TextBlock Text="{Binding StatsText}" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNullOrEmpty}}" />
+      </DockPanel>
+    </Border>
+
+    <Grid Margin="8" RowDefinitions="Auto,*">
+      <Grid ColumnDefinitions="*,*" Margin="0,0,0,6">
+        <StackPanel Margin="4,0"><TextBlock Text="{Binding LeftTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding LeftPath}" /><TextBlock Text="{Binding LeftInfo}" Classes="muted" FontSize="11" /></StackPanel>
+        <StackPanel Grid.Column="1" Margin="4,0"><TextBlock Text="{Binding RightTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding RightPath}" /><TextBlock Text="{Binding RightInfo}" Classes="muted" FontSize="11" /></StackPanel>
+      </Grid>
+      <Border Grid.Row="1" Classes="panel" ClipToBounds="True">
+        <c:ImageCanvas x:Name="Canvas" />
+      </Border>
+    </Grid>
+  </DockPanel>
+</UserControl>

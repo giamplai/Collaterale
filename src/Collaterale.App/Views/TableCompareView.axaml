@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Collaterale.App.ViewModels"
+             xmlns:c="using:Collaterale.App.Controls"
+             x:Class="Collaterale.App.Views.TableCompareView"
+             x:DataType="vm:TableCompareViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Alt+Down" Command="{Binding NextDifferenceCommand}" />
+    <KeyBinding Gesture="Alt+Up" Command="{Binding PreviousDifferenceCommand}" />
+    <KeyBinding Gesture="F8" Command="{Binding NextDifferenceCommand}" />
+    <KeyBinding Gesture="Shift+F8" Command="{Binding PreviousDifferenceCommand}" />
+    <KeyBinding Gesture="F5" Command="{Binding ReloadCommand}" />
+  </UserControl.KeyBindings>
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Padding="8,6" Background="{DynamicResource PanelBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+      <StackPanel Spacing="6">
+        <WrapPanel>
+          <Button Classes="tool" Content="Open…" Click="OnOpenLeft" ToolTip.Tip="Choose the left file" />
+          <Button Classes="tool" Content="Open…" Click="OnOpenRight" ToolTip.Tip="Choose the right file" />
+          <Rectangle Width="1" Margin="6,4" Fill="{DynamicResource LineBrush}" />
+          <Button Classes="tool" Content="▲ Prev" Command="{Binding PreviousDifferenceCommand}" ToolTip.Tip="Previous differing row (Alt+Up)" />
+          <Button Classes="tool" Content="▼ Next" Command="{Binding NextDifferenceCommand}" ToolTip.Tip="Next differing row (Alt+Down)" />
+          <TextBlock Text="{Binding DifferenceText}" Classes="muted" VerticalAlignment="Center" Margin="6,0,10,0" MinWidth="140" />
+          <ToggleButton Classes="tool" Content="Only differences" IsChecked="{Binding DifferencesOnly}" ToolTip.Tip="Hide rows that are the same" />
+          <Button Classes="tool" Content="⟳" Command="{Binding ReloadCommand}" ToolTip.Tip="Reload both files (F5)" />
+        </WrapPanel>
+        <WrapPanel>
+          <TextBlock Text="Delimiter" Classes="muted" VerticalAlignment="Center" Margin="4,0,6,0" />
+          <ComboBox ItemsSource="{x:Static vm:TableCompareViewModel.Delimiters}" SelectedItem="{Binding Delimiter}" MinWidth="110" />
+          <ToggleButton Classes="tool" Content="Header row" IsChecked="{Binding HasHeader}" ToolTip.Tip="The first row holds column names" Margin="6,0,0,0" />
+          <TextBlock Text="Key columns" Classes="muted" VerticalAlignment="Center" Margin="10,0,6,0" />
+          <TextBox Text="{Binding KeyColumns}" PlaceholderText="e.g. 1 or id" Width="110" ToolTip.Tip="Columns that identify a row (numbers from 1, letters, or header names, separated by commas). Rows are then matched by key instead of by position." />
+          <TextBlock Text="Columns by" Classes="muted" VerticalAlignment="Center" Margin="10,0,6,0" />
+          <ComboBox ItemsSource="{x:Static vm:TableCompareViewModel.ColumnMatches}" SelectedItem="{Binding ColumnMatch}" MinWidth="110" />
+          <ToggleButton Classes="tool" Content="Aa" IsChecked="{Binding IgnoreCase}" ToolTip.Tip="Ignore case" Margin="6,0,0,0" />
+          <ToggleButton Classes="tool" Content="Trim" IsChecked="{Binding Trim}" ToolTip.Tip="Ignore spaces around cell values" />
+          <TextBlock Text="Number tolerance" Classes="muted" VerticalAlignment="Center" Margin="10,0,6,0" />
+          <TextBox Text="{Binding Tolerance}" PlaceholderText="off" Width="80" ToolTip.Tip="Numbers that differ by no more than this count as equal (0 = same value, e.g. 1.0 and 1). Leave empty to compare the text exactly." />
+        </WrapPanel>
+      </StackPanel>
+    </Border>
+
+    <Border DockPanel.Dock="Bottom" Padding="12,4" Background="{DynamicResource PanelBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Right" Text="{Binding ShapeText}" Classes="muted" FontSize="12" />
+        <TextBlock Text="{Binding Error}" Foreground="{DynamicResource ErrorBrush}" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        <TextBlock Text="{Binding Status}" Classes="muted" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNullOrEmpty}}" />
+      </DockPanel>
+    </Border>
+
+    <Border Classes="panel" Margin="8" ClipToBounds="True">
+      <DockPanel>
+        <ScrollBar x:Name="VScroll" DockPanel.Dock="Right" Orientation="Vertical" AllowAutoHide="False" />
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+          <c:TableCanvas x:Name="Canvas" />
+        </ScrollViewer>
+      </DockPanel>
+    </Border>
+  </DockPanel>
+</UserControl>

@@ -1,0 +1,207 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Collaterale.App.ViewModels"
+             xmlns:c="using:Collaterale.App.Controls"
+             x:Class="Collaterale.App.Views.FolderCompareView"
+             x:DataType="vm:FolderCompareViewModel">
+  <DockPanel>
+    <!-- folders -->
+    <Border DockPanel.Dock="Top" Padding="10,8" Background="{DynamicResource PanelBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+      <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="*,Auto,*">
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Classes="soft" Content="Browse…" Margin="6,0,0,0" Click="OnBrowseLeft" />
+            <TextBox Text="{Binding LeftPath}" PlaceholderText="Left folder" />
+          </DockPanel>
+          <Button Grid.Column="1" Classes="soft" Content="⇄" Margin="8,0" Command="{Binding SwapCommand}" ToolTip.Tip="Exchange the left and right folders" />
+          <DockPanel Grid.Column="2">
+            <Button DockPanel.Dock="Right" Classes="soft" Content="Browse…" Margin="6,0,0,0" Click="OnBrowseRight" />
+            <TextBox Text="{Binding RightPath}" PlaceholderText="Right folder" />
+          </DockPanel>
+        </Grid>
+        <WrapPanel>
+          <Button Classes="tool" Content="■ Stop" Command="{Binding CancelCompareCommand}" IsEnabled="{Binding IsBusy}" ToolTip.Tip="Stop the comparison that is running" />
+          <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
+          <TextBlock Text="Filters:" VerticalAlignment="Center" Classes="muted" Margin="0,0,6,0" />
+          <TextBox Text="{Binding Include}" PlaceholderText="*.*" Width="170" ToolTip.Tip="Only files matching these masks, for example *.cs;*.md" />
+          <Button x:Name="PresetsButton" Classes="tool" Content="▾" ToolTip.Tip="Saved filter presets">
+            <Button.Flyout><MenuFlyout Opening="OnPresetsOpening" /></Button.Flyout>
+          </Button>
+          <Button Classes="tool" Content="⏷ Filters…" Click="OnFilters" ToolTip.Tip="All name filters and other filters (size, date, attributes)" />
+          <Button Classes="tool" Content="👁 Peek" Click="OnPeek" IsEnabled="{Binding HasSelection}" ToolTip.Tip="A quick look at the selected file: the differences of a text pair, or the start of a single file (Space)" />
+          <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
+          <ComboBox ItemsSource="{x:Static vm:FolderCompareViewModel.CriteriaChoices}" SelectedItem="{Binding Criteria}" MinWidth="200" Margin="0,0,8,0">
+            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.CriteriaLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+          <Button Classes="accent" Content="⟳ Compare" Padding="14,6" Command="{Binding CompareCommand}" />
+          <Button Classes="tool" Content="⚙ Session settings…" Click="OnSettings" Margin="8,0,0,0" ToolTip.Tip="Everything that decides what is compared and how: comparison, handling, filters, alignment, colors" />
+          <Button Classes="tool" Content="◐ Legend" ToolTip.Tip="What the colors and symbols mean">
+            <Button.Flyout>
+              <Flyout Placement="BottomEdgeAlignedRight">
+                <ItemsControl ItemsSource="{Binding Legend}" MaxWidth="480">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:LegendItem">
+                      <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,3">
+                        <TextBlock Text="{Binding Sample}" Foreground="{Binding Brush}" FontWeight="SemiBold" Width="28" TextAlignment="Center" />
+                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" MaxWidth="420" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+        </WrapPanel>
+      </StackPanel>
+    </Border>
+
+    <!-- status -->
+    <Border DockPanel.Dock="Bottom" Padding="12,4" Background="{DynamicResource PanelBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <TextBlock Text="{Binding Error}" Foreground="{DynamicResource ErrorBrush}" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          <TextBlock Text="{Binding Status}" Classes="muted" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNullOrEmpty}}" />
+          <TextBlock Text="{Binding SelectedCount, StringFormat='{}{0} selected'}" Classes="muted" FontSize="12" IsVisible="{Binding HasSelection}" />
+          <ProgressBar IsIndeterminate="True" Width="90" Height="4" IsVisible="{Binding IsBusy}" />
+        </StackPanel>
+        <TextBlock Grid.Column="1" Text="{Binding LeftFree}" Classes="muted" FontSize="12" Margin="12,0" />
+        <TextBlock Grid.Column="2" Text="{Binding RightFree}" Classes="muted" FontSize="12" Margin="0,0,12,0" />
+        <ToggleButton Grid.Column="3" Classes="tool" Content="☰ Log" IsChecked="{Binding ShowLog}" Padding="8,0" FontSize="12" ToolTip.Tip="Show or hide the message log" />
+      </Grid>
+    </Border>
+
+    <!-- log -->
+    <Border DockPanel.Dock="Bottom" Height="84" IsVisible="{Binding ShowLog}" Background="{DynamicResource PanelAltBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
+      <ListBox x:Name="LogList" ItemsSource="{Binding Log}" Background="Transparent" Padding="6,2">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:LogLine">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <TextBlock Text="{Binding Time}" Classes="muted" FontSize="12" FontFamily="monospace" />
+              <TextBlock Text="{Binding Text}" FontSize="12" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Border>
+
+    <!-- filters and actions -->
+    <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+      <WrapPanel>
+        <ToggleButton Classes="tool" Content="{Binding SameText}" IsChecked="{Binding ShowSame}" ToolTip.Tip="Show identical files" />
+        <ToggleButton Classes="tool" Content="{Binding DifferentText}" IsChecked="{Binding ShowDifferent}" ToolTip.Tip="Show files that differ" />
+        <ToggleButton Classes="tool" Content="{Binding LeftOnlyText}" IsChecked="{Binding ShowLeftOnly}" ToolTip.Tip="Show files that exist only on the left" />
+        <ToggleButton Classes="tool" Content="{Binding RightOnlyText}" IsChecked="{Binding ShowRightOnly}" ToolTip.Tip="Show files that exist only on the right" />
+        <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
+        <Button Classes="tool" Content="Expand all" Command="{Binding ExpandAllCommand}" />
+        <Button Classes="tool" Content="Collapse all" Command="{Binding CollapseAllCommand}" />
+        <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
+        <Button Classes="tool" Content="Copy →" Command="{Binding CopyToRightCommand}" ToolTip.Tip="Copy the selection to the right folder" />
+        <Button Classes="tool" Content="← Copy" Command="{Binding CopyToLeftCommand}" ToolTip.Tip="Copy the selection to the left folder" />
+        <Button Classes="tool" Content="Delete left" Command="{Binding DeleteLeftCommand}" />
+        <Button Classes="tool" Content="Delete right" Command="{Binding DeleteRightCommand}" />
+        <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
+        <Button Classes="tool" Content="⇅ Synchronize…" Click="OnSync" IsEnabled="{Binding HasComparison}" ToolTip.Tip="Plan and run a synchronization with a full preview" />
+        <Button Classes="tool" Content="⇋ Align selected" Command="{Binding AlignSelectedCommand}" ToolTip.Tip="Compare one left-only item with one right-only item of the same folder although their names differ" />
+        <Button Classes="tool" Content="✕ Alignments" Command="{Binding ClearAlignmentsCommand}" ToolTip.Tip="Remove the alignments made by hand" />
+      </WrapPanel>
+    </Border>
+
+    <!-- tree: two panes side by side, the state between them -->
+    <Border Classes="panel" Margin="12,8,12,12" ClipToBounds="True">
+      <DockPanel>
+        <Grid DockPanel.Dock="Top" Height="32" Background="{DynamicResource PanelAltBrush}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="{Binding Columns.Size}" />
+            <ColumnDefinition Width="{Binding Columns.Date}" />
+            <ColumnDefinition Width="44" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="{Binding Columns.Size}" />
+            <ColumnDefinition Width="{Binding Columns.Date}" />
+            <ColumnDefinition Width="{Binding Columns.Why}" />
+          </Grid.ColumnDefinitions>
+          <Grid.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Sizes" ToggleType="CheckBox" IsChecked="{Binding ShowSizes}" />
+              <MenuItem Header="Modified dates" ToggleType="CheckBox" IsChecked="{Binding ShowDates}" />
+              <MenuItem Header="Why a file differs" ToggleType="CheckBox" IsChecked="{Binding ShowWhy}" />
+            </ContextMenu>
+          </Grid.ContextMenu>
+          <Button Classes="tool" FontSize="11" Content="◧  LEFT" Command="{Binding SortByCommand}" CommandParameter="{x:Static vm:FolderSortColumn.Name}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="6,0,0,0" ToolTip.Tip="Sort by name (right-click the header to choose columns)" />
+          <Button Grid.Column="1" Classes="tool" FontSize="11" Content="SIZE" Command="{Binding SortByCommand}" CommandParameter="{x:Static vm:FolderSortColumn.LeftSize}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Right" Margin="0,0,6,0" />
+          <Button Grid.Column="2" Classes="tool" FontSize="11" Content="MODIFIED" Command="{Binding SortByCommand}" CommandParameter="{x:Static vm:FolderSortColumn.LeftDate}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" />
+          <Border Grid.Column="3" BorderThickness="1,0" BorderBrush="{DynamicResource LineBrush}" />
+          <Button Grid.Column="4" Classes="tool" FontSize="11" Content="RIGHT  ◨" Command="{Binding SortByCommand}" CommandParameter="{x:Static vm:FolderSortColumn.Name}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="6,0,0,0" />
+          <Button Grid.Column="5" Classes="tool" FontSize="11" Content="SIZE" Command="{Binding SortByCommand}" CommandParameter="{x:Static vm:FolderSortColumn.RightSize}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Right" Margin="0,0,6,0" />
+          <Button Grid.Column="6" Classes="tool" FontSize="11" Content="MODIFIED" Command="{Binding SortByCommand}" CommandParameter="{x:Static vm:FolderSortColumn.RightDate}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" />
+          <TextBlock Grid.Column="7" Text="WHY" Classes="section" VerticalAlignment="Center" IsVisible="{Binding ShowWhy}" />
+        </Grid>
+        <ListBox x:Name="Tree" ItemsSource="{Binding Rows}" SelectionMode="Multiple" Padding="0" Background="Transparent" DoubleTapped="OnDoubleTapped" SelectionChanged="OnSelectionChanged" KeyDown="OnTreeKeyDown" TextInput="OnTreeTextInput">
+          <ListBox.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Open (compare the pair)" Click="OnOpenSelected" />
+              <MenuItem Header="Peek" Click="OnPeek" InputGesture="Space" />
+              <Separator />
+              <MenuItem Header="Copy to the right" Command="{Binding CopyToRightCommand}" />
+              <MenuItem Header="Copy to the left" Command="{Binding CopyToLeftCommand}" />
+              <MenuItem Header="Delete from the left" Command="{Binding DeleteLeftCommand}" />
+              <MenuItem Header="Delete from the right" Command="{Binding DeleteRightCommand}" />
+              <Separator />
+              <MenuItem Header="Align with… (select one left-only and one right-only item)" Command="{Binding AlignSelectedCommand}" />
+              <Separator />
+              <MenuItem Header="Open with" SubmenuOpened="OnOpenWithOpening"><MenuItem Header="…" /></MenuItem>
+              <Separator />
+              <MenuItem Header="Show the left one in the file manager" Command="{Binding RevealCommand}" CommandParameter="left" />
+              <MenuItem Header="Show the right one in the file manager" Command="{Binding RevealCommand}" CommandParameter="right" />
+              <MenuItem Header="Copy the full paths" Click="OnCopyPaths" />
+            </ContextMenu>
+          </ListBox.ContextMenu>
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem"><Setter Property="Padding" Value="0" /><Setter Property="MinHeight" Value="28" /><Setter Property="CornerRadius" Value="0" /></Style>
+          </ListBox.Styles>
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:FolderRow">
+              <Grid Height="28">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="{Binding Columns.Size}" />
+                  <ColumnDefinition Width="{Binding Columns.Date}" />
+                  <ColumnDefinition Width="44" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="{Binding Columns.Size}" />
+                  <ColumnDefinition Width="{Binding Columns.Date}" />
+                  <ColumnDefinition Width="{Binding Columns.Why}" />
+                </Grid.ColumnDefinitions>
+                <!-- a side that has no counterpart is shown as an empty, tinted slot, so the rows stay aligned -->
+                <Border Grid.ColumnSpan="3" Background="{DynamicResource PanelAltBrush}" IsVisible="{Binding LeftMissing}" />
+                <Border Grid.Column="4" Grid.ColumnSpan="3" Background="{DynamicResource PanelAltBrush}" IsVisible="{Binding RightMissing}" />
+                <Border Grid.Column="3" BorderThickness="1,0" BorderBrush="{DynamicResource LineBrush}" />
+
+                <StackPanel Orientation="Horizontal" Margin="8,0,0,0" ClipToBounds="True">
+                  <Ellipse Width="7" Height="7" Fill="{Binding SpotBrush}" VerticalAlignment="Center" Margin="0,0,6,0" ToolTip.Tip="Color cue: shown even while the row is selected" />
+                  <Border Width="{Binding Indent}" />
+                  <TextBlock Text="{Binding Glyph}" Width="16" VerticalAlignment="Center" Classes="muted" />
+                  <TextBlock Text="{Binding Icon}" Width="22" VerticalAlignment="Center" Foreground="{Binding IconBrush}" />
+                  <TextBlock Text="{Binding LeftName}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="{Binding NameBrush}" />
+                </StackPanel>
+                <TextBlock Grid.Column="1" Text="{Binding LeftSize}" TextAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{Binding LeftBrush}" />
+                <TextBlock Grid.Column="2" Text="{Binding LeftDate}" VerticalAlignment="Center" Foreground="{Binding LeftBrush}" FontWeight="{Binding LeftNewer, Converter={x:Static c:Converters.BoldIf}}" />
+
+                <TextBlock Grid.Column="3" Text="{Binding StateGlyph}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{Binding SpotBrush}" />
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="8,0,0,0" ClipToBounds="True">
+                  <Border Width="{Binding Indent}" />
+                  <TextBlock Text="{Binding Icon}" Width="22" VerticalAlignment="Center" Foreground="{Binding IconBrush}" IsVisible="{Binding !RightMissing}" />
+                  <TextBlock Text="{Binding RightName}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="{Binding NameBrush}" />
+                </StackPanel>
+                <TextBlock Grid.Column="5" Text="{Binding RightSize}" TextAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{Binding RightBrush}" />
+                <TextBlock Grid.Column="6" Text="{Binding RightDate}" VerticalAlignment="Center" Foreground="{Binding RightBrush}" FontWeight="{Binding RightNewer, Converter={x:Static c:Converters.BoldIf}}" />
+                <TextBlock Grid.Column="7" Text="{Binding Why}" Classes="muted" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+  </DockPanel>
+</UserControl>

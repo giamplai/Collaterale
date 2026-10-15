@@ -1,0 +1,1 @@
+Two methods swap places. A move-aware tool flags the relocated block as moved instead of deleted+added.
