@@ -27,6 +27,16 @@ public class TextCompareTests
         w.CaptureRenderedFrame()!.Save(fs, new Avalonia.Media.Imaging.PngBitmapEncoderOptions());
     }
 
+    /// <summary>Pumps the UI thread until the condition holds (slow CI runners need more than a fixed delay); fails fast on timeout via the caller's assert.</summary>
+    internal static async Task WaitUntil(Func<bool> condition, int timeoutMs = 20000)
+    {
+        for (var waited = 0; waited < timeoutMs && !condition(); waited += 40)
+        {
+            await Task.Delay(40);
+            Dispatcher.UIThread.RunJobs();
+        }
+    }
+
     internal static async Task Settle()
     {
         for (var i = 0; i < 30; i++)
