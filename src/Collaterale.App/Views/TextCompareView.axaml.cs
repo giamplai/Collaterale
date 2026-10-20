@@ -428,12 +428,17 @@ public partial class TextCompareView : UserControl
             return;
         }
 
+        if (from.ConsumeEcho())
+        {
+            return;
+        }
+
         _syncing = true;
         try
         {
             if (Math.Abs(to.VerticalOffset - from.VerticalOffset) > 0.5)
             {
-                to.ScrollToVerticalOffset(from.VerticalOffset);
+                to.FollowOffset(from.VerticalOffset);
             }
 
             UpdateMap();

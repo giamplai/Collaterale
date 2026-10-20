@@ -80,6 +80,27 @@ public sealed class DiffPane : TextEditor
     /// The editor's own ScrollToVerticalOffset does nothing with our template, so the pane's scroll viewer is driven directly. Both
     /// the synced scrolling of the two panes and the overview map depend on this.
     /// </summary>
+    private double? _echo;
+
+    /// <summary>
+    /// True when the scroll notification just received is only the echo of a scroll we applied from the other pane. Following it
+    /// would push a stale offset back and make the panes fight (and drift) while the user scrolls quickly.
+    /// </summary>
+    public bool ConsumeEcho()
+    {
+        var echo = _echo;
+        _echo = null;
+        return echo is { } e && Math.Abs(VerticalOffset - e) <= 0.5;
+    }
+
+    /// <summary>Mirrors the other pane's offset; the notification this causes is then recognised as an echo (see <see cref="ConsumeEcho"/>).</summary>
+    public void FollowOffset(double offset)
+    {
+        var target = Math.Max(0, offset);
+        _echo = Math.Abs(VerticalOffset - target) > 0.5 ? target : null;
+        ScrollToVerticalOffset(target);
+    }
+
     public new void ScrollToVerticalOffset(double offset)
     {
         if (this.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault() is { } viewer)

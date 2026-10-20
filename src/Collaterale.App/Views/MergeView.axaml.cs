@@ -193,6 +193,11 @@ public partial class MergeView : UserControl
             return;
         }
 
+        if (from.ConsumeEcho())
+        {
+            return;
+        }
+
         _syncing = true;
         try
         {
@@ -200,7 +205,7 @@ public partial class MergeView : UserControl
             {
                 if (Math.Abs(o.VerticalOffset - from.VerticalOffset) > 0.5)
                 {
-                    o.ScrollToVerticalOffset(from.VerticalOffset);
+                    o.FollowOffset(from.VerticalOffset);
                 }
             }
         }
