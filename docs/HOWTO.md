@@ -240,7 +240,7 @@ Click anywhere else on the band to make that difference the current one.
 
 ### The overview map (right edge)
 
-A miniature of the whole file: colored marks show where the differences are and the translucent box shows what is on screen. Click or drag on it to jump.
+A miniature of the whole file: colored marks show where the differences are and the translucent box shows what is on screen. Click or drag on it to jump; both panes follow and always stay level with each other.
 
 ### Toolbar
 
