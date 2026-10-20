@@ -8,16 +8,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with: { global-json-file: global.json }
+      - uses: actions/setup-dotnet@v6
+        with: { dotnet-version: 10.0.x }
       - run: dotnet build -c Release
       - run: dotnet test -c Release --no-build
   windows-installers:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with: { global-json-file: global.json }
+      - uses: actions/setup-dotnet@v6
+        with: { dotnet-version: 10.0.x }
       - name: Publish
         run: dotnet publish src/Collaterale.App -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o artifacts/publish/win-x64
       - name: The Inno Setup script must compile
@@ -29,8 +29,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with: { global-json-file: global.json }
+      - uses: actions/setup-dotnet@v6
+        with: { dotnet-version: 10.0.x }
       - run: scripts/package.sh osx-arm64
       - name: Signed app launches
         run: |

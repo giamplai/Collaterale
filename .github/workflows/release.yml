@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest   # Linux packages and the Windows zip are cross-published from Linux; macOS and the Windows setup have their own jobs below
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with: { global-json-file: global.json }
+      - uses: actions/setup-dotnet@v6
+        with: { dotnet-version: 10.0.x }
       - name: Tag must match the project version
         run: |
           v="v$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)"
@@ -28,8 +28,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with: { global-json-file: global.json }
+      - uses: actions/setup-dotnet@v6
+        with: { dotnet-version: 10.0.x }
       - name: Publish and build the setup program (Inno Setup)
         shell: pwsh
         run: |
@@ -54,8 +54,8 @@ jobs:
     runs-on: macos-latest      # code signing (ad-hoc) and the launch check need a Mac
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with: { global-json-file: global.json }
+      - uses: actions/setup-dotnet@v6
+        with: { dotnet-version: 10.0.x }
       - name: Package (builds, ad-hoc signs)
         run: SUMS_NAME=SHA256SUMS-macos scripts/package.sh osx-arm64 osx-x64
       - name: The app must launch
