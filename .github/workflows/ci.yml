@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v6
-        with: { global-json-file: global.json }
+        with: { dotnet-version: 10.0.x }
       - run: dotnet build -c Release
       - run: dotnet test -c Release --no-build
   windows-installers:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v6
-        with: { global-json-file: global.json }
+        with: { dotnet-version: 10.0.x }
       - name: Publish
         run: dotnet publish src/Collaterale.App -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o artifacts/publish/win-x64
       - name: The Inno Setup script must compile
@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v6
-        with: { global-json-file: global.json }
+        with: { dotnet-version: 10.0.x }
       - run: scripts/package.sh osx-arm64
       - name: Signed app launches
         run: |

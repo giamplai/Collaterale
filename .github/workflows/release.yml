@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v6
-        with: { global-json-file: global.json }
+        with: { dotnet-version: 10.0.x }
       - name: Tag must match the project version
         run: |
           v="v$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)"
@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v6
-        with: { global-json-file: global.json }
+        with: { dotnet-version: 10.0.x }
       - name: Publish and build the setup program (Inno Setup)
         shell: pwsh
         run: |
@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v6
-        with: { global-json-file: global.json }
+        with: { dotnet-version: 10.0.x }
       - name: Package (builds, ad-hoc signs)
         run: SUMS_NAME=SHA256SUMS-macos scripts/package.sh osx-arm64 osx-x64
       - name: The app must launch
