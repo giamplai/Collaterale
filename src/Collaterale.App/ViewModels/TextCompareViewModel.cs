@@ -345,6 +345,7 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
         IgnoreTimestamps = IgnoreTimestamps,
         IgnoreBlankLines = IgnoreBlankLines,
         Comments = ActiveSyntax,
+        Isolations = [.. _isolations],
     };
 
     partial void OnWhitespaceChanged(WhitespaceMode value) => Recompare();
@@ -454,6 +455,7 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
             return;
         }
 
+        DropStaleIsolations();
         try
         {
             Comparison = TextComparison.Compare(Left.Lines, Right.Lines, Options);

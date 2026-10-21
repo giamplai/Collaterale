@@ -18,6 +18,17 @@ public enum WhitespaceMode
     IgnoreAll,
 }
 
+/// <summary>
+/// A stretch of each file that is compared only with the stretch of the other file: lines <c>[LeftStart, LeftStart + LeftCount)</c> of the
+/// left text against <c>[RightStart, RightStart + RightCount)</c> of the right text. A count of 0 means "nothing on that side", so the
+/// lines of the other side stand alone, with empty padding opposite them.
+/// </summary>
+public readonly record struct Isolation(int LeftStart, int LeftCount, int RightStart, int RightCount)
+{
+    public int LeftEnd => LeftStart + LeftCount;
+    public int RightEnd => RightStart + RightCount;
+}
+
 /// <summary>What counts as a difference. Lines equal under these options are "same", or "unimportant" if their raw text still differs.</summary>
 public sealed record DiffOptions
 {
@@ -41,6 +52,13 @@ public sealed record DiffOptions
     public CommentSyntax? Comments { get; init; }
 
     public DiffAlgorithm Algorithm { get; init; } = DiffAlgorithm.Myers;
+
+    /// <summary>
+    /// Stretches that are realigned on their own (the user's "isolate"): the text before, between and after them is compared
+    /// normally, but a line of an isolated stretch never pairs with a line outside its counterpart. Entries must be in file order and not
+    /// overlap; invalid ones are ignored.
+    /// </summary>
+    public IReadOnlyList<Isolation> Isolations { get; init; } = [];
 
     /// <summary>Recognise blocks that were cut from one place and pasted in another and flag them as moved.</summary>
     public bool DetectMoves { get; init; } = true;
