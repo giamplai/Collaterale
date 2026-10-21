@@ -334,7 +334,7 @@ Earlier searches are offered in the drop-down of the find box.
 | **· Whitespace** | Shows spaces, tabs and line endings as symbols, so a difference that is only whitespace can be seen. |
 | **↩ Wrap** | Wraps long lines to the width of the pane. The two panes then scroll together only approximately, because a wrapped line is taller. |
 | **▤ Over-under** | Puts the left file above the right one instead of side by side (the copy buttons of the gutter are then replaced by **← Left** / **Right →** in the toolbar). |
-| **Text details / Hex details** | A panel under the panes with the **current line of each file in full** (the line where the cursor is). *Text details* is editable: type and press **Enter** (or leave the box) to change that line. *Hex details* shows its bytes, in the file's own encoding. |
+| **Text details / Hex details** | A panel under the panes with the **two lines that face each other on the cursor's row, in full, one above the other** — so the characters that differ line up in a column and stand out. It follows the cursor whichever pane it is in (also with **↩ Wrap** on); if one side has only padding on that row, its box says *no line here*. *Text details* is editable: type and press **Enter** (or leave the box) to change that line. *Hex details* shows its bytes, in the file's own encoding. |
 
 ![Over-under layout](images/text-compare-over-under.png)
 

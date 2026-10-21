@@ -49,8 +49,8 @@ public partial class TextCompareViewModel
 
     public string LeftDetailText => LineAt(Left, LeftCaretLine);
     public string RightDetailText => LineAt(Right, RightCaretLine);
-    public string LeftDetailLabel => $"Left · line {LeftCaretLine + 1}";
-    public string RightDetailLabel => $"Right · line {RightCaretLine + 1}";
+    public string LeftDetailLabel => LeftCaretLine < 0 ? "Left · (no line here)" : $"Left · line {LeftCaretLine + 1}";
+    public string RightDetailLabel => RightCaretLine < 0 ? "Right · (no line here)" : $"Right · line {RightCaretLine + 1}";
     public string LeftHexText => HexOf(Left, LeftCaretLine);
     public string RightHexText => HexOf(Right, RightCaretLine);
 
@@ -75,12 +75,18 @@ public partial class TextCompareViewModel
     /// <summary>The options changed: show the text again so the panes pick up the new settings.</summary>
     public void PreferencesChanged() => Rebuild();
 
-    /// <summary>The panes' cursor moved: remember the real line of each side for the details panel.</summary>
+    /// <summary>
+    /// The cursor moved to a row of either pane: the details panel shows the lines that face each other on that row — the two sides
+    /// of the comparison — whichever pane the cursor is in. A side with only padding on the row has no line there (-1).
+    /// </summary>
     public void CaretMoved(Side side, int row)
     {
-        var line = LineOfRow(side, row);
-        if (side == Side.Left) { LeftCaretLine = line; } else { RightCaretLine = line; }
+        LeftCaretLine = LineOnRow(LeftRows, row);
+        RightCaretLine = LineOnRow(RightRows, row);
     }
+
+    private static int LineOnRow(IReadOnlyList<Collaterale.App.Controls.PaneRow> rows, int row)
+        => row >= 0 && row < rows.Count && rows[row] is { IsFiller: false, FoldCount: 0, LineNumber: > 0 } r ? r.LineNumber - 1 : -1;
 
     /// <summary>Applies a line edited in the details panel as one undoable step.</summary>
     public void SetLine(Side side, int line, string text)

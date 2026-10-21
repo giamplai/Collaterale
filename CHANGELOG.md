@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Fix, text details panel:** it now shows the two lines that face each other on the cursor's row, whichever pane the cursor is in (before, each box followed its own pane, so with a long wrapped line the two boxes could show unrelated lines), and the two lines are stacked one above the other so differences line up.
 
 ## 0.3.0 — 2026-10-21
 * **Folder compare, stronger checksums:** the content test can now compare **SHA-1** or **SHA-256** hashes (besides CRC-32 and byte by byte), also as `/qc=sha1` and `/qc=sha256` on the command line.

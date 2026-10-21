@@ -102,18 +102,19 @@
 
     <!-- details of the current line -->
     <Border DockPanel.Dock="Bottom" IsVisible="{Binding ShowAnyDetails}" Padding="10,6" Background="{DynamicResource PanelAltBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
-      <Grid ColumnDefinitions="*,10,*">
+      <!-- the two lines one above the other: characters that differ line up in a column, which the eye catches far better than side by side -->
+      <StackPanel Spacing="6">
         <StackPanel>
           <TextBlock Text="{Binding LeftDetailLabel}" Classes="section" />
           <TextBox x:Name="LeftDetail" IsVisible="{Binding ShowTextDetails}" Text="{Binding LeftDetailText, Mode=OneWay}" FontFamily="monospace" LostFocus="OnDetailCommitted" KeyDown="OnDetailKeyDown" Tag="left" />
           <TextBlock IsVisible="{Binding ShowHexDetails}" Text="{Binding LeftHexText}" FontFamily="monospace" FontSize="12" MinHeight="18" />
         </StackPanel>
-        <StackPanel Grid.Column="2">
+        <StackPanel>
           <TextBlock Text="{Binding RightDetailLabel}" Classes="section" />
           <TextBox x:Name="RightDetail" IsVisible="{Binding ShowTextDetails}" Text="{Binding RightDetailText, Mode=OneWay}" FontFamily="monospace" LostFocus="OnDetailCommitted" KeyDown="OnDetailKeyDown" Tag="right" />
           <TextBlock IsVisible="{Binding ShowHexDetails}" Text="{Binding RightHexText}" FontFamily="monospace" FontSize="12" MinHeight="18" />
         </StackPanel>
-      </Grid>
+      </StackPanel>
     </Border>
 
     <!-- status bar -->

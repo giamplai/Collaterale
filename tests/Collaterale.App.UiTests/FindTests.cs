@@ -158,10 +158,11 @@ public class FindTests
     public void The_details_panel_shows_the_cursor_line_as_text_and_as_hex_and_edits_it()
     {
         var vm = Open(L, R);
-        vm.CaretMoved(Side.Left, vm.RowOfLine(Side.Left, 1));
-        vm.CaretMoved(Side.Right, vm.RowOfLine(Side.Right, 2));
+        var row = vm.RowOfLine(Side.Left, 1);
+        vm.CaretMoved(Side.Left, row);
         Assert.Equal("beta apple", vm.LeftDetailText);
-        Assert.Equal("apple tart", vm.RightDetailText);
+        var facing = vm.RightRows[row];                                      // the right side shows what faces the left line on that row
+        Assert.Equal(facing.IsFiller ? "" : vm.Right.Lines[facing.LineNumber - 1], vm.RightDetailText);
         Assert.Equal("Left · line 2", vm.LeftDetailLabel);
         Assert.StartsWith("0000  62 65 74 61 20 61 70 70 6C 65", vm.LeftHexText);
         Assert.EndsWith("beta apple", vm.LeftHexText);
