@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Merge, faster to work through:** **✓ Accept** marks an automatic change as reviewed (with an "n of m accepted" count), **↶ Undo choice** takes back one section's choice, **Resolve all ▾** settles every open conflict left / right / both / center, accepts every automatic change or undoes every choice, and a **Text details** panel shows the current line of each version and of the result in full (remembered).
 * **Text compare, Isolate:** select lines and press **⇋ Isolate** (Ctrl+Alt+I, or the context menu) to realign them on their own: lines on one side stand alone with padding opposite, lines on both sides are compared only with each other. **✕ Isolations** goes back to the automatic alignment.
 
 ## 0.2.0 — 2026-10-21

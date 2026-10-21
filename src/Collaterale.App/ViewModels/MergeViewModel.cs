@@ -395,6 +395,7 @@ public sealed partial class MergeViewModel : ObservableObject, ISessionContent
         TakeBaseCommand.NotifyCanExecuteChanged();
         ResetResultCommand.NotifyCanExecuteChanged();
         SaveCommand.NotifyCanExecuteChanged();
+        NotifyConveniences();
     }
 
     // ───────────── navigation ─────────────
@@ -493,6 +494,7 @@ public sealed partial class MergeViewModel : ObservableObject, ISessionContent
         Status = "Result edited by hand";
         SaveCommand.NotifyCanExecuteChanged();
         ResetResultCommand.NotifyCanExecuteChanged();
+        NotifyConveniences();
     }
 
     [RelayCommand(CanExecute = nameof(ResultEdited))]
