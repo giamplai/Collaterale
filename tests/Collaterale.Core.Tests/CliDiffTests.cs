@@ -129,6 +129,17 @@ public class CliDiffTests
     }
 
     [Fact]
+    public void Ignore_strings_ignores_what_a_string_says_but_not_comments()
+    {
+        var (a, b) = (Tmp("a.cs", "var s = \"old\"; // same\n"), Tmp("b.cs", "var s = \"new\"; // same\n"));
+        Assert.Equal(1, Run("--diff", a, b).Exit);
+        Assert.Equal((0, "", ""), Run("--diff", "--ignore-strings", a, b));
+        var (c, d) = (Tmp("c.cs", "var s = \"x\"; // one\n"), Tmp("d.cs", "var s = \"x\"; // two\n"));
+        Assert.Equal(1, Run("--diff", "--ignore-strings", c, d).Exit);
+        Assert.Equal(0, Run("--diff", "--ignore-strings", "--ignore-comments", c, d).Exit);
+    }
+
+    [Fact]
     public void Ignore_comments_for_an_unknown_extension_warns_and_compares_normally()
     {
         var (a, b) = (Tmp("a.xyz", "x // 1\n"), Tmp("b.xyz", "x // 2\n"));

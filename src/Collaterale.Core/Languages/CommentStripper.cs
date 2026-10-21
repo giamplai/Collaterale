@@ -23,7 +23,8 @@ public static class CommentStripper
 {
     private enum Mode { Code, Block, MultiString }
 
-    public static CodeLine[] Strip(IReadOnlyList<string> lines, CommentSyntax syntax)
+    /// <summary>Takes out comments (default), the text inside string literals, or both. Comments are always <i>recognised</i>, so a quote inside one never starts a string.</summary>
+    public static CodeLine[] Strip(IReadOnlyList<string> lines, CommentSyntax syntax, bool comments = true, bool stringContents = false)
     {
         var result = new CodeLine[lines.Count];
         var mode = Mode.Code;
@@ -47,9 +48,9 @@ public static class CommentStripper
                 if (mode == Mode.Block)
                 {
                     var close = line.IndexOf(blockClose, i, StringComparison.Ordinal);
-                    if (close < 0) { removed.Add((i, line.Length)); i = line.Length; break; }
+                    if (close < 0) { if (comments) { removed.Add((i, line.Length)); } i = line.Length; break; }
                     var end = close + blockClose.Length;
-                    removed.Add((i, end));
+                    if (comments) { removed.Add((i, end)); }
                     i = end;
                     mode = Mode.Code;
                     continue;
@@ -57,7 +58,9 @@ public static class CommentStripper
 
                 if (mode == Mode.MultiString)
                 {
+                    var from = i;
                     i = ScanString(line, i, multi!, out var closed);
+                    if (stringContents) { removed.Add((from, closed ? i - multi!.Close.Length : i)); }
                     if (closed) { mode = Mode.Code; }
                     continue;
                 }
@@ -65,7 +68,9 @@ public static class CommentStripper
                 var rule = strings.FirstOrDefault(s => string.CompareOrdinal(line, i, s.Open, 0, s.Open.Length) == 0);
                 if (rule is not null)
                 {
-                    i = ScanString(line, i + rule.Open.Length, rule, out var closed);
+                    var contentStart = i + rule.Open.Length;
+                    i = ScanString(line, contentStart, rule, out var closed);
+                    if (stringContents) { removed.Add((contentStart, closed ? i - rule.Close.Length : i)); }
                     if (!closed && rule.Multiline) { mode = Mode.MultiString; multi = rule; }
                     continue;
                 }
@@ -74,16 +79,16 @@ public static class CommentStripper
                 if (blk.Open is not null)
                 {
                     var close = line.IndexOf(blk.Close, i + blk.Open.Length, StringComparison.Ordinal);
-                    if (close < 0) { removed.Add((i, line.Length)); mode = Mode.Block; blockClose = blk.Close; i = line.Length; break; }
+                    if (close < 0) { if (comments) { removed.Add((i, line.Length)); } mode = Mode.Block; blockClose = blk.Close; i = line.Length; break; }
                     var end = close + blk.Close.Length;
-                    removed.Add((i, end));
+                    if (comments) { removed.Add((i, end)); }
                     i = end;
                     continue;
                 }
 
                 if (StartsLineComment(line, i, lineStarts, syntax))
                 {
-                    removed.Add((i, line.Length));
+                    if (comments) { removed.Add((i, line.Length)); }
                     break;
                 }
 

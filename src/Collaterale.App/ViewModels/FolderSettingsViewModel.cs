@@ -65,6 +65,7 @@ public sealed partial class FolderSettingsViewModel : ObservableObject
     [ObservableProperty] private WhitespaceMode _ruleWhitespace;
     [ObservableProperty] private bool _ruleIgnoreCase;
     [ObservableProperty] private bool _ruleIgnoreComments;
+    [ObservableProperty] private bool _ruleIgnoreStrings;
     [ObservableProperty] private bool _ruleIgnoreTimestamps;
     [ObservableProperty] private bool _ruleIgnoreBlankLines;
     [ObservableProperty] private bool _skipContentIfQuickSame = true;
@@ -116,7 +117,7 @@ public sealed partial class FolderSettingsViewModel : ObservableObject
             CompareNameCase = o.CompareNameCase, AttrReadOnly = o.CompareAttributes.HasFlag(FileAttributes.ReadOnly), AttrHidden = o.CompareAttributes.HasFlag(FileAttributes.Hidden),
             AttrSystem = o.CompareAttributes.HasFlag(FileAttributes.System), AttrArchive = o.CompareAttributes.HasFlag(FileAttributes.Archive),
             ComparePermissions = o.ComparePermissions, AlignExtensions = o.AlignDifferentExtensions, AlignUnicode = o.AlignUnicodeNormalization, DetectRenames = o.DetectRenames,
-            ContentMode = o.ContentMode, RuleWhitespace = o.Rules.Whitespace, RuleIgnoreCase = o.Rules.IgnoreCase, RuleIgnoreComments = o.Rules.IgnoreComments,
+            ContentMode = o.ContentMode, RuleWhitespace = o.Rules.Whitespace, RuleIgnoreCase = o.Rules.IgnoreCase, RuleIgnoreComments = o.Rules.IgnoreComments, RuleIgnoreStrings = o.Rules.IgnoreStrings,
             RuleIgnoreTimestamps = o.Rules.IgnoreTimestamps, RuleIgnoreBlankLines = o.Rules.IgnoreBlankLines,
             SkipContentIfQuickSame = o.SkipContentIfQuickSame, OverrideQuickResults = o.OverrideQuickResults, CompareVersions = o.CompareVersions,
             Recursive = o.Recursive, HideEmptyFolders = o.HideEmptyFolders, ExpandOnLoad = vm.ExpandOnLoad, Archives = o.Archives, FollowSymbolicLinks = o.FollowSymbolicLinks,
@@ -144,7 +145,7 @@ public sealed partial class FolderSettingsViewModel : ObservableObject
         AlignUnicodeNormalization = AlignUnicode,
         DetectRenames = DetectRenames,
         ContentMode = ContentMode,
-        Rules = new ContentRules { Whitespace = RuleWhitespace, IgnoreCase = RuleIgnoreCase, IgnoreComments = RuleIgnoreComments, IgnoreTimestamps = RuleIgnoreTimestamps, IgnoreBlankLines = RuleIgnoreBlankLines },
+        Rules = new ContentRules { Whitespace = RuleWhitespace, IgnoreCase = RuleIgnoreCase, IgnoreComments = RuleIgnoreComments, IgnoreStrings = RuleIgnoreStrings, IgnoreTimestamps = RuleIgnoreTimestamps, IgnoreBlankLines = RuleIgnoreBlankLines },
         SkipContentIfQuickSame = SkipContentIfQuickSame,
         OverrideQuickResults = OverrideQuickResults,
         CompareVersions = CompareVersions,
