@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Text compare, select whole lines:** click the line-number margin (the pointer becomes a mirrored arrow) to select a line, drag along it to select several.
 
 ## 0.4.0 — 2026-10-22
 * **Fix, text details panel:** it now shows the two lines that face each other on the cursor's row, whichever pane the cursor is in (before, each box followed its own pane, so with a long wrapped line the two boxes could show unrelated lines), and the two lines are stacked one above the other so differences line up.

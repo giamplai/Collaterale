@@ -239,6 +239,12 @@ Each difference has a band in the strip between the panes, with two buttons:
 
 Click anywhere else on the band to make that difference the current one.
 
+### Selecting whole lines (line-number margin)
+
+Move the pointer over the **line numbers** at the left edge of a pane: the arrow turns into a mirrored arrow pointing up-right. **Click** there to select the whole line (its line break included); **click and drag** up or down to select several consecutive lines. The selection can then be copied, or used by **⇋ Isolate** and the other commands that work on the selected lines.
+
+![Two lines selected by dragging in the line-number margin](images/text-compare-line-select.png)
+
 ### The overview map (right edge)
 
 A miniature of the whole file: colored marks show where the differences are and the translucent box shows what is on screen. Click or drag on it to jump; both panes follow and always stay level with each other.
