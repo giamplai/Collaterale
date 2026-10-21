@@ -114,6 +114,8 @@ public class FolderCriteriaTests
     [Theory]
     [InlineData(ContentMode.Binary)]
     [InlineData(ContentMode.Crc)]
+    [InlineData(ContentMode.Sha1)]
+    [InlineData(ContentMode.Sha256)]
     [InlineData(ContentMode.Rules)]
     public void Content_criteria_see_real_differences_and_ignore_time(ContentMode mode)
     {

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Folder compare, stronger checksums:** the content test can now compare **SHA-1** or **SHA-256** hashes (besides CRC-32 and byte by byte), also as `/qc=sha1` and `/qc=sha256` on the command line.
 * **Choose which syntax elements matter:** the new **❝ Strings** switch makes what a string literal says unimportant (quotes, code and comments still count); with **💬 Comments** also on, only the code is important. Also in the folder compare's content rules and as `--ignore-strings` on the command line.
 * **Merge, faster to work through:** **✓ Accept** marks an automatic change as reviewed (with an "n of m accepted" count), **↶ Undo choice** takes back one section's choice, **Resolve all ▾** settles every open conflict left / right / both / center, accepts every automatic change or undoes every choice, and a **Text details** panel shows the current line of each version and of the result in full (remembered).
 * **Remembered choices:** the text compare and the three-way merge reopen the way you left them: whitespace and case decisions (shared by both), algorithm, moves, collapse, ignore switches, whitespace symbols, wrap, over-under, the text/hex details panel, the merge's Show filter and Center pane.

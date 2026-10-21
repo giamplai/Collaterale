@@ -192,6 +192,16 @@ public class CommandLineTests : IDisposable
     }
 
     [Fact]
+    public void Sha_quick_compares_use_the_binary_codes()
+    {
+        foreach (var (kind, tag) in new[] { ("/qc=sha1", "sha1"), ("/qc=sha256", "sha256") })
+        {
+            Assert.Equal(1, Quick(kind, F(tag + "-same-a", "abc"), F(tag + "-same-b", "abc")));
+            Assert.Equal(11, Quick(kind, F(tag + "-diff-a", "abc"), F(tag + "-diff-b", "abd")));
+        }
+    }
+
+    [Fact]
     public void Rules_quick_compare_separates_same_similar_and_different()
     {
         Assert.Equal(2, Quick("/qc", F("a", "x\ny\n"), F("b", "x\ny\n")));            // bytes equal

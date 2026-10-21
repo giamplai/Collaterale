@@ -41,6 +41,12 @@ public enum ContentMode
     /// <summary>Whole files are summed with CRC-32 and the sums compared.</summary>
     Crc,
 
+    /// <summary>Whole files are hashed with SHA-1 and the hashes compared (a collision-resistant check, useful to verify copies and backups).</summary>
+    Sha1,
+
+    /// <summary>Whole files are hashed with SHA-256 and the hashes compared (the strongest check; slower than CRC-32).</summary>
+    Sha256,
+
     /// <summary>
     /// As text, with <see cref="ContentRules"/>: line endings and encoding never matter, and optionally whitespace, case, comments,
     /// dates and blank lines are ignored. A file that is not text is compared byte by byte.

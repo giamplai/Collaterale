@@ -73,6 +73,8 @@ public static class Converters
     public static readonly IValueConverter ContentModeLabel = new FuncConverter<Collaterale.Core.Folders.ContentMode>(m => m switch
     {
         Collaterale.Core.Folders.ContentMode.Crc => "Checksum (CRC-32)",
+        Collaterale.Core.Folders.ContentMode.Sha1 => "Checksum (SHA-1)",
+        Collaterale.Core.Folders.ContentMode.Sha256 => "Checksum (SHA-256)",
         Collaterale.Core.Folders.ContentMode.Rules => "As text, with rules (ignore line endings, whitespace, comments…)",
         _ => "Byte by byte",
     });
