@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 1.0.0 — 2026-10-22
 * **Text compare, select whole lines:** click the line-number margin (the pointer becomes a mirrored arrow) to select a line, drag along it to select several.
 
 ## 0.4.0 — 2026-10-22
