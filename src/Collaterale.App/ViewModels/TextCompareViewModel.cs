@@ -293,7 +293,20 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
     [ObservableProperty] private bool _ignoreBlankLines;
     [ObservableProperty] private LanguageChoice _language = LanguageChoice.Auto;
 
-    public static IReadOnlyList<LanguageChoice> Languages { get; } = [LanguageChoice.Auto, .. CommentSyntaxes.All.Select(s => new LanguageChoice(s))];
+    /// <summary>The language list: automatic, the built-in syntaxes, then the file formats the user described (refreshed when those change).</summary>
+    public static System.Collections.ObjectModel.ObservableCollection<LanguageChoice> Languages { get; } = [LanguageChoice.Auto, .. CommentSyntaxes.All.Select(s => new LanguageChoice(s))];
+
+    /// <summary>Brings the language list up to date after the user's file formats changed; the entries that did not change stay as they are.</summary>
+    public static void RefreshLanguages()
+    {
+        var wanted = CommentSyntaxes.All;
+        for (var i = Languages.Count - 1; i >= 1; i--)
+        {
+            if (!wanted.Contains(Languages[i].Syntax!)) { Languages.RemoveAt(i); }
+        }
+
+        foreach (var syntax in wanted.Where(w => !Languages.Any(l => l.Syntax == w))) { Languages.Add(new LanguageChoice(syntax)); }
+    }
 
     /// <summary>The comment syntax in effect: the chosen language, or the one the file names suggest; null when comments are not ignored or the language is unknown.</summary>
     public CommentSyntax? ActiveSyntax => !(IgnoreComments || IgnoreStrings) ? null : Language.Syntax ?? CommentSyntaxes.ForPath(Left.Path) ?? CommentSyntaxes.ForPath(Right.Path);

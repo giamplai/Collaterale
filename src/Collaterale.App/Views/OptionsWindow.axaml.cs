@@ -32,6 +32,10 @@ public partial class OptionsWindow : Window
 
     private void OnRemoveApp(object? sender, RoutedEventArgs e) => Vm.RemoveApp();
 
+    private void OnAddFormat(object? sender, RoutedEventArgs e) => Vm.AddFormat();
+
+    private void OnRemoveFormat(object? sender, RoutedEventArgs e) => Vm.RemoveFormat();
+
     private void OnAddPreset(object? sender, RoutedEventArgs e) => Vm.AddPreset();
 
     private void OnRemovePreset(object? sender, RoutedEventArgs e) => Vm.RemovePreset();

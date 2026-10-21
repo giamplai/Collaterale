@@ -53,6 +53,47 @@ public class OptionsTests
     }
 
     [AvaloniaFact]
+    public void A_described_file_format_reaches_the_language_list_and_the_comparison()
+    {
+        var shell = Shell();
+        try
+        {
+            var options = new OptionsViewModel(shell.Settings);
+            options.AddFormat();
+            options.SelectedFormat!.Name = "Toy config";
+            options.SelectedFormat.Extensions = "toy";
+            options.SelectedFormat.LineComments = "!";
+            options.SelectedFormat.Strings = "\"";
+            options.AddFormat();                                                // no extension: not usable, dropped
+            options.ApplyTo(shell.Settings);
+            shell.ApplyPreferences();
+
+            Assert.Equal(["Toy config"], shell.Settings.Prefs.FileFormats.Select(f => f.Name));
+            Assert.Contains(TextCompareViewModel.Languages, l => l.Label == "Toy config");
+
+            var vm = shell.NewTextCompare();
+            vm.OpenText("/work/a.toy", ["name = \"alpha\" ! one"], "/work/b.toy", ["name = \"beta\" ! two"]);
+            Assert.True(vm.HasDifferences);
+            vm.IgnoreComments = true;
+            vm.IgnoreStrings = true;
+            Assert.False(vm.HasDifferences);                                    // the language came from the extension
+
+            // taking the format away removes it from the list again
+            var again = new OptionsViewModel(shell.Settings);
+            again.SelectedFormat = again.FileFormats[0];
+            again.RemoveFormat();
+            again.ApplyTo(shell.Settings);
+            shell.ApplyPreferences();
+            Assert.DoesNotContain(TextCompareViewModel.Languages, l => l.Label == "Toy config");
+        }
+        finally
+        {
+            Collaterale.Core.Languages.CommentSyntaxes.ConfigureCustom([]);
+            TextCompareViewModel.RefreshLanguages();
+        }
+    }
+
+    [AvaloniaFact]
     public void The_commands_page_assigns_removes_and_restores_shortcuts_and_flags_clashes()
     {
         var shell = Shell();
@@ -85,7 +126,8 @@ public class OptionsTests
     public async Task The_options_window_renders_every_page()
     {
         var shell = Shell();
-        var window = new OptionsWindow(new OptionsViewModel(shell.Settings));
+        var options = new OptionsViewModel(shell.Settings);
+        var window = new OptionsWindow(options);
         window.Show();
         await TextCompareTests.Settle();
         var tabs = window.GetVisualDescendants().OfType<Avalonia.Controls.TabControl>().First();
@@ -94,6 +136,12 @@ public class OptionsTests
         tabs.SelectedIndex = 7;                                          // Commands
         await TextCompareTests.Settle();
         TextCompareTests.Shot(window, "options-commands.png");
+        tabs.SelectedIndex = tabs.Items.OfType<Avalonia.Controls.TabItem>().ToList().FindIndex(t => (string?)t.Header == "File formats");
+        var toy = new FileFormat { Name = "Toy config", Extensions = "toy cfg2", LineComments = "! --", BlockComments = "<< >> (* *)", Strings = "\" '" };
+        options.FileFormats.Add(toy);
+        options.SelectedFormat = toy;
+        await TextCompareTests.Settle();
+        TextCompareTests.Shot(window, "options-file-formats.png");
         window.Close();
     }
 }
