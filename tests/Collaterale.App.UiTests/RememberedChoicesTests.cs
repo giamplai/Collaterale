@@ -53,4 +53,24 @@ public class RememberedChoicesTests
         Assert.Equal(WhitespaceMode.IgnoreLeadingTrailing, again.Whitespace);
         Assert.True(second.NewTextCompare().IgnoreCase);                          // and the other way round
     }
+
+    [AvaloniaFact]
+    public void Ignoring_strings_changes_the_comparison_and_is_remembered()
+    {
+        var path = TempSettings();
+        var shell = new MainWindowViewModel(new SettingsStore(path));
+        var vm = shell.NewTextCompare();
+        vm.OpenText("/work/a.cs", ["var s = \"hello\"; // note", "Run();"], "/work/b.cs", ["var s = \"bonjour\"; // note", "Run();"]);
+        Assert.True(vm.HasDifferences);
+        vm.IgnoreStrings = true;
+        Assert.False(vm.HasDifferences);                       // what the string says no longer counts
+        vm.IgnoreStrings = false;
+        vm.IgnoreComments = true;
+        Assert.True(vm.HasDifferences);                        // comments alone do not hide a changed string
+        vm.IgnoreStrings = true;
+
+        var again = new MainWindowViewModel(new SettingsStore(path)).NewTextCompare();
+        Assert.True(again.IgnoreStrings);
+        Assert.True(again.IgnoreComments);
+    }
 }

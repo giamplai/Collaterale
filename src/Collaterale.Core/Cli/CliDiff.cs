@@ -23,6 +23,7 @@ public static class CliDiff
           -B                      ignore leading and trailing whitespace
           -i                      ignore case
           --ignore-comments       ignore comments (the language comes from the file name, or --lang)
+          --ignore-strings        ignore the text inside string literals (the language comes from the file name, or --lang)
           --lang ID               comment syntax: c-like, csharp, javascript, python, hash, markup, sql, lua, ini, php, css, haskell, jsonc
           --ignore-timestamps     ignore dates and times
           --ignore-blank-lines    added or removed empty lines are not differences
@@ -59,6 +60,7 @@ public static class CliDiff
                 case "-B": options = options with { Whitespace = WhitespaceMode.IgnoreLeadingTrailing }; break;
                 case "-i": options = options with { IgnoreCase = true }; break;
                 case "--ignore-comments": smart.Comments = true; break;
+                case "--ignore-strings": smart.Strings = true; break;
                 case "--ignore-blank-lines": options = options with { IgnoreBlankLines = true }; break;
                 case "--ignore-timestamps": options = options with { IgnoreTimestamps = true }; break;
                 case "--structure": smart.Structure = true; break;
@@ -110,6 +112,7 @@ public static class CliDiff
     private sealed class Smart
     {
         public bool Comments { get; set; }
+        public bool Strings { get; set; }
         public bool Structure { get; set; }
         public CommentSyntax? Syntax { get; set; }
 
@@ -127,11 +130,11 @@ public static class CliDiff
                 else { error.WriteLine(format == StructuredFormat.None ? "--structure: not a JSON or XML file, comparing as text." : "--structure: a file could not be parsed, comparing as text."); }
             }
 
-            if (Comments)
+            if (Comments || Strings)
             {
                 var syntax = Syntax ?? CommentSyntaxes.ForPath(leftPath) ?? CommentSyntaxes.ForPath(rightPath);
-                if (syntax is null) { error.WriteLine("--ignore-comments: the language is unknown for this file name; use --lang."); }
-                else { options = options with { Comments = syntax }; }
+                if (syntax is null) { error.WriteLine($"{(Comments ? "--ignore-comments" : "--ignore-strings")}: the language is unknown for this file name; use --lang."); }
+                else { options = options with { Language = syntax, Comments = Comments ? syntax : null, IgnoreStrings = Strings }; }
             }
 
             return (left, right, options);

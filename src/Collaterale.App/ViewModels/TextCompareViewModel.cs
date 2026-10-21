@@ -146,6 +146,7 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
         OverUnder = v.OverUnder;
         Details = Enum.TryParse<DetailsMode>(v.Details, out var d) ? d : DetailsMode.None;
         IgnoreComments = v.IgnoreComments;
+        IgnoreStrings = v.IgnoreStrings;
         IgnoreTimestamps = v.IgnoreTimestamps;
         IgnoreBlankLines = v.IgnoreBlankLines;
         _remembering = false;
@@ -173,6 +174,7 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
             case nameof(OverUnder): v.OverUnder = OverUnder; break;
             case nameof(Details): v.Details = Details.ToString(); break;
             case nameof(IgnoreComments): v.IgnoreComments = IgnoreComments; break;
+            case nameof(IgnoreStrings): v.IgnoreStrings = IgnoreStrings; break;
             case nameof(IgnoreTimestamps): v.IgnoreTimestamps = IgnoreTimestamps; break;
             case nameof(IgnoreBlankLines): v.IgnoreBlankLines = IgnoreBlankLines; break;
             default: return;
@@ -286,6 +288,7 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
     }
 
     [ObservableProperty] private bool _ignoreComments;
+    [ObservableProperty] private bool _ignoreStrings;
     [ObservableProperty] private bool _ignoreTimestamps;
     [ObservableProperty] private bool _ignoreBlankLines;
     [ObservableProperty] private LanguageChoice _language = LanguageChoice.Auto;
@@ -293,7 +296,7 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
     public static IReadOnlyList<LanguageChoice> Languages { get; } = [LanguageChoice.Auto, .. CommentSyntaxes.All.Select(s => new LanguageChoice(s))];
 
     /// <summary>The comment syntax in effect: the chosen language, or the one the file names suggest; null when comments are not ignored or the language is unknown.</summary>
-    public CommentSyntax? ActiveSyntax => !IgnoreComments ? null : Language.Syntax ?? CommentSyntaxes.ForPath(Left.Path) ?? CommentSyntaxes.ForPath(Right.Path);
+    public CommentSyntax? ActiveSyntax => !(IgnoreComments || IgnoreStrings) ? null : Language.Syntax ?? CommentSyntaxes.ForPath(Left.Path) ?? CommentSyntaxes.ForPath(Right.Path);
 
     public static WhitespaceMode[] WhitespaceModes { get; } = Enum.GetValues<WhitespaceMode>();
     public static DiffAlgorithm[] Algorithms { get; } = Enum.GetValues<DiffAlgorithm>();
@@ -344,7 +347,9 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
         IgnorePatterns = [.. IgnorePatterns.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
         IgnoreTimestamps = IgnoreTimestamps,
         IgnoreBlankLines = IgnoreBlankLines,
-        Comments = ActiveSyntax,
+        Comments = IgnoreComments ? ActiveSyntax : null,
+        Language = ActiveSyntax,
+        IgnoreStrings = IgnoreStrings,
         Isolations = [.. _isolations],
     };
 
@@ -375,6 +380,7 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
     private int FoldStart(int displayRow) => _foldStarts[displayRow];
     partial void OnIgnorePatternsChanged(string value) => Recompare();
     partial void OnIgnoreCommentsChanged(bool value) => Recompare();
+    partial void OnIgnoreStringsChanged(bool value) => Recompare();
     partial void OnIgnoreTimestampsChanged(bool value) => Recompare();
     partial void OnIgnoreBlankLinesChanged(bool value) => Recompare();
     partial void OnLanguageChanged(LanguageChoice value) => Recompare();
@@ -459,7 +465,7 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
         try
         {
             Comparison = TextComparison.Compare(Left.Lines, Right.Lines, Options);
-            Error = IgnoreComments && ActiveSyntax is null ? "Comments: the language of these files is unknown. Choose one in the language list." : null;
+            Error = (IgnoreComments || IgnoreStrings) && ActiveSyntax is null ? "Comments and strings: the language of these files is unknown. Choose one in the language list." : null;
         }
         catch (System.Text.RegularExpressions.RegexParseException ex)
         {

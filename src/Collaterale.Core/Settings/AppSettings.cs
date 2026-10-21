@@ -34,6 +34,7 @@ public sealed class TextViewDefaults
     public string Details { get; set; } = "None";
 
     public bool IgnoreComments { get; set; }
+    public bool IgnoreStrings { get; set; }
     public bool IgnoreTimestamps { get; set; }
     public bool IgnoreBlankLines { get; set; }
 }

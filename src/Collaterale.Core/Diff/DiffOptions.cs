@@ -51,6 +51,20 @@ public sealed record DiffOptions
     /// </summary>
     public CommentSyntax? Comments { get; init; }
 
+    /// <summary>
+    /// The text inside string literals is unimportant: lines that differ only in what a string says are not differences (the quotes
+    /// still count, and so do comments unless <see cref="Comments"/> is set too). Needs a language: <see cref="Language"/>, or the one of <see cref="Comments"/>.
+    /// </summary>
+    public bool IgnoreStrings { get; init; }
+
+    /// <summary>The language whose syntax elements are judged (where its comments and strings are); falls back to the syntax of <see cref="Comments"/>.</summary>
+    public CommentSyntax? Language { get; init; }
+
+    internal CommentSyntax? ElementSyntax => Language ?? Comments;
+
+    /// <summary>True when some syntax element (comments, string contents) is taken out of the text before it is compared.</summary>
+    internal bool StripsSyntax => Comments is not null || (IgnoreStrings && ElementSyntax is not null);
+
     public DiffAlgorithm Algorithm { get; init; } = DiffAlgorithm.Myers;
 
     /// <summary>
@@ -64,7 +78,7 @@ public sealed record DiffOptions
     public bool DetectMoves { get; init; } = true;
 
     /// <summary>Shortcut for the very common "no special options" case.</summary>
-    public bool IsExact => Whitespace == WhitespaceMode.Exact && !IgnoreCase && IgnorePatterns.Count == 0 && !IgnoreTimestamps && !IgnoreBlankLines && Comments is null;
+    public bool IsExact => Whitespace == WhitespaceMode.Exact && !IgnoreCase && IgnorePatterns.Count == 0 && !IgnoreTimestamps && !IgnoreBlankLines && !StripsSyntax;
 
     public static DiffOptions Default { get; } = new();
 

@@ -69,6 +69,7 @@
               </ComboBox>
               <CheckBox Content="Ignore letter case" IsChecked="{Binding RuleIgnoreCase}" />
               <CheckBox Content="Ignore comments (language from the file name)" IsChecked="{Binding RuleIgnoreComments}" />
+              <CheckBox Content="Ignore what string literals say (language from the file name)" IsChecked="{Binding RuleIgnoreStrings}" />
               <CheckBox Content="Ignore dates and times" IsChecked="{Binding RuleIgnoreTimestamps}" />
               <CheckBox Content="Ignore blank lines" IsChecked="{Binding RuleIgnoreBlankLines}" />
             </StackPanel>

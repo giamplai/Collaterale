@@ -143,6 +143,19 @@ public class FolderCriteriaTests
     }
 
     [Fact]
+    public void Rules_mode_can_ignore_what_string_literals_say()
+    {
+        using var f = new FolderFixture();
+        File.WriteAllText(Path.Combine(f.Left, "m.cs"), "Log(\"starting\"); // go\n");
+        File.WriteAllText(Path.Combine(f.Right, "m.cs"), "Log(\"demarrage\"); // go\n");
+        var o = O() with { Criteria = CompareCriteria.Content, ContentMode = ContentMode.Rules };
+        Assert.Equal(FolderEntryState.Different, Only(FolderComparer.Compare(f.Left, f.Right, o)).State);
+        Assert.Equal(FolderEntryState.Same, Only(FolderComparer.Compare(f.Left, f.Right, o with { Rules = new ContentRules { IgnoreStrings = true } })).State);
+        File.WriteAllText(Path.Combine(f.Right, "m.cs"), "Log(\"demarrage\"); // allez\n");
+        Assert.Equal(FolderEntryState.Different, Only(FolderComparer.Compare(f.Left, f.Right, o with { Rules = new ContentRules { IgnoreStrings = true } })).State);   // the comment still counts
+    }
+
+    [Fact]
     public void Rules_mode_treats_line_endings_as_unimportant_always()
     {
         using var f = new FolderFixture();

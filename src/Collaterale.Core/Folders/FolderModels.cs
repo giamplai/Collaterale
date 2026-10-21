@@ -60,6 +60,9 @@ public sealed record ContentRules
     public Collaterale.Core.Diff.WhitespaceMode Whitespace { get; init; } = Collaterale.Core.Diff.WhitespaceMode.Exact;
     public bool IgnoreCase { get; init; }
     public bool IgnoreComments { get; init; }
+
+    /// <summary>What a string literal says is unimportant (language from the file name).</summary>
+    public bool IgnoreStrings { get; init; }
     public bool IgnoreTimestamps { get; init; }
     public bool IgnoreBlankLines { get; init; }
 
@@ -72,6 +75,8 @@ public sealed record ContentRules
         IgnoreTimestamps = IgnoreTimestamps,
         IgnoreBlankLines = IgnoreBlankLines,
         Comments = IgnoreComments ? Collaterale.Core.Languages.CommentSyntaxes.ForPath(path) : null,
+        Language = IgnoreStrings ? Collaterale.Core.Languages.CommentSyntaxes.ForPath(path) : null,
+        IgnoreStrings = IgnoreStrings,
         DetectMoves = false,
     };
 }
