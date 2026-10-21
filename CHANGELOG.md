@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Your own file formats:** **Options ▸ File formats** describes a language Collaterale does not know (extensions, line and block comments, string quotes) so that **💬 Comments** and **❝ Strings** work for it; it shows in the language list and is chosen from the file name, and wins over a built-in definition for the same extension.
 
 ## 0.3.0 — 2026-10-21
 * **Folder compare, stronger checksums:** the content test can now compare **SHA-1** or **SHA-256** hashes (besides CRC-32 and byte by byte), also as `/qc=sha1` and `/qc=sha256` on the command line.

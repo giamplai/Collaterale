@@ -127,6 +127,27 @@ public sealed class OpenWithApp
     public string Arguments { get; set; } = "\"%1\"";
 }
 
+/// <summary>
+/// A file type the user describes: which files it covers and how comments and strings are written in it, so that the comment and
+/// string options work for languages Collaterale does not know. Lists are separated by semicolons.
+/// </summary>
+public sealed class FileFormat
+{
+    public string Name { get; set; } = "";
+
+    /// <summary>File extensions, with or without the dot, separated by spaces (commas and semicolons work too): <c>toy .cfg2</c>.</summary>
+    public string Extensions { get; set; } = "";
+
+    /// <summary>Strings that start a comment running to the end of the line, separated by spaces: <c>// #</c> (a semicolon is a fine marker too).</summary>
+    public string LineComments { get; set; } = "";
+
+    /// <summary>Comments with an opener and a closer: the words are taken in pairs, <c>/* */ &lt;!-- --&gt;</c> being two comment styles.</summary>
+    public string BlockComments { get; set; } = "";
+
+    /// <summary>The quote characters (or strings) that open and close a string literal, separated by spaces, with backslash escapes inside: <c>" '</c>.</summary>
+    public string Strings { get; set; } = "";
+}
+
 /// <summary>A keyboard shortcut chosen by the user for a command.</summary>
 public sealed class CommandBinding
 {
@@ -237,6 +258,9 @@ public sealed class Preferences
 
     /// <summary>The file masks that make a file an archive, per format; null = the built-in list.</summary>
     public List<ArchiveType>? Archives { get; set; }
+
+    /// <summary>File types described by the user (see <see cref="FileFormat"/>).</summary>
+    public List<FileFormat> FileFormats { get; set; } = [];
 
     public List<CommandBinding> Commands { get; set; } = [];
     public List<OpenWithApp> OpenWith { get; set; } = [];

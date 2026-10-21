@@ -44,6 +44,7 @@ public sealed partial class OptionsViewModel : ObservableObject
         _settings = settings;
         Prefs = JsonSerializer.Deserialize<Preferences>(JsonSerializer.Serialize(settings.Prefs, Json), Json)!;
         foreach (var a in Prefs.OpenWith) { OpenWith.Add(a); }
+        foreach (var f in Prefs.FileFormats) { FileFormats.Add(f); }
         foreach (var t in Prefs.Archives ?? [.. ArchiveExtractor.DefaultTypes.Select(d => new ArchiveType { Format = d.Format, Mask = d.Mask })]) { Archives.Add(t); }
         foreach (var p in settings.FilterPresets) { Presets.Add(new PresetRow { Name = p.Name, Include = p.Include, ExcludeFiles = p.ExcludeFiles, IncludeFolders = p.IncludeFolders, ExcludeFolders = p.ExcludeFolders }); }
         foreach (var c in CommandCatalog.All)
@@ -58,6 +59,7 @@ public sealed partial class OptionsViewModel : ObservableObject
 
     public ObservableCollection<OpenWithApp> OpenWith { get; } = [];
     public ObservableCollection<ArchiveType> Archives { get; } = [];
+    public ObservableCollection<FileFormat> FileFormats { get; } = [];
     public ObservableCollection<PresetRow> Presets { get; } = [];
     public List<CommandRow> AllCommands { get; } = [];
     public ObservableCollection<CommandRow> Commands { get; } = [];
@@ -65,6 +67,7 @@ public sealed partial class OptionsViewModel : ObservableObject
     [ObservableProperty] private string _commandSearch = "";
     [ObservableProperty] private CommandView? _commandView;
     [ObservableProperty] private OpenWithApp? _selectedApp;
+    [ObservableProperty] private FileFormat? _selectedFormat;
     [ObservableProperty] private PresetRow? _selectedPreset;
 
     public static OpenIn[] OpenInChoices { get; } = Enum.GetValues<OpenIn>();
@@ -94,6 +97,18 @@ public sealed partial class OptionsViewModel : ObservableObject
     public void RemoveApp()
     {
         if (SelectedApp is { } a) { OpenWith.Remove(a); SelectedApp = null; }
+    }
+
+    public void AddFormat()
+    {
+        var f = new FileFormat { Name = $"My format {FileFormats.Count + 1}", Extensions = "", LineComments = "#", Strings = "\" '" };
+        FileFormats.Add(f);
+        SelectedFormat = f;
+    }
+
+    public void RemoveFormat()
+    {
+        if (SelectedFormat is { } f) { FileFormats.Remove(f); SelectedFormat = null; }
     }
 
     public void AddPreset()
@@ -152,6 +167,7 @@ public sealed partial class OptionsViewModel : ObservableObject
     public void ApplyTo(AppSettings settings)
     {
         Prefs.OpenWith = [.. OpenWith.Where(Collaterale.Core.Integration.OpenWith.IsUsable)];
+        Prefs.FileFormats = [.. FileFormats.Where(f => Collaterale.Core.Languages.CommentSyntaxes.FromFormat(f) is not null)];
         var defaults = ArchiveExtractor.DefaultTypes;
         var custom = Archives.Select(a => new ArchiveType { Format = a.Format, Mask = a.Mask.Trim() }).ToList();
         Prefs.Archives = custom.Select(a => (a.Format, a.Mask)).SequenceEqual(defaults.Select(a => (a.Format, a.Mask))) ? null : custom;
@@ -160,6 +176,7 @@ public sealed partial class OptionsViewModel : ObservableObject
         (live.Startup, live.Tabs, live.TextEditing, live.NextDifference, live.Backup, live.FileOperations) = (Prefs.Startup, Prefs.Tabs, Prefs.TextEditing, Prefs.NextDifference, Prefs.Backup, Prefs.FileOperations);
         (live.Archives, live.Commands, live.OpenWith, live.Log, live.Metrics, live.Scripts) = (Prefs.Archives, Prefs.Commands, Prefs.OpenWith, Prefs.Log, Prefs.Metrics, Prefs.Scripts);
         (live.Editor, live.Files, live.Interface, live.Updates, live.SharedSessionsFile) = (Prefs.Editor, Prefs.Files, Prefs.Interface, Prefs.Updates, Prefs.SharedSessionsFile);
+        live.FileFormats = Prefs.FileFormats;
         settings.FilterPresets = [.. Presets.Where(p => !string.IsNullOrWhiteSpace(p.Name)).Select(p => p.ToPreset())];
     }
 }

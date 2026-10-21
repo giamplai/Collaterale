@@ -1,3 +1,5 @@
+using Collaterale.Core.Settings;
+
 namespace Collaterale.Core.Languages;
 
 /// <summary>A kind of string literal: where it starts and ends, how a quote inside it is written, and whether it may span lines.</summary>
@@ -78,7 +80,34 @@ public static class CommentSyntaxes
         [".hs", ".lhs"],
         ["--"], [("{-", "-}")], [Dq]);
 
-    public static readonly IReadOnlyList<CommentSyntax> All = [CLike, CSharp, JavaScript, Jsonc, Php, Css, Python, Hash, Markup, Sql, Lua, Ini, Haskell];
+    public static readonly IReadOnlyList<CommentSyntax> BuiltIn = [CLike, CSharp, JavaScript, Jsonc, Php, Css, Python, Hash, Markup, Sql, Lua, Ini, Haskell];
+
+    private static IReadOnlyList<CommentSyntax> _custom = [];
+
+    /// <summary>The built-in syntaxes followed by the ones the user described.</summary>
+    public static IReadOnlyList<CommentSyntax> All => [.. BuiltIn, .. _custom];
+
+    /// <summary>The syntaxes the user described (see <see cref="ConfigureCustom"/>).</summary>
+    public static IReadOnlyList<CommentSyntax> Custom => _custom;
+
+    /// <summary>Makes the user's file formats known; unusable ones (no name, no extension, nothing to recognise) are left out.</summary>
+    public static void ConfigureCustom(IEnumerable<FileFormat> formats)
+        => _custom = [.. formats.Select(FromFormat).OfType<CommentSyntax>()];
+
+    private static string[] Items(string text, params char[] extra)
+        => [.. text.Split([' ', '\t', '\n', '\r', .. extra], StringSplitOptions.RemoveEmptyEntries)];
+
+    /// <summary>The syntax a user-described format stands for, or null when it has no name, no extension or nothing that could be recognised.</summary>
+    public static CommentSyntax? FromFormat(FileFormat f)
+    {
+        var extensions = Items(f.Extensions, ';', ',').Select(e => e.StartsWith('.') ? e : "." + e).ToArray();
+        var lines = Items(f.LineComments);
+        var words = Items(f.BlockComments);
+        var blocks = Enumerable.Range(0, words.Length / 2).Select(k => (words[2 * k], words[2 * k + 1])).ToArray();   // opener, closer, opener, closer…
+        var strings = Items(f.Strings).Select(q => new StringRule(q, q)).ToArray();
+        if (string.IsNullOrWhiteSpace(f.Name) || extensions.Length == 0 || lines.Length + blocks.Length + strings.Length == 0) { return null; }
+        return new CommentSyntax("custom:" + f.Name.Trim(), f.Name.Trim(), extensions, lines, blocks, strings);
+    }
 
     /// <summary>The syntax for a file name by its extension (or by the whole name for dot-files such as <c>.gitignore</c>); null when unknown.</summary>
     public static CommentSyntax? ForPath(string? path)
@@ -92,7 +121,8 @@ public static class CommentSyntaxes
             return name.ToLowerInvariant() switch { "makefile" or "dockerfile" or "gemfile" or "rakefile" or "cmakelists.txt" => Hash, _ => null };
         }
 
-        return All.FirstOrDefault(s => s.Extensions.Contains(ext, StringComparer.OrdinalIgnoreCase));
+        // the user's own definitions come first, so they can also replace a built-in one for an extension
+        return _custom.Concat(BuiltIn).FirstOrDefault(s => s.Extensions.Contains(ext, StringComparer.OrdinalIgnoreCase));
     }
 
     public static CommentSyntax? ById(string? id) => All.FirstOrDefault(s => string.Equals(s.Id, id, StringComparison.OrdinalIgnoreCase));

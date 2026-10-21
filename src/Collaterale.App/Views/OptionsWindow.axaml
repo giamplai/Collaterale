@@ -141,6 +141,26 @@
         </Grid>
       </DockPanel></TabItem>
 
+      <!-- file formats -->
+      <TabItem Header="File formats"><DockPanel Margin="22,18">
+        <StackPanel DockPanel.Dock="Top" Spacing="8">
+          <TextBlock Classes="title" Text="File formats" />
+          <TextBlock Classes="hint" Text="Describe a kind of file Collaterale does not know, so that the Comments and Strings options work for it: which extensions it covers, how comments are written and which quotes delimit strings. Separate the items of a list with spaces." />
+          <StackPanel Orientation="Horizontal" Spacing="8"><Button Content="New" Click="OnAddFormat" /><Button Content="Remove" Click="OnRemoveFormat" /></StackPanel>
+        </StackPanel>
+        <Grid ColumnDefinitions="240,*" Margin="0,10,0,0">
+          <ListBox ItemsSource="{Binding FileFormats}" SelectedItem="{Binding SelectedFormat}"><ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" /></DataTemplate></ListBox.ItemTemplate></ListBox>
+          <StackPanel Grid.Column="1" Margin="16,0,0,0" Spacing="6" DataContext="{Binding SelectedFormat}" IsVisible="{Binding $parent[Window].((vm:OptionsViewModel)DataContext).SelectedFormat, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Text="Name" /><TextBox Text="{Binding Name}" />
+            <TextBlock Text="File extensions" /><TextBox Text="{Binding Extensions}" PlaceholderText="toy cfg2" />
+            <TextBlock Text="Line comments (run to the end of the line)" /><TextBox Text="{Binding LineComments}" PlaceholderText="#  //  ;" />
+            <TextBlock Text="Block comments (an opener and a closer, then another pair…)" /><TextBox Text="{Binding BlockComments}" PlaceholderText="/* */  &lt;!-- --&gt;" />
+            <TextBlock Text="String quotes" /><TextBox Text="{Binding Strings}" PlaceholderText="&quot; '" />
+            <TextBlock Classes="hint" Text="A format needs a name, at least one extension and at least one comment or string marker; your definition wins over a built-in one for the same extension. Choose it in the language list of a text compare, or let it be picked from the file name." />
+          </StackPanel>
+        </Grid>
+      </DockPanel></TabItem>
+
       <!-- tweaks -->
       <TabItem Header="Tweaks"><ScrollViewer><StackPanel Classes="page">
         <TextBlock Classes="title" Text="Tweaks" />
