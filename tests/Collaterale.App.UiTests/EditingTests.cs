@@ -38,7 +38,7 @@ public class EditingTests
     [AvaloniaFact]
     public async Task Clicking_and_dragging_in_the_line_number_margin_selects_whole_rows()
     {
-        var (_, w, left, _) = Open(["a", "b", "c", "d"], ["a", "b", "c", "d"]);
+        var (_, w, left, _) = Open(["alpha", "beta", "gamma", "delta"], ["alpha", "beta", "gamma", "delta"]);
         await TextCompareTests.Settle();
         var margin = left.TextArea.LeftMargins.First(m => m.GetType().Name == "RowNumberMargin");
         Assert.NotNull(margin.Cursor);
@@ -48,12 +48,13 @@ public class EditingTests
         Point At(int row) => margin.TranslatePoint(new Point(x, lineH * (row + 0.5)), w)!.Value;
 
         w.MouseDown(At(1), MouseButton.Left);
-        Assert.Equal("b\n", left.TextArea.Selection.GetText());
+        Assert.Equal("beta\n", left.TextArea.Selection.GetText());
         w.MouseMove(At(2));
-        Assert.Equal("b\nc\n", left.TextArea.Selection.GetText());
+        Assert.Equal("beta\ngamma\n", left.TextArea.Selection.GetText());
+        TextCompareTests.Shot(w, "text-compare-line-select.png");
         w.MouseUp(At(2), MouseButton.Left);
         left.SelectRows(3, 3);
-        Assert.Equal("d", left.TextArea.Selection.GetText());   // the last line has no line break to include
+        Assert.Equal("delta", left.TextArea.Selection.GetText());   // the last line has no line break to include
     }
 
     [AvaloniaFact]
