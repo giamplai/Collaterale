@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Remembered choices:** the text compare and the three-way merge reopen the way you left them: whitespace and case decisions (shared by both), algorithm, moves, collapse, ignore switches, whitespace symbols, wrap, over-under, the text/hex details panel, the merge's Show filter and Center pane.
 * **Text compare, Isolate:** select lines and press **⇋ Isolate** (Ctrl+Alt+I, or the context menu) to realign them on their own: lines on one side stand alone with padding opposite, lines on both sides are compared only with each other. **✕ Isolations** goes back to the automatic alignment.
 
 ## 0.2.0 — 2026-10-21

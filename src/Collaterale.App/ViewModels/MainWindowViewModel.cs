@@ -153,7 +153,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     public TextCompareViewModel NewTextCompare()
     {
         var vm = new TextCompareViewModel();
-        vm.ApplyDefaults(Settings);
+        vm.ApplyDefaults(Settings, Save);
         vm.OpenFormattedRequested = (title, l, r) =>
         {
             var tab = NewTextCompare();
@@ -318,6 +318,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     public MergeViewModel NewMerge()
     {
         var vm = new MergeViewModel { Prefs = Settings.Prefs };
+        vm.ApplyDefaults(Settings, Save);
         Add(new SessionTab(vm, "⑃", closable: true));
         return vm;
     }
