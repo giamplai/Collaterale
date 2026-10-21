@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Fix, text details panel:** it now shows the two lines that face each other on the cursor's row, whichever pane the cursor is in (before, each box followed its own pane, so with a long wrapped line the two boxes could show unrelated lines), and the two lines are stacked one above the other so differences line up.
 * **Your own file formats:** **Options ▸ File formats** describes a language Collaterale does not know (extensions, line and block comments, string quotes) so that **💬 Comments** and **❝ Strings** work for it; it shows in the language list and is chosen from the file name, and wins over a built-in definition for the same extension.
 
 ## 0.3.0 — 2026-10-21
