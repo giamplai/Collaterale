@@ -141,7 +141,7 @@ Beyond the paths, a command line takes switches. Each can be written `-name`, `-
 | `/iu`, `/ignoreunimportant` | Ignore unimportant (whitespace) differences while merging. |
 | `/favorleft`, `/favorright` | Conflicts are resolved by taking that side. |
 | `/center=FILE`, `/mergeoutput=FILE` | Name the merge's common ancestor or output when the files are given as a pair. |
-| `/qc[=size\|crc\|binary]` | Quick compare of two files, answered by the exit code (below). With no type it uses the text rules. |
+| `/qc[=size\|crc\|sha1\|sha256\|binary]` | Quick compare of two files, answered by the exit code (below). With no type it uses the text rules. |
 | `/fv=TYPE`, `/fileviewer=TYPE` | Force a view: `Text Compare`, `Text Merge`, `Table Compare`, `Hex Compare`, `Picture Compare`, `Media Compare`, `Folder Compare`, `Folder Merge`, `Folder Sync`, `Text Edit`, `Text Patch`. |
 | `/edit` | Open one file in the Text Edit view. |
 | `/sync` | Open two folders in the synchronize view. |
@@ -464,7 +464,8 @@ Tests that read files (used by the *contents* criteria):
 | Setting | Meaning |
 |---|---|
 | **Byte by byte** | Stops at the first difference. |
-| **Checksum (CRC-32)** | Sums each whole file and compares the sums. |
+| **Checksum (CRC-32)** | Sums each whole file and compares the sums. Fast; good against accidental changes. |
+| **Checksum (SHA-1)** / **Checksum (SHA-256)** | Hashes each whole file with a cryptographic hash and compares the hashes. Much stronger than CRC-32 — a different file all but never has the same hash — so use them to **verify copies and backups** (for example after a transfer, or to find files that were silently corrupted). SHA-256 is the strongest and a little slower. Both files are read in full. |
 | **As text, with rules** | Compares text files **as text**: line endings and the text encoding never matter, and you can also ignore *whitespace* (amount, leading/trailing, all), *case*, *comments* (language from the file name), *dates and times*, and *blank lines* — the same rules as the text compare. A file that is not text is compared byte by byte, and size is not used as a shortcut (a CRLF and an LF copy have different sizes). |
 | **Skip the content test when the quick tests say the files are the same** / **Override quick test results** | For *Size and date, then contents*: the first leaves matching files unread (fast); the second makes files with equal contents "same" even if their time or attributes differ. |
 

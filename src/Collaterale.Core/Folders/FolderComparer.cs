@@ -386,6 +386,8 @@ public sealed class FolderComparer
     private bool ContentEqual(string a, string b) => _o.ContentMode switch
     {
         ContentMode.Crc => Crc32.OfFile(a, _ct) == Crc32.OfFile(b, _ct),
+        ContentMode.Sha1 => FileHash.SameHash(a, b, System.Security.Cryptography.HashAlgorithmName.SHA1, _ct),
+        ContentMode.Sha256 => FileHash.SameHash(a, b, System.Security.Cryptography.HashAlgorithmName.SHA256, _ct),
         ContentMode.Rules => RulesEqual(a, b),
         _ => BytesEqual(a, b),
     };

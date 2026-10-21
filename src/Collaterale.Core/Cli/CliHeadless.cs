@@ -93,9 +93,9 @@ public static class CliHeadless
     private static int QuickCompare(LaunchRequest req, TextWriter output, TextWriter error)
     {
         var kind = req.Options.QuickCompare!.ToLowerInvariant();
-        if (kind is not ("" or "size" or "crc" or "binary"))
+        if (kind is not ("" or "size" or "crc" or "sha1" or "sha256" or "binary"))
         {
-            error.WriteLine($"Unknown quick compare type '{kind}'; use size, crc or binary.");
+            error.WriteLine($"Unknown quick compare type '{kind}'; use size, crc, sha1, sha256 or binary.");
             return ExitCodes.Unknown;
         }
 
@@ -113,6 +113,10 @@ public static class CliHeadless
                     return new FileInfo(req.Left).Length == new FileInfo(req.Right).Length ? ExitCodes.BinarySame : ExitCodes.BinaryDifferent;
                 case "crc":
                     return Crc32.OfFile(req.Left) == Crc32.OfFile(req.Right) && new FileInfo(req.Left).Length == new FileInfo(req.Right).Length ? ExitCodes.BinarySame : ExitCodes.BinaryDifferent;
+                case "sha1":
+                    return FileHash.SameHash(req.Left, req.Right, System.Security.Cryptography.HashAlgorithmName.SHA1) ? ExitCodes.BinarySame : ExitCodes.BinaryDifferent;
+                case "sha256":
+                    return FileHash.SameHash(req.Left, req.Right, System.Security.Cryptography.HashAlgorithmName.SHA256) ? ExitCodes.BinarySame : ExitCodes.BinaryDifferent;
                 case "binary":
                     return SameBytes(req.Left, req.Right) ? ExitCodes.BinarySame : ExitCodes.BinaryDifferent;
                 default:
