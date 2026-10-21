@@ -179,7 +179,7 @@ public class FolderCompareTests
 
         using var f = new ProjectFixture();
         shell.Launch(new Collaterale.Core.Cli.LaunchRequest(Collaterale.Core.Cli.LaunchKind.FolderCompare, f.Left, f.Right));
-        await Task.Delay(500);
+        await TextCompareTests.WaitUntil(() => shell.Tabs.Any(t => t.Content is FolderCompareViewModel { HasComparison: true }));
         Assert.Contains(shell.Tabs, t => t.Content is FolderCompareViewModel { HasComparison: true });
     }
 

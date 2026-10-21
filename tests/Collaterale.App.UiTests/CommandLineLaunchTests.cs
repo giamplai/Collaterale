@@ -54,7 +54,7 @@ public class CommandLineLaunchTests
         shell.Launch(LaunchParser.Parse(["/filters=*.cs", "/expandall", l, r]));
         var vm = Assert.IsType<FolderCompareViewModel>(shell.SelectedTab!.Content);
         await TextCompareTests.Settle();
-        await Task.Delay(500);
+        await TextCompareTests.WaitUntil(() => vm.Rows.Any(x => x.Name == "a.cs"));
         await TextCompareTests.Settle();
 
         Assert.Equal("*.cs", vm.Include);
