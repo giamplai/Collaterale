@@ -162,6 +162,38 @@ public sealed partial class MergeViewModel : ObservableObject, ISessionContent
 
     public DiffOptions Options => new() { Whitespace = Whitespace, IgnoreCase = IgnoreCase };
 
+    /// <summary>Starts from the choices remembered in the settings and writes every later change back (whitespace and case are shared with the text compare).</summary>
+    public void ApplyDefaults(Collaterale.Core.Settings.AppSettings s, Action? save = null)
+    {
+        _remembering = true;
+        Whitespace = s.Whitespace;
+        IgnoreCase = s.IgnoreCase;
+        ShowBase = s.MergeView.ShowBase;
+        Filter = Enum.TryParse<MergeFilter>(s.MergeView.Filter, out var f) ? f : MergeFilter.All;
+        _remembering = false;
+        (_settings, _saveSettings) = (s, save);
+    }
+
+    private Collaterale.Core.Settings.AppSettings? _settings;
+    private Action? _saveSettings;
+    private bool _remembering;
+
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        if (_remembering || _settings is not { } s) { return; }
+        switch (e.PropertyName)
+        {
+            case nameof(Whitespace): s.Whitespace = Whitespace; break;
+            case nameof(IgnoreCase): s.IgnoreCase = IgnoreCase; break;
+            case nameof(ShowBase): s.MergeView.ShowBase = ShowBase; break;
+            case nameof(Filter): s.MergeView.Filter = Filter.ToString(); break;
+            default: return;
+        }
+
+        _saveSettings?.Invoke();
+    }
+
     partial void OnWhitespaceChanged(WhitespaceMode value) => Recompute(keepDecisions: false);
     partial void OnIgnoreCaseChanged(bool value) => Recompute(keepDecisions: false);
     partial void OnCurrentChangeChanged(int value) => NotifyState();
