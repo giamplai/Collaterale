@@ -90,6 +90,19 @@ public partial class TextCompareView : UserControl
         vm.PropertyChanged += OnVmPropertyChanged;
         vm.FlushEdits = FlushEdits;
         vm.GoToLineRequested = GoToLineAsync;
+        vm.SelectionRowsProvider = () =>
+        {
+            var (l, r) = (LeftPane.SelectedRowRange(), RightPane.SelectedRowRange());
+            if (l is null && r is null)
+            {
+                // nothing selected: the line the cursor is on, in the pane that has it
+                var focused = RightPane.IsKeyboardFocusWithin ? RightPane : LeftPane;
+                var row = focused.CaretRow;
+                if (focused == LeftPane) { l = (row, row); } else { r = (row, row); }
+            }
+
+            return [l, r];
+        };
         vm.CurrentWordProvider = () => (RightPane.IsKeyboardFocusWithin ? RightPane : LeftPane).WordAtCaret();
         vm.FindHitSelected += OnFindHit;
         vm.ItemFocusRequested += OnItemFocus;
@@ -170,7 +183,7 @@ public partial class TextCompareView : UserControl
             ["text.copyright"] = (_vm.CopyToRightCommand, null), ["text.copyleft"] = (_vm.CopyToLeftCommand, null),
             ["text.undo"] = (_vm.UndoCommand, null), ["text.redo"] = (_vm.RedoCommand, null), ["text.reload"] = (_vm.ReloadCommand, null),
             ["text.goto"] = (_vm.GoToLineCommand, null), ["text.find"] = (_vm.ShowFindCommand, false), ["text.replace"] = (_vm.ShowReplaceCommand, null),
-            ["text.findnext"] = (_vm.FindNextCommand, null), ["text.findprev"] = (_vm.FindPreviousCommand, null), ["text.swap"] = (_vm.SwapCommand, null),
+            ["text.findnext"] = (_vm.FindNextCommand, null), ["text.findprev"] = (_vm.FindPreviousCommand, null), ["text.swap"] = (_vm.SwapCommand, null), ["text.isolate"] = (_vm.IsolateCommand, null),
         };
         ShortcutBinder.Apply(this, _vm.Prefs, map, [("Escape", _vm.CloseFindCommand)]);
     }

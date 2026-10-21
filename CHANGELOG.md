@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Text compare, Isolate:** select lines and press **⇋ Isolate** (Ctrl+Alt+I, or the context menu) to realign them on their own: lines on one side stand alone with padding opposite, lines on both sides are compared only with each other. **✕ Isolations** goes back to the automatic alignment.
 
 ## 0.2.0 — 2026-10-21
 * **Maintenance:** CI actions and test packages updated (setup-dotnet 6, checkout 7, codeql-action 4, action-gh-release 3, coverlet 10, Test.Sdk 18, CommunityToolkit.Mvvm 8.4.2); flaky tests fixed. xunit.v3 4.x is deferred until Avalonia.Headless.XUnit supports it.

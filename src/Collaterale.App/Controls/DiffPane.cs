@@ -265,6 +265,20 @@ public sealed class DiffPane : TextEditor
         set => Options.ShowSpaces = Options.ShowTabs = Options.ShowEndOfLine = value;
     }
 
+    /// <summary>The display rows (0-based) the selection covers, or null when nothing is selected. A selection that ends at the start of a line does not include that line.</summary>
+    public (int First, int Last)? SelectedRowRange()
+    {
+        var sel = TextArea.Selection;
+        if (sel.IsEmpty) { return null; }
+        var (a, b) = (sel.StartPosition, sel.EndPosition);
+        var (first, last) = a.Line <= b.Line ? (a, b) : (b, a);
+        var lastLine = last.Column == 1 && last.Line > first.Line ? last.Line - 1 : last.Line;
+        return (first.Line - 1, lastLine - 1);
+    }
+
+    /// <summary>The row (0-based) of the caret.</summary>
+    public int CaretRow => TextArea.Caret.Line - 1;
+
     /// <summary>The selected text, or the word at the cursor.</summary>
     public string WordAtCaret()
     {

@@ -86,6 +86,11 @@ public sealed class TextComparison
     public static TextComparison Compare(IReadOnlyList<string> left, IReadOnlyList<string> right, DiffOptions? options = null)
     {
         options ??= DiffOptions.Default;
+        if (options.Isolations.Count > 0 && ValidIsolations(options.Isolations, left.Count, right.Count) is { Count: > 0 } isolations)
+        {
+            return CompareIsolated(left, right, options, isolations);
+        }
+
         var requested = options;
         CodeLine[]? codeL = null, codeR = null;
         var cmpLeft = left;
@@ -123,6 +128,76 @@ public sealed class TextComparison
 
         var moves = options.DetectMoves ? MoveDetector.Detect(rows, cmpLeft, cmpRight, keys) : [];
         return new TextComparison(left, right, requested, rows, groups, moves, codeL, codeR);
+    }
+
+    private static List<Isolation> ValidIsolations(IReadOnlyList<Isolation> all, int leftCount, int rightCount)
+    {
+        var valid = new List<Isolation>();
+        int pl = 0, pr = 0;
+        foreach (var iso in all)
+        {
+            var ok = iso.LeftCount >= 0 && iso.RightCount >= 0 && iso.LeftCount + iso.RightCount > 0
+                && iso.LeftStart >= pl && iso.RightStart >= pr && iso.LeftEnd <= leftCount && iso.RightEnd <= rightCount;
+            if (!ok) { continue; }
+            valid.Add(iso);
+            (pl, pr) = (iso.LeftEnd, iso.RightEnd);
+        }
+
+        return valid;
+    }
+
+    /// <summary>
+    /// Compares the text in pieces: each isolated stretch with its counterpart and the stretches between them normally. Rows and groups
+    /// of the pieces are then joined, so the isolated lines can never pair with anything outside their own stretch.
+    /// </summary>
+    private static TextComparison CompareIsolated(IReadOnlyList<string> left, IReadOnlyList<string> right, DiffOptions options, List<Isolation> isolations)
+    {
+        var pieceOptions = options with { Isolations = [], DetectMoves = false };
+        var rows = new List<DiffRow>(Math.Max(left.Count, right.Count) + 16);
+        var groups = new List<DiffGroup>();
+
+        void AddPiece(int ls, int lc, int rs, int rc)
+        {
+            if (lc == 0 && rc == 0) { return; }
+            var part = Compare([.. left.Skip(ls).Take(lc)], [.. right.Skip(rs).Take(rc)], pieceOptions);
+            var (rowBase, groupBase) = (rows.Count, groups.Count);
+            foreach (var r in part.Rows)
+            {
+                rows.Add(new DiffRow(r.Kind, r.Left >= 0 ? r.Left + ls : -1, r.Right >= 0 ? r.Right + rs : -1, r.Group >= 0 ? r.Group + groupBase : -1));
+            }
+
+            foreach (var g in part.Groups)
+            {
+                groups.Add(new DiffGroup(g.Index + groupBase, g.FirstRow + rowBase, g.RowCount, g.LeftStart + ls, g.LeftCount, g.RightStart + rs, g.RightCount));
+            }
+        }
+
+        int pl = 0, pr = 0;
+        foreach (var iso in isolations)
+        {
+            AddPiece(pl, iso.LeftStart - pl, pr, iso.RightStart - pr);
+            AddPiece(iso.LeftStart, iso.LeftCount, iso.RightStart, iso.RightCount);
+            (pl, pr) = (iso.LeftEnd, iso.RightEnd);
+        }
+
+        AddPiece(pl, left.Count - pl, pr, right.Count - pr);
+
+        // moves and word highlights look at the whole texts, so they are prepared as a plain comparison does
+        CodeLine[]? codeL = null, codeR = null;
+        var cmpLeft = left;
+        var cmpRight = right;
+        var inner = options with { Isolations = [] };
+        if (options.Comments is { } syntax)
+        {
+            codeL = CommentStripper.Strip(left, syntax);
+            codeR = CommentStripper.Strip(right, syntax);
+            cmpLeft = [.. codeL.Select(c => c.Text)];
+            cmpRight = [.. codeR.Select(c => c.Text)];
+            inner = inner with { Comments = null };
+        }
+
+        var moves = options.DetectMoves ? MoveDetector.Detect(rows, cmpLeft, cmpRight, new LineKeys(inner)) : [];
+        return new TextComparison(left, right, options, rows, groups, moves, codeL, codeR);
     }
 
     private static bool[] SkippedLines(IReadOnlyList<string> lines, CodeLine[]? code, bool blank)

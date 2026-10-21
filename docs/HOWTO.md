@@ -256,6 +256,7 @@ A miniature of the whole file: colored marks show where the differences are and 
 | **💬 Comments** + language list | **Ignore comments** (see *Smart rules* below). The list is *Language: auto* (taken from the file name) or a specific syntax. |
 | **🕒 Dates** | Ignore dates and times in the text. |
 | **✎ Rules** | Opens a panel with **Ignore blank lines** and your own rules: regular expressions (one per line) whose matches are ignored. |
+| **⇋ Isolate** / **✕ Isolations** | Realign the selected lines on their own (see [Isolate](#isolate-realign-selected-lines)); **✕ Isolations** appears while any are active and removes them. |
 | **{} Structure** | JSON and XML: compare the **structure** in a new tab (formatting and key/attribute order are ignored). |
 | **⇕ Collapse** | **Fold long stretches of unchanged lines** so only the differences and **3 lines of context** around each remain. Each fold is a single marker row such as `⋯ 123 unchanged lines ⋯ (click to show)`; click it to reveal just that stretch. Hidden stretches shorter than four lines are simply shown, and two files with no differences are never collapsed. The gutter buttons, the overview map and ▲ Prev / ▼ Next all work on the shortened view. While collapsed the panes are **read-only** (click **⇕ Collapse** again to edit); copying a difference with the gutter or the toolbar still works. |
 | **⤳ Moves** | Detect **moved blocks** (on by default): a run of at least 3 lines that was cut from one place and pasted in another is shown in **purple** on both sides instead of as an unrelated deletion plus addition, and the status bar says how many were found. It is still two differences for navigation and copying; the purple only tells you they are the same text. Very short or trivial runs (a few closing braces) are ignored, and the whitespace/case options apply to the matching. |
@@ -332,6 +333,19 @@ Earlier searches are offered in the drop-down of the find box.
 | **Text details / Hex details** | A panel under the panes with the **current line of each file in full** (the line where the cursor is). *Text details* is editable: type and press **Enter** (or leave the box) to change that line. *Hex details* shows its bytes, in the file's own encoding. |
 
 ![Over-under layout](images/text-compare-over-under.png)
+
+### Isolate: realign selected lines
+The automatic alignment sometimes pairs the wrong lines, for example when a repeated line (`}`, a blank, a common word) exists in several places. **Isolate** lets you say "these lines belong together" or "this line has no partner":
+
+1. **Select** the lines (in the left pane, the right pane or both). With nothing selected, the line the cursor is on is used.
+2. Press **⇋ Isolate** in the toolbar, **Ctrl+Alt+I**, or right-click and choose **Isolate selected lines**.
+
+* Lines selected on **one side only** are taken out of the matching and stand alone: the other side gets empty padding opposite them.
+* Lines selected on **both sides** are compared **only with each other**, even if identical text exists elsewhere; the rows between are padded as needed.
+
+![Isolate: beta now faces beta](images/text-compare-isolate.png)
+
+Everything around the isolated lines is compared normally, and each isolation is its own difference for navigation and copying. Isolations belong to the session: **✕ Isolations** (or the context menu's **Remove isolations**) brings back the automatic alignment. They also disappear when lines are added or removed (typing, copying a difference), because their line numbers would no longer be right. The shortcut can be changed in **Options → Commands**.
 
 ### Go to line
 
@@ -780,6 +794,7 @@ The whole script is checked before anything is done, so a typo late in the file 
 | **Ctrl+Z** / **Ctrl+Y** | Undo / redo |
 | **F5** | Reload both files |
 | **Ctrl+G** | Go to line (text compare) |
+| **Ctrl+Alt+I** | Isolate the selected lines (text compare) |
 | **Ctrl+F** | Find in the focused pane (text compare) |
 | **→ / ←** (folder compare) | Expand / collapse the selected folder |
 | **Enter** (folder compare) | Open the selected file pair, or expand the folder |
