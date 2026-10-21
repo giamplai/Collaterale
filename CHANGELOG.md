@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 0.3.0 — 2026-10-21
 * **Folder compare, stronger checksums:** the content test can now compare **SHA-1** or **SHA-256** hashes (besides CRC-32 and byte by byte), also as `/qc=sha1` and `/qc=sha256` on the command line.
 * **Choose which syntax elements matter:** the new **❝ Strings** switch makes what a string literal says unimportant (quotes, code and comments still count); with **💬 Comments** also on, only the code is important. Also in the folder compare's content rules and as `--ignore-strings` on the command line.
 * **Merge, faster to work through:** **✓ Accept** marks an automatic change as reviewed (with an "n of m accepted" count), **↶ Undo choice** takes back one section's choice, **Resolve all ▾** settles every open conflict left / right / both / center, accepts every automatic change or undoes every choice, and a **Text details** panel shows the current line of each version and of the result in full (remembered).
