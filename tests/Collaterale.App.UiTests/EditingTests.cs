@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
@@ -32,6 +33,27 @@ public class EditingTests
         var i = doc.Text.IndexOf(oldText, StringComparison.Ordinal);
         Assert.True(i >= 0, $"'{oldText}' not found in the pane");
         doc.Replace(i, oldText.Length, newText);
+    }
+
+    [AvaloniaFact]
+    public async Task Clicking_and_dragging_in_the_line_number_margin_selects_whole_rows()
+    {
+        var (_, w, left, _) = Open(["a", "b", "c", "d"], ["a", "b", "c", "d"]);
+        await TextCompareTests.Settle();
+        var margin = left.TextArea.LeftMargins.First(m => m.GetType().Name == "RowNumberMargin");
+        Assert.NotNull(margin.Cursor);
+        var tv = left.TextArea.TextView;
+        var lineH = tv.DefaultLineHeight;
+        var x = 4.0;
+        Point At(int row) => margin.TranslatePoint(new Point(x, lineH * (row + 0.5)), w)!.Value;
+
+        w.MouseDown(At(1), MouseButton.Left);
+        Assert.Equal("b\n", left.TextArea.Selection.GetText());
+        w.MouseMove(At(2));
+        Assert.Equal("b\nc\n", left.TextArea.Selection.GetText());
+        w.MouseUp(At(2), MouseButton.Left);
+        left.SelectRows(3, 3);
+        Assert.Equal("d", left.TextArea.Selection.GetText());   // the last line has no line break to include
     }
 
     [AvaloniaFact]

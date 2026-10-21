@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using System.IO;
@@ -58,7 +59,7 @@ public sealed class DiffPane : TextEditor
         TextArea.TextView.LineTransformers.Add(new SearchMarkTransformer(this));
         TextArea.TextView.LineTransformers.Add(new PlainOnDifferenceTransformer(this));
         TextArea.AddHandler(KeyDownEvent, OnBackspace, Avalonia.Interactivity.RoutingStrategies.Tunnel);
-        TextArea.LeftMargins.Insert(0, new RowNumberMargin(this));
+        TextArea.LeftMargins.Insert(0, new RowNumberMargin(this).Init());
         TextArea.TextView.AddHandler(PointerPressedEvent, (_, e) =>
         {
             var pos = TextArea.TextView.GetPosition(e.GetPosition(TextArea.TextView) + TextArea.TextView.ScrollOffset);
@@ -274,6 +275,19 @@ public sealed class DiffPane : TextEditor
         var (first, last) = a.Line <= b.Line ? (a, b) : (b, a);
         var lastLine = last.Column == 1 && last.Line > first.Line ? last.Line - 1 : last.Line;
         return (first.Line - 1, lastLine - 1);
+    }
+
+    /// <summary>Selects whole display rows (0-based, either order), the line break of the last one included, and puts the caret after them.</summary>
+    public void SelectRows(int anchorRow, int activeRow)
+    {
+        if (Document is not { } doc || doc.LineCount == 0) { return; }
+        var first = Math.Clamp(Math.Min(anchorRow, activeRow), 0, doc.LineCount - 1);
+        var last = Math.Clamp(Math.Max(anchorRow, activeRow), 0, doc.LineCount - 1);
+        var start = doc.GetLineByNumber(first + 1).Offset;
+        var lastLine = doc.GetLineByNumber(last + 1);
+        var end = last + 1 < doc.LineCount ? doc.GetLineByNumber(last + 2).Offset : lastLine.EndOffset;
+        TextArea.Selection = Selection.Create(TextArea, start, end);
+        TextArea.Caret.Offset = end;
     }
 
     /// <summary>The row (0-based) of the caret.</summary>
@@ -609,6 +623,85 @@ public sealed class DiffPane : TextEditor
     private sealed class RowNumberMargin(DiffPane pane) : AbstractMargin
     {
         private static readonly Typeface Mono = new("Cascadia Mono,JetBrains Mono,DejaVu Sans Mono,Menlo,Consolas,monospace");
+        private static Cursor? _mirroredArrow;
+        private int _anchorRow = -1;
+
+        /// <summary>The arrow mirrored to point up-right: the sign that a click here selects whole lines.</summary>
+        private static Cursor MirroredArrow()
+        {
+            if (_mirroredArrow is not null) { return _mirroredArrow; }
+            try
+            {
+                var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(20, 20));
+                using (var ctx = bitmap.CreateDrawingContext())
+                {
+                    Point[] pts = [new(0, 0), new(0, 15), new(4, 11.5), new(7, 18), new(9.5, 17), new(6.5, 10.5), new(11.5, 10.5)];
+                    var geo = new StreamGeometry();
+                    using (var g = geo.Open())
+                    {
+                        g.BeginFigure(new Point(18.5 - pts[0].X, pts[0].Y), true);
+                        foreach (var q in pts.Skip(1)) { g.LineTo(new Point(18.5 - q.X, q.Y)); }
+                        g.EndFigure(true);
+                    }
+
+                    ctx.DrawGeometry(Brushes.White, new Pen(Brushes.Black, 1.2), geo);
+                }
+
+                return _mirroredArrow = new Cursor(bitmap, new PixelPoint(18, 0));
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                // a cursor is a nicety: fall back to the plain arrow
+                return _mirroredArrow = new Cursor(StandardCursorType.Arrow);
+            }
+        }
+
+        public RowNumberMargin Init()
+        {
+            Cursor = MirroredArrow();
+            return this;
+        }
+
+        private int RowAtPointer(Avalonia.Input.PointerEventArgs e)
+        {
+            var tv = TextView;
+            var doc = pane.Document;
+            if (tv is null || doc is null) { return -1; }
+            var y = e.GetPosition(tv).Y;
+            if (y < 0) { return Math.Max(0, (tv.GetDocumentLineByVisualTop(tv.VerticalOffset)?.LineNumber ?? 1) - 2); }
+            var line = tv.GetDocumentLineByVisualTop(y + tv.VerticalOffset);
+            return line is null ? doc.LineCount - 1 : line.LineNumber - 1;
+        }
+
+        protected override void OnPointerPressed(Avalonia.Input.PointerPressedEventArgs e)
+        {
+            base.OnPointerPressed(e);
+            if (e.Handled || !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) { return; }
+            var row = RowAtPointer(e);
+            if (row < 0) { return; }
+            pane.TextArea.Focus();
+            _anchorRow = row;
+            pane.SelectRows(row, row);
+            e.Pointer.Capture(this);
+            e.Handled = true;
+        }
+
+        protected override void OnPointerMoved(Avalonia.Input.PointerEventArgs e)
+        {
+            base.OnPointerMoved(e);
+            if (_anchorRow < 0 || e.Pointer.Captured != this) { return; }
+            var row = RowAtPointer(e);
+            if (row >= 0) { pane.SelectRows(_anchorRow, row); }
+        }
+
+        protected override void OnPointerReleased(Avalonia.Input.PointerReleasedEventArgs e)
+        {
+            base.OnPointerReleased(e);
+            if (_anchorRow < 0) { return; }
+            _anchorRow = -1;
+            e.Pointer.Capture(null);
+            e.Handled = true;
+        }
 
         protected override Size MeasureOverride(Size availableSize)
         {
@@ -618,6 +711,7 @@ public sealed class DiffPane : TextEditor
 
         public override void Render(DrawingContext context)
         {
+            context.DrawRectangle(Brushes.Transparent, null, new Rect(Bounds.Size)); // makes the whole margin take the pointer
             var tv = TextView;
             if (tv is null || !tv.VisualLinesValid)
             {
