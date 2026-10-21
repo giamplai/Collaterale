@@ -22,12 +22,30 @@
         <Button Classes="tool" Command="{Binding TakeBaseCommand}" ToolTip.Tip="Use the center (base) version: discard both sides' edits for this section"><StackPanel Orientation="Horizontal" Spacing="6"><Ellipse Width="10" Height="10" Fill="#808690" /><TextBlock Text="Take center" /></StackPanel></Button>
         <Button Classes="tool" Command="{Binding TakeRightCommand}" ToolTip.Tip="Use the right version for this section (Alt+Right)"><StackPanel Orientation="Horizontal" Spacing="6"><Ellipse Width="10" Height="10" Fill="#D06AE0" /><TextBlock Text="Take right" /></StackPanel></Button>
         <Button Classes="tool" Content="Take both" Command="{Binding TakeBothCommand}" ToolTip.Tip="Left lines followed by right lines" />
+        <Button Classes="tool" Content="↶ Undo choice" Command="{Binding ResetSectionCommand}" ToolTip.Tip="Take back your choice for this section: it returns to the automatic result (or to an open conflict)" />
+        <Button Classes="tool" Content="✓ Accept" Command="{Binding AcceptSectionCommand}" ToolTip.Tip="Mark this automatic change as reviewed and go to the next section that needs a look" />
+        <Button Classes="tool" Content="Resolve all ▾" ToolTip.Tip="Settle many sections at once">
+          <Button.Flyout>
+            <MenuFlyout Placement="BottomEdgeAlignedLeft">
+              <MenuItem Header="Every open conflict → take left" Command="{Binding ResolveAllLeftCommand}" />
+              <MenuItem Header="Every open conflict → take right" Command="{Binding ResolveAllRightCommand}" />
+              <MenuItem Header="Every open conflict → take both (left, then right)" Command="{Binding ResolveAllBothCommand}" />
+              <MenuItem Header="Every open conflict → take center (base)" Command="{Binding ResolveAllCenterCommand}" />
+              <Separator />
+              <MenuItem Header="Accept every automatic change" Command="{Binding AcceptAllAutomaticCommand}" />
+              <MenuItem Header="Undo every choice" Command="{Binding ResetChoicesCommand}" />
+            </MenuFlyout>
+          </Button.Flyout>
+        </Button>
         <Rectangle Width="1" Margin="6,4" Fill="{DynamicResource LineBrush}" />
         <ToggleButton Classes="tool" Content="Center pane" IsChecked="{Binding ShowBase}" ToolTip.Tip="Show or hide the center (common ancestor) pane" />
         <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.WhitespaceModes}" SelectedItem="{Binding Whitespace}" MinWidth="205" VerticalAlignment="Center">
           <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.WhitespaceLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
         </ComboBox>
         <ToggleButton Classes="tool" Content="Aa" IsChecked="{Binding IgnoreCase}" ToolTip.Tip="Ignore case" Margin="6,0,0,0" />
+        <ComboBox ItemsSource="{x:Static vm:MergeViewModel.DetailsChoices}" SelectedItem="{Binding Details}" MinWidth="120" VerticalAlignment="Center" Margin="4,0,0,0" ToolTip.Tip="A panel under the panes with the current line of each version, and of the result, in full">
+          <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.DetailsLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
+        </ComboBox>
       </WrapPanel>
     </Border>
 
@@ -39,9 +57,20 @@
           <TextBlock Text="{Binding CurrentDescription}" FontSize="12" />
           <TextBlock Text="{Binding Error}" Foreground="{DynamicResource ErrorBrush}" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
           <TextBlock Text="{Binding Status}" Classes="muted" FontSize="12" IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNullOrEmpty}}" />
+          <TextBlock Text="{Binding ReviewText}" Classes="muted" FontSize="12" />
         </StackPanel>
         <TextBlock Grid.Column="3" Text="Insert" Classes="muted" FontSize="12" Margin="16,0" />
         <TextBlock Grid.Column="4" Text="{Binding LoadTimeText}" Classes="muted" FontSize="12" />
+      </Grid>
+    </Border>
+
+    <!-- the current line of each version and of the result, in full -->
+    <Border DockPanel.Dock="Bottom" IsVisible="{Binding ShowTextDetails}" Padding="10,6" Background="{DynamicResource PanelAltBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
+      <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*,*" RowSpacing="4" ColumnSpacing="8">
+        <StackPanel><TextBlock Text="{Binding LeftDetailLabel}" Classes="muted" FontSize="11" /><TextBox Text="{Binding LeftDetailText, Mode=OneWay}" IsReadOnly="True" FontFamily="monospace" /></StackPanel>
+        <StackPanel Grid.Column="1" IsVisible="{Binding ShowBase}"><TextBlock Text="{Binding BaseDetailLabel}" Classes="muted" FontSize="11" /><TextBox Text="{Binding BaseDetailText, Mode=OneWay}" IsReadOnly="True" FontFamily="monospace" /></StackPanel>
+        <StackPanel Grid.Column="2"><TextBlock Text="{Binding RightDetailLabel}" Classes="muted" FontSize="11" /><TextBox Text="{Binding RightDetailText, Mode=OneWay}" IsReadOnly="True" FontFamily="monospace" /></StackPanel>
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="3"><TextBlock Text="{Binding ResultDetailLabel}" Classes="muted" FontSize="11" /><TextBox Text="{Binding ResultDetailText, Mode=OneWay}" IsReadOnly="True" FontFamily="monospace" /></StackPanel>
       </Grid>
     </Border>
 

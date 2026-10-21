@@ -581,9 +581,15 @@ The merge remembers the **Show** filter, **Center pane**, the whitespace setting
 | **Take center** | Use the base's version: discard both sides' edits for this change. |
 | **Take both** | The left lines followed by the right lines. |
 | **◀ / ▶ beside the result** | The same, for the section next to the button. |
+| **↶ Undo choice** | Take back your choice for the current section: it returns to the automatic result, or to an open conflict. |
+| **✓ Accept** | Mark the current **automatic** change (one side changed it, or both changed it the same way) as reviewed, and go to the next section that still has no decision. The result does not change; the status bar counts "2 of 5 automatic changes accepted". Not available on a conflict, which needs a real choice. |
+| **Resolve all ▾** | Settle many sections at once: **every open conflict → take left / right / both / center**; **Accept every automatic change**; **Undo every choice** (back to the automatic merge with conflicts open). Conflicts you already decided are never touched by the *every open conflict* entries. |
+| **Text details** | A panel under the panes with the **current line in full** for the left, base and right versions (the row where the cursor is in the top panes) and for the **result**. Handy for long lines that the panes cut off. The panel is read-only (type in the result pane); its on/off state is remembered. |
 | **Whitespace / Aa** | Ignore whitespace or case differences while merging, so a re-indented line does not conflict with a real edit. |
 
 After you resolve a conflict Collaterale moves on to the next unresolved one, and the status bar counts what is left. You can also take a side for a **non-conflicting** change to override the automatic result (for example, reject one side's edit with *Take center*).
+
+![Merge with the text details panel](images/merge-details.png)
 
 ### Editing the result by hand
 

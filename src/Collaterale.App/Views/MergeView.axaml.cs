@@ -34,6 +34,14 @@ public partial class MergeView : UserControl
             }
         };
 
+        foreach (var p in new[] { LeftPane, BasePane, RightPane })
+        {
+            var pane = p;
+            pane.TextArea.Caret.PositionChanged += (_, _) => { if (_vm is not null && pane.IsKeyboardFocusWithin) { _vm.TopCaretRow = pane.CaretRow; } };
+        }
+
+        ResultPane.TextArea.Caret.PositionChanged += (_, _) => { if (_vm is not null) { _vm.ResultCaretRow = ResultPane.CaretRow; } };
+
         LeftPane.FoldClicked += row => _vm?.ExpandRegion(row);
         BasePane.FoldClicked += row => _vm?.ExpandRegion(row);
         RightPane.FoldClicked += row => _vm?.ExpandRegion(row);
