@@ -38,7 +38,8 @@
         </ComboBox>
         <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
         <ToggleButton Classes="tool" Content="💬 Comments" IsChecked="{Binding IgnoreComments}" ToolTip.Tip="Ignore comments: a changed comment, or a line with only a comment, is not a difference" />
-        <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.Languages}" SelectedItem="{Binding Language}" MinWidth="160" VerticalAlignment="Center" Margin="2,0,0,0" ToolTip.Tip="Comment syntax. Auto picks it from the file name.">
+        <ToggleButton Classes="tool" Content="❝ Strings" IsChecked="{Binding IgnoreStrings}" ToolTip.Tip="Ignore what string literals say: lines that differ only inside a string are not differences (the quotes and the code around them still count)" />
+        <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.Languages}" SelectedItem="{Binding Language}" MinWidth="160" VerticalAlignment="Center" Margin="2,0,0,0" ToolTip.Tip="The language, for Comments and Strings. Auto picks it from the file name.">
           <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:LanguageChoice"><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
         </ComboBox>
         <ToggleButton Classes="tool" Content="🕒 Dates" IsChecked="{Binding IgnoreTimestamps}" ToolTip.Tip="Ignore dates and times in the text" Margin="6,0,0,0" />

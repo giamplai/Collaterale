@@ -187,6 +187,7 @@ collaterale --diff dirA dirB --content          # folders: lists what differs, l
 | `-U N`, `--context N` | Lines of context around each change (default 3). |
 | `-b` / `-w` / `-B` | Ignore changes in the *amount* of whitespace / all whitespace / leading and trailing whitespace. |
 | `-i` | Ignore case. |
+| `--ignore-strings` | Ignore the text inside string literals (language from the file name, or `--lang`). Can be combined with `--ignore-comments`. |
 | `--ignore-comments`, `--lang ID` | Ignore comments; the language comes from the file name, or from `--lang` (`c-like`, `csharp`, `javascript`, `python`, `hash`, `markup`, `sql`, `lua`, `ini`, `php`, `css`, `haskell`, `jsonc`). |
 | `--ignore-timestamps` | Ignore dates and times. |
 | `--ignore-blank-lines` | Added or removed blank lines are not differences. |
@@ -277,9 +278,12 @@ Not every change matters. Collaterale can treat these as **unimportant**: they a
 | **Line endings** | Always. `LF`, `CRLF` and old-Mac `CR` files compare equal when the text is the same; each pane's header still tells you its own style (for example `UTF-8 · CRLF · 120 lines`). |
 | **Aa** | Letter case. |
 | **💬 Comments** | Comments of the file's language. A line whose only change is its comment, a comment line that was added or removed, and a block comment turned into a line comment are all unimportant. Commenting out code **is** a difference (the code disappeared). The highlight inside a changed line covers the code only. |
+| **❝ Strings** | What a **string literal says**. `print("hello")` and `print("bonjour")` are the same; the quotes and the code around them still count, and so do comments (switch **💬 Comments** on too to ignore both). Text inside multi-line strings (docstrings, verbatim and raw strings) is ignored on every line. Same language rules as comments. |
 | **🕒 Dates** | Timestamps in lines: ISO 8601 (`2024-03-01T08:15:30Z`, `2024-03-01 08:15:30,123`), RFC 2822 (`Fri, 01 Mar 2024 08:15:30 GMT`), `March 1st, 2024`, `01/03/2024`, `31.12.2030`, clock times (`8:15 PM`, `12:34:56.789`). Two lines that differ only by such a value are equal. Version numbers and other digits are not touched. |
 | **✎ Rules → Ignore blank lines** | Empty or whitespace-only lines that were added or removed are not differences (a blank line replaced by text still is). These lines, like comment-only lines, take no part in matching, so they can never pull real lines into a bogus change. |
 | **✎ Rules** | Any regular expression you add (build numbers, `$Id: …$` keywords, generated markers). |
+
+**Choosing which parts of the code matter.** Comments, string contents and the code itself are the *syntax elements* Collaterale tells apart. Turn on **💬 Comments** to say "comments are unimportant", **❝ Strings** to say "what strings say is unimportant", both to leave **only the code** as important, or neither to treat everything as important. A line that differs only in an unimportant element is shown in faint grey and is not a difference; a line whose code changed is a difference whatever its comments or strings say. The same two switches exist in a folder compare's content rules (see below) and on the command line (`--ignore-comments`, `--ignore-strings`).
 
 **Comments by language.** The language is chosen from the file name, or from the list next to **💬 Comments**; Collaterale understands string literals, so a `//` inside a string is code, and comments and strings that span lines are tracked.
 
@@ -335,7 +339,7 @@ Earlier searches are offered in the drop-down of the find box.
 ![Over-under layout](images/text-compare-over-under.png)
 
 ### Your choices are remembered
-What you pick in the toolbar is kept for the next session, so you do not have to set it again every time: the **whitespace** setting, **Aa** (case), the algorithm, **Moves**, **Collapse**, the **ignore comments / dates and times / blank lines** switches, **· Whitespace**, **↩ Wrap**, **▤ Over-under** and the **Text details / Hex details** panel. They are stored in the settings file. The **whitespace and case** decisions are shared with the three-way merge: set them in either and the other starts with them. An option given on the command line applies to that session only.
+What you pick in the toolbar is kept for the next session, so you do not have to set it again every time: the **whitespace** setting, **Aa** (case), the algorithm, **Moves**, **Collapse**, the **ignore comments / strings / dates and times / blank lines** switches, **· Whitespace**, **↩ Wrap**, **▤ Over-under** and the **Text details / Hex details** panel. They are stored in the settings file. The **whitespace and case** decisions are shared with the three-way merge: set them in either and the other starts with them. An option given on the command line applies to that session only.
 
 ### Isolate: realign selected lines
 The automatic alignment sometimes pairs the wrong lines, for example when a repeated line (`}`, a blank, a common word) exists in several places. **Isolate** lets you say "these lines belong together" or "this line has no partner":
@@ -465,7 +469,7 @@ Tests that read files (used by the *contents* criteria):
 |---|---|
 | **Byte by byte** | Stops at the first difference. |
 | **Checksum (CRC-32)** | Sums each whole file and compares the sums. |
-| **As text, with rules** | Compares text files **as text**: line endings and the text encoding never matter, and you can also ignore *whitespace* (amount, leading/trailing, all), *case*, *comments* (language from the file name), *dates and times*, and *blank lines* — the same rules as the text compare. A file that is not text is compared byte by byte, and size is not used as a shortcut (a CRLF and an LF copy have different sizes). |
+| **As text, with rules** | Compares text files **as text**: line endings and the text encoding never matter, and you can also ignore *whitespace* (amount, leading/trailing, all), *case*, *comments* and *what string literals say* (language from the file name), *dates and times*, and *blank lines* — the same rules as the text compare. A file that is not text is compared byte by byte, and size is not used as a shortcut (a CRLF and an LF copy have different sizes). |
 | **Skip the content test when the quick tests say the files are the same** / **Override quick test results** | For *Size and date, then contents*: the first leaves matching files unread (fast); the second makes files with equal contents "same" even if their time or attributes differ. |
 
 **Handling.**

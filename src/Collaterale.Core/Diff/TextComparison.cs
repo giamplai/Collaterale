@@ -78,7 +78,7 @@ public sealed class TextComparison
 
         // comments are ignored: highlight the code only, then translate the ranges back onto the full line
         var (cl, cr) = (_codeLeft[r.Left], _codeRight[r.Right]);
-        var (l, rr) = IntraLineDiff.Compare(cl.Text, cr.Text, Options with { Comments = null });
+        var (l, rr) = IntraLineDiff.Compare(cl.Text, cr.Text, Options with { Comments = null, IgnoreStrings = false });
         return ([.. l.Select(sp => { var (s, n) = cl.ToOriginal(sp.Start, sp.Length); return new Span(s, n); })],
                 [.. rr.Select(sp => { var (s, n) = cr.ToOriginal(sp.Start, sp.Length); return new Span(s, n); })]);
     }
@@ -95,14 +95,14 @@ public sealed class TextComparison
         CodeLine[]? codeL = null, codeR = null;
         var cmpLeft = left;
         var cmpRight = right;
-        if (options.Comments is { } syntax)
+        if (options.StripsSyntax)
         {
-            // compare the code with its comments removed; the rows still point at the original lines
-            codeL = CommentStripper.Strip(left, syntax);
-            codeR = CommentStripper.Strip(right, syntax);
+            // compare the code with its unimportant elements (comments, string contents) removed; the rows still point at the original lines
+            codeL = CommentStripper.Strip(left, options.ElementSyntax!, options.Comments is not null, options.IgnoreStrings);
+            codeR = CommentStripper.Strip(right, options.ElementSyntax!, options.Comments is not null, options.IgnoreStrings);
             cmpLeft = [.. codeL.Select(c => c.Text)];
             cmpRight = [.. codeR.Select(c => c.Text)];
-            options = options with { Comments = null };
+            options = options with { Comments = null, IgnoreStrings = false };
         }
 
         // Lines that cannot matter (comment-only, blank when asked) take no part in the matching at all: if they did, a blank line
@@ -187,13 +187,13 @@ public sealed class TextComparison
         var cmpLeft = left;
         var cmpRight = right;
         var inner = options with { Isolations = [] };
-        if (options.Comments is { } syntax)
+        if (options.StripsSyntax)
         {
-            codeL = CommentStripper.Strip(left, syntax);
-            codeR = CommentStripper.Strip(right, syntax);
+            codeL = CommentStripper.Strip(left, options.ElementSyntax!, options.Comments is not null, options.IgnoreStrings);
+            codeR = CommentStripper.Strip(right, options.ElementSyntax!, options.Comments is not null, options.IgnoreStrings);
             cmpLeft = [.. codeL.Select(c => c.Text)];
             cmpRight = [.. codeR.Select(c => c.Text)];
-            inner = inner with { Comments = null };
+            inner = inner with { Comments = null, IgnoreStrings = false };
         }
 
         var moves = options.DetectMoves ? MoveDetector.Detect(rows, cmpLeft, cmpRight, new LineKeys(inner)) : [];
