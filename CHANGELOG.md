@@ -1,7 +1,10 @@
 # Changelog
 
 ## Unreleased
-* **Fix, text compare:** the overview map (right-edge scroll bar) did nothing and the two panes could drift apart; dragging or clicking the map and every jump now scroll both panes together; fast scrolling no longer makes the panes fight and drift apart (patch release, 0.1.1).
+
+## 0.2.0 — 2026-10-21
+* **Maintenance:** CI actions and test packages updated (setup-dotnet 6, checkout 7, codeql-action 4, action-gh-release 3, coverlet 10, Test.Sdk 18, CommunityToolkit.Mvvm 8.4.2); flaky tests fixed. xunit.v3 4.x is deferred until Avalonia.Headless.XUnit supports it.
+* **Fix, text compare:** the overview map (right-edge scroll bar) did nothing and the two panes could drift apart; dragging or clicking the map and every jump now scroll both panes together; fast scrolling no longer makes the panes fight and drift apart.
 * **Options window and workspaces:** startup, tabs, text editing, next difference, backups, file-operation confirmations, archive types, command shortcuts, open-with, tweaks, log, metrics, name-filter presets, scripts and shared sessions; named sessions and workspaces (also auto-saved at exit); settings packages; a script language (`collaterale @file`); text edit, patch and clipboard views; checks for files changed on disk; an optional update feed; sessions and child sessions in tabs or windows.
 * **Text compare:** a find panel (regular expressions, case, whole words, sides, wrap, history), replace and replace all, match highlighting; visible whitespace, word wrap, over-under layout, and text/hex details of the current line.
 * **Three-way merge, redesigned:** left changes teal, right changes magenta, conflicts red; display filters; *Take center*; ◀ ▶ buttons beside each section of the result; *Merge to* Left / Right / Other; file details in the headers and a richer status bar.
