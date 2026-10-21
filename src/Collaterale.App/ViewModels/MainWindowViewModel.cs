@@ -90,6 +90,8 @@ public sealed partial class MainWindowViewModel : ObservableObject
     public void ApplyPreferences()
     {
         ArchiveExtractor.Configure(Settings.Prefs.Archives);
+        Collaterale.Core.Languages.CommentSyntaxes.ConfigureCustom(Settings.Prefs.FileFormats);
+        TextCompareViewModel.RefreshLanguages();
         FolderSync.RemoveReadOnlyFromOptical = Settings.Prefs.Files.RemoveReadOnlyFromOptical;
         FolderComparer.ConfigureBuffer(Settings.Prefs.Files.BinaryBufferSize);
         foreach (var tab in Tabs) { (tab.Content as TextCompareViewModel)?.PreferencesChanged(); }

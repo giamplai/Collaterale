@@ -753,12 +753,29 @@ The button at the top right cycles **System** (follows your operating system), *
 | **Archive types** | The file masks that make a file an archive Collaterale can browse as a folder, per format. Clear a mask to drop a format. |
 | **Commands** | Every command with its keyboard shortcut. Click the box and press the keys; **Remove** clears it, **Default** restores it. If the shortcut is used by another command you are asked whether to take it over. The search box filters by name or description. Shortcuts can be changed for the Text compare, Three-way merge and Folder compare views. |
 | **“Open with” applications** | Programs for the **Open with** submenu of the folder view's context menu. In the arguments `%1` is the file and `%2` the file on the other side. |
+| **File formats** | Your own file types: see [Your own file formats](#your-own-file-formats). |
 | **Tweaks** | *Updates* (see below); *editor display* (syntax colors on difference lines, hatching beyond the end of the text, a separate color for one-sided lines, dimming the pane that is not active, a font for the merge input panes, a column line at a chosen column); *file operations* (beep after a long operation, remove the read-only flag when copying from a CD or DVD, check for files changed on disk and reload them, comparison priority, buffer size of the binary compare); *interface* (hints on or off, Esc closes file views, sticky splitter and sticky Home tile). |
 | **Log panel** | Which messages the log of a folder session shows (summaries, details, warnings, debug), how many it keeps, and a file to append them to. |
 | **Metrics** | The number of automatically saved workspaces (0 turns the feature off), of recent items, the delay before a hint appears, and how long the type-ahead search waits before starting over. |
 | **Name filter presets** | The ready-made name filters of the folder view toolbar. |
 | **Scripts** | Beep and close when a script has finished; a shared folder for scripts. |
 | **Shared sessions** | A file of sessions from someone else; they appear next to yours and can be used but not changed. |
+
+### Your own file formats
+
+![File formats page](images/options-file-formats.png)
+
+Comments and strings are recognised for the languages Collaterale knows (see [Smart rules](#smart-rules-what-counts-as-a-difference)). For anything else — a configuration language, an in-house format, a script dialect — describe it under **Options ▸ File formats** and the **💬 Comments** and **❝ Strings** switches work for it too. Press **New**, then fill in:
+
+| Field | Meaning |
+|---|---|
+| **Name** | What the language list shows. |
+| **File extensions** | Which files it covers, with or without the dot, separated by spaces: `toy cfg2`. |
+| **Line comments** | Markers that start a comment running to the end of the line: `# //`. A semicolon is fine here (`;`) — lists are separated by spaces. |
+| **Block comments** | An opener and a closer, then the next pair: `/* */ <!-- -->` is two styles. A comment may span lines. |
+| **String quotes** | The characters that open and close a string literal, with backslash escapes inside: `" '`. A comment marker inside a string is not a comment. |
+
+A format needs a name, at least one extension and at least one marker; an incomplete one is dropped when you press **OK**. Your definition **wins over a built-in one** for the same extension (handy to change how `.conf` files are read). The new language appears in the language list next to **💬 Comments** at once, and is picked automatically from the file name. Formats are stored with your other options and travel in a settings package.
 
 **Updates.** With *Check for updates* on and the address of a small JSON file (`{"version": "1.2.3", "url": "https://…"}`) set, Collaterale asks it at most every *n* days and tells you when a newer version exists. With no address nothing is ever sent.
 
