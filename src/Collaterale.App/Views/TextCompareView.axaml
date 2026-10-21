@@ -64,6 +64,8 @@
         <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.DetailsChoices}" SelectedItem="{Binding Details}" MinWidth="120" VerticalAlignment="Center" Margin="4,0,0,0" ToolTip.Tip="A panel under the panes with the current line of each file in full">
           <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.DetailsLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
         </ComboBox>
+        <Button Classes="tool" Content="⇋ Isolate" Command="{Binding IsolateCommand}" ToolTip.Tip="Realign the selected lines on their own: lines selected on one side stand alone with empty space opposite, lines selected on both sides are compared only with each other (Ctrl+Alt+I, or right-click)" />
+        <Button Classes="tool" Content="✕ Isolations" Command="{Binding ClearIsolationsCommand}" IsVisible="{Binding HasIsolations}" ToolTip.Tip="Remove every isolation and go back to the automatic alignment" />
         <Button Classes="tool" Content="{}{} Structure" Command="{Binding CompareStructureCommand}" ToolTip.Tip="JSON and XML: compare the structure — formatting and key/attribute order are ignored — in a new tab" />
         </WrapPanel>
       </DockPanel>
@@ -147,11 +149,25 @@
 
       <!-- panes, gutter, overview -->
       <Border x:Name="LeftBox" Grid.Row="1" Grid.Column="0" Classes="panel" CornerRadius="0,0,0,12" BorderThickness="1,0,1,1" ClipToBounds="True">
-        <c:DiffPane x:Name="LeftPane" />
+        <c:DiffPane x:Name="LeftPane">
+          <c:DiffPane.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Isolate selected lines" Command="{Binding IsolateCommand}" InputGesture="Ctrl+Alt+I" />
+              <MenuItem Header="Remove isolations" Command="{Binding ClearIsolationsCommand}" IsVisible="{Binding HasIsolations}" />
+            </ContextMenu>
+          </c:DiffPane.ContextMenu>
+        </c:DiffPane>
       </Border>
       <c:DiffGutter x:Name="Gutter" Grid.Row="1" Grid.Column="1" />
       <Border x:Name="RightBox" Grid.Row="1" Grid.Column="2" Classes="panel" CornerRadius="0,0,0,12" BorderThickness="1,0,1,1" ClipToBounds="True">
-        <c:DiffPane x:Name="RightPane" />
+        <c:DiffPane x:Name="RightPane">
+          <c:DiffPane.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Isolate selected lines" Command="{Binding IsolateCommand}" InputGesture="Ctrl+Alt+I" />
+              <MenuItem Header="Remove isolations" Command="{Binding ClearIsolationsCommand}" IsVisible="{Binding HasIsolations}" />
+            </ContextMenu>
+          </c:DiffPane.ContextMenu>
+        </c:DiffPane>
       </Border>
       <c:OverviewMap x:Name="Map" Grid.Row="1" Grid.Column="3" Margin="4,0,0,0" />
     </Grid>

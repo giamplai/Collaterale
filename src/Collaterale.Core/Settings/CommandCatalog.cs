@@ -32,6 +32,7 @@ public static class CommandCatalog
         new("text.replace", CommandView.Text, "Replace", "Find and replace text.", "Ctrl+H"),
         new("text.findnext", CommandView.Text, "Find next", "Continue the search forward.", "F3"),
         new("text.findprev", CommandView.Text, "Find previous", "Continue the search backward.", "Shift+F3"),
+        new("text.isolate", CommandView.Text, "Isolate selected lines", "Realign the selected lines on their own, with empty space opposite them.", "Ctrl+Alt+I"),
         new("text.swap", CommandView.Text, "Swap sides", "Exchange the left and right files.", null),
         new("merge.next", CommandView.Merge, "Next change", "Go to the next change.", "Alt+Down"),
         new("merge.prev", CommandView.Merge, "Previous change", "Go to the previous change.", "Alt+Up"),
