@@ -18,6 +18,38 @@ public sealed record RecentSession(LaunchKind Kind, string? Left, string? Right,
     public bool SameAs(RecentSession o) => Kind == o.Kind && Left == o.Left && Right == o.Right && Base == o.Base && Output == o.Output;
 }
 
+/// <summary>
+/// How the text compare looks and compares when it opens; every change made in a text compare is written back here, so the
+/// next session starts the way the last one was left. (Whitespace, case and algorithm live on <see cref="AppSettings"/> and are shared with the merge.)
+/// </summary>
+public sealed class TextViewDefaults
+{
+    public bool DetectMoves { get; set; } = true;
+    public bool CollapseUnchanged { get; set; }
+    public bool ShowWhitespace { get; set; }
+    public bool WordWrap { get; set; }
+    public bool OverUnder { get; set; }
+
+    /// <summary>The panel under the panes: "None", "Text" or "Hex".</summary>
+    public string Details { get; set; } = "None";
+
+    public bool IgnoreComments { get; set; }
+    public bool IgnoreTimestamps { get; set; }
+    public bool IgnoreBlankLines { get; set; }
+}
+
+/// <summary>What a three-way merge remembers from the last one (whitespace and case are shared with the text compare).</summary>
+public sealed class MergeViewDefaults
+{
+    public bool ShowBase { get; set; } = true;
+
+    /// <summary>Which sections are shown: the name of a <c>MergeFilter</c>.</summary>
+    public string Filter { get; set; } = "All";
+
+    /// <summary>The panel under the result: "None" or "Text".</summary>
+    public string Details { get; set; } = "None";
+}
+
 /// <summary>Colors of the folder view as #RRGGBB; null keeps the theme's own default (which differs between light and dark).</summary>
 public sealed class FolderColors
 {
@@ -49,6 +81,9 @@ public sealed class AppSettings
     // defaults for new text comparisons
     public WhitespaceMode Whitespace { get; set; } = WhitespaceMode.Exact;
     public bool IgnoreCase { get; set; }
+
+    public TextViewDefaults TextView { get; set; } = new();
+    public MergeViewDefaults MergeView { get; set; } = new();
 
     /// <summary>Saved sets of folder name filters.</summary>
     public List<Collaterale.Core.Folders.FilterPreset> FilterPresets { get; set; } = [];

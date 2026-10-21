@@ -127,12 +127,58 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
 
     private Collaterale.Core.Settings.BackupPreferences Backup => NoBackups ? new() { Mode = Collaterale.Core.Settings.BackupMode.Off } : Prefs.Backup;
 
-    public void ApplyDefaults(Collaterale.Core.Settings.AppSettings s)
+    /// <summary>
+    /// Starts from the choices remembered in the settings; from then on every change of an option or of the view is written back
+    /// (through <paramref name="save"/>), so the next session opens the way this one was left.
+    /// </summary>
+    public void ApplyDefaults(Collaterale.Core.Settings.AppSettings s, Action? save = null)
     {
         Prefs = s.Prefs;
+        _remembering = true;
+        var v = s.TextView;
         Whitespace = s.Whitespace;
         IgnoreCase = s.IgnoreCase;
         Algorithm = s.Algorithm;
+        DetectMoves = v.DetectMoves;
+        CollapseUnchanged = v.CollapseUnchanged;
+        ShowWhitespace = v.ShowWhitespace;
+        WordWrap = v.WordWrap;
+        OverUnder = v.OverUnder;
+        Details = Enum.TryParse<DetailsMode>(v.Details, out var d) ? d : DetailsMode.None;
+        IgnoreComments = v.IgnoreComments;
+        IgnoreTimestamps = v.IgnoreTimestamps;
+        IgnoreBlankLines = v.IgnoreBlankLines;
+        _remembering = false;
+        (_settings, _saveSettings) = (s, save);
+    }
+
+    private Collaterale.Core.Settings.AppSettings? _settings;
+    private Action? _saveSettings;
+    private bool _remembering;
+
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        if (_remembering || _settings is not { } s) { return; }
+        var v = s.TextView;
+        switch (e.PropertyName)
+        {
+            case nameof(Whitespace): s.Whitespace = Whitespace; break;
+            case nameof(IgnoreCase): s.IgnoreCase = IgnoreCase; break;
+            case nameof(Algorithm): s.Algorithm = Algorithm; break;
+            case nameof(DetectMoves): v.DetectMoves = DetectMoves; break;
+            case nameof(CollapseUnchanged): v.CollapseUnchanged = CollapseUnchanged; break;
+            case nameof(ShowWhitespace): v.ShowWhitespace = ShowWhitespace; break;
+            case nameof(WordWrap): v.WordWrap = WordWrap; break;
+            case nameof(OverUnder): v.OverUnder = OverUnder; break;
+            case nameof(Details): v.Details = Details.ToString(); break;
+            case nameof(IgnoreComments): v.IgnoreComments = IgnoreComments; break;
+            case nameof(IgnoreTimestamps): v.IgnoreTimestamps = IgnoreTimestamps; break;
+            case nameof(IgnoreBlankLines): v.IgnoreBlankLines = IgnoreBlankLines; break;
+            default: return;
+        }
+
+        _saveSettings?.Invoke();
     }
 
     private const int UndoLimit = 100;

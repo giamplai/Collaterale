@@ -333,6 +333,9 @@ Earlier searches are offered in the drop-down of the find box.
 
 ![Over-under layout](images/text-compare-over-under.png)
 
+### Your choices are remembered
+What you pick in the toolbar is kept for the next session, so you do not have to set it again every time: the **whitespace** setting, **Aa** (case), the algorithm, **Moves**, **Collapse**, the **ignore comments / dates and times / blank lines** switches, **· Whitespace**, **↩ Wrap**, **▤ Over-under** and the **Text details / Hex details** panel. They are stored in the settings file. The **whitespace and case** decisions are shared with the three-way merge: set them in either and the other starts with them. An option given on the command line applies to that session only.
+
 ### Go to line
 
 Press **Ctrl+G** and type a line number to jump there in both panes. The dialog applies to the pane that has the keyboard focus (the left one by default) and clamps a number beyond the end of the file to the last line. In a **collapsed** view the stretch that hides the line is opened automatically, and the caret is placed on it.
@@ -547,6 +550,8 @@ Not every change can be merged safely. When the **same lines** were changed on b
 ### Display filters
 
 The **Show** list limits the three input panes to some sections; the others fold into one line ("12 lines hidden by the filter — click to show"), and a click on it opens that section again. *Differences* hides unchanged text, *Same* shows only unchanged text, *Conflicts* only conflicts, *Left changes* / *Right changes* only sections that one side changed, and *Same on both sides* those where both made the identical change.
+
+The merge remembers the **Show** filter, **Center pane**, the whitespace setting and **Aa** for the next merge (the last two are shared with the text compare, see [Your choices are remembered](#your-choices-are-remembered)).
 
 ### Resolving
 
