@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Clearer, more compact toolbars:** the emoji on buttons (save, comments, dates, find, peek) are replaced by small line icons that look the same on every system and follow the theme; toolbar buttons are smaller, so the text compare toolbar fits in two rows instead of three.
 
 ## 1.2.0 — 2026-10-22
 * **Align with…, whole stretches:** select several lines before choosing it and the whole stretch is aligned opposite the line you click (and the same number of lines below it).

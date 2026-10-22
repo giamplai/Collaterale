@@ -28,7 +28,7 @@
             <Button.Flyout><MenuFlyout Opening="OnPresetsOpening" /></Button.Flyout>
           </Button>
           <Button Classes="tool" Content="⏷ Filters…" Click="OnFilters" ToolTip.Tip="All name filters and other filters (size, date, attributes)" />
-          <Button Classes="tool" Content="👁 Peek" Click="OnPeek" IsEnabled="{Binding HasSelection}" ToolTip.Tip="A quick look at the selected file: the differences of a text pair, or the start of a single file (Space)" />
+          <Button Classes="tool" Click="OnPeek" IsEnabled="{Binding HasSelection}" ToolTip.Tip="A quick look at the selected file: the differences of a text pair, or the start of a single file (Space)" ><c:IconLabel Icon="eye" Text="Peek" /></Button>
           <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
           <ComboBox ItemsSource="{x:Static vm:FolderCompareViewModel.CriteriaChoices}" SelectedItem="{Binding Criteria}" MinWidth="200" Margin="0,0,8,0">
             <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.CriteriaLabel}}" /></DataTemplate></ComboBox.ItemTemplate>

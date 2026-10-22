@@ -10,8 +10,8 @@
     <Border DockPanel.Dock="Top" Padding="8,6" Background="{DynamicResource PanelBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
       <DockPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-          <Button Classes="tool" Content="💾 Left" Command="{Binding SaveLeftCommand}" ToolTip.Tip="Save the left file" />
-          <Button Classes="tool" Content="💾 Right" Command="{Binding SaveRightCommand}" ToolTip.Tip="Save the right file" />
+          <Button Classes="tool" Command="{Binding SaveLeftCommand}" ToolTip.Tip="Save the left file" ><c:IconLabel Icon="save" Text="Left" /></Button>
+          <Button Classes="tool" Command="{Binding SaveRightCommand}" ToolTip.Tip="Save the right file" ><c:IconLabel Icon="save" Text="Right" /></Button>
         </StackPanel>
         <WrapPanel>
         <Button Classes="tool" Content="▲ Prev" Command="{Binding PreviousDifferenceCommand}" ToolTip.Tip="Previous difference (Alt+Up)" />
@@ -37,12 +37,12 @@
           <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.AlgorithmLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
         </ComboBox>
         <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
-        <ToggleButton Classes="tool" Content="💬 Comments" IsChecked="{Binding IgnoreComments}" ToolTip.Tip="Ignore comments: a changed comment, or a line with only a comment, is not a difference" />
+        <ToggleButton Classes="tool" IsChecked="{Binding IgnoreComments}" ToolTip.Tip="Ignore comments: a changed comment, or a line with only a comment, is not a difference" ><c:IconLabel Icon="comment" Text="Comments" /></ToggleButton>
         <ToggleButton Classes="tool" Content="❝ Strings" IsChecked="{Binding IgnoreStrings}" ToolTip.Tip="Ignore what string literals say: lines that differ only inside a string are not differences (the quotes and the code around them still count)" />
         <ComboBox ItemsSource="{x:Static vm:TextCompareViewModel.Languages}" SelectedItem="{Binding Language}" MinWidth="160" VerticalAlignment="Center" Margin="2,0,0,0" ToolTip.Tip="The language, for Comments and Strings. Auto picks it from the file name.">
           <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:LanguageChoice"><TextBlock Text="{Binding Label}" /></DataTemplate></ComboBox.ItemTemplate>
         </ComboBox>
-        <ToggleButton Classes="tool" Content="🕒 Dates" IsChecked="{Binding IgnoreTimestamps}" ToolTip.Tip="Ignore dates and times in the text" Margin="6,0,0,0" />
+        <ToggleButton Classes="tool" IsChecked="{Binding IgnoreTimestamps}" ToolTip.Tip="Ignore dates and times in the text" Margin="6,0,0,0" ><c:IconLabel Icon="clock" Text="Dates" /></ToggleButton>
         <Button Classes="tool" Content="✎ Rules" ToolTip.Tip="Custom rules: regular expressions whose matches are ignored (one per line)">
           <Button.Flyout>
             <Flyout Placement="BottomEdgeAlignedLeft">
@@ -58,7 +58,7 @@
         <Button Classes="tool" Content="◂◂ File" Command="{Binding PreviousFileCommand}" IsVisible="{Binding HasFileNavigator}" ToolTip.Tip="The previous file with differences in the folder this file came from" />
         <Button Classes="tool" Content="File ▸▸" Command="{Binding NextFileCommand}" IsVisible="{Binding HasFileNavigator}" ToolTip.Tip="The next file with differences in the folder this file came from" />
         <Rectangle Width="1" Margin="8,4" Fill="{DynamicResource LineBrush}" />
-        <Button Classes="tool" Content="🔍 Find" Command="{Binding ShowFindCommand}" CommandParameter="{x:False}" ToolTip.Tip="Find text (Ctrl+F); Ctrl+H to replace" />
+        <Button Classes="tool" Command="{Binding ShowFindCommand}" CommandParameter="{x:False}" ToolTip.Tip="Find text (Ctrl+F); Ctrl+H to replace" ><c:IconLabel Icon="search" Text="Find" /></Button>
         <ToggleButton Classes="tool" Content="· Whitespace" IsChecked="{Binding ShowWhitespace}" ToolTip.Tip="Show spaces, tabs and line endings as symbols" />
         <ToggleButton Classes="tool" Content="↩ Wrap" IsChecked="{Binding WordWrap}" ToolTip.Tip="Wrap long lines to the pane width (the panes then scroll together only approximately)" />
         <ToggleButton Classes="tool" Content="▤ Over-under" IsChecked="{Binding OverUnder}" ToolTip.Tip="Put the left file above the right one" />
