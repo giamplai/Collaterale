@@ -17,8 +17,8 @@
     <Border DockPanel.Dock="Top" Padding="8,6" Background="{DynamicResource PanelBrush}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
       <DockPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-          <Button Classes="tool" Content="💾 Left" Command="{Binding SaveLeftCommand}" ToolTip.Tip="Save the left file" />
-          <Button Classes="tool" Content="💾 Right" Command="{Binding SaveRightCommand}" ToolTip.Tip="Save the right file" />
+          <Button Classes="tool" Command="{Binding SaveLeftCommand}" ToolTip.Tip="Save the left file" ><c:IconLabel Icon="save" Text="Left" /></Button>
+          <Button Classes="tool" Command="{Binding SaveRightCommand}" ToolTip.Tip="Save the right file" ><c:IconLabel Icon="save" Text="Right" /></Button>
         </StackPanel>
         <WrapPanel>
           <Button Classes="tool" Content="Open…" Click="OnOpenLeft" ToolTip.Tip="Choose the left file" />

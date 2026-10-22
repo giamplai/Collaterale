@@ -264,15 +264,15 @@ A miniature of the whole file: colored marks show where the differences are and 
 | **⟳** | Reload: re-read both files from disk (discards unsaved copies; **F5**). |
 | **Whitespace** | *Compare whitespace* (default), *Ignore amount of whitespace* (runs of spaces count as one), *Ignore leading/trailing whitespace*, or *Ignore all whitespace*. |
 | **Aa** | Ignore letter case. |
-| **💬 Comments** + language list | **Ignore comments** (see *Smart rules* below). The list is *Language: auto* (taken from the file name) or a specific syntax. |
-| **🕒 Dates** | Ignore dates and times in the text. |
+| **Comments** + language list | **Ignore comments** (see *Smart rules* below). The list is *Language: auto* (taken from the file name) or a specific syntax. |
+| **Dates** | Ignore dates and times in the text. |
 | **✎ Rules** | Opens a panel with **Ignore blank lines** and your own rules: regular expressions (one per line) whose matches are ignored. |
 | **⇋ Isolate** / **✕ Isolations** | Realign the selected lines on their own (see [Isolate](#isolate-realign-selected-lines)); **✕ Isolations** appears while any are active and removes them. |
 | **{} Structure** | JSON and XML: compare the **structure** in a new tab (formatting and key/attribute order are ignored). |
 | **⇕ Collapse** | **Fold long stretches of unchanged lines** so only the differences and **3 lines of context** around each remain. Each fold is a single marker row such as `⋯ 123 unchanged lines ⋯ (click to show)`; click it to reveal just that stretch. Hidden stretches shorter than four lines are simply shown, and two files with no differences are never collapsed. The gutter buttons, the overview map and ▲ Prev / ▼ Next all work on the shortened view. While collapsed the panes are **read-only** (click **⇕ Collapse** again to edit); copying a difference with the gutter or the toolbar still works. |
 | **⤳ Moves** | Detect **moved blocks** (on by default): a run of at least 3 lines that was cut from one place and pasted in another is shown in **purple** on both sides instead of as an unrelated deletion plus addition, and the status bar says how many were found. It is still two differences for navigation and copying; the purple only tells you they are the same text. Very short or trivial runs (a few closing braces) are ignored, and the whitespace/case options apply to the matching. |
 | **Algorithm** | *Minimal (Myers)* always finds the fewest changes. *Readable (patience)* anchors on lines that appear exactly once, which often gives a clearer picture for source code with many repeated lines such as `}`. *Smart (histogram)* anchors on the **rarest** lines instead, so repeated lines do not confuse it either; it is usually the best choice for source code. All three are exact in the sense that applying the shown changes to the left file always yields the right file. |
-| **💾 Left / 💾 Right** | Save that file (enabled once you have copied something into it). |
+| **Left / Right** | Save that file (enabled once you have copied something into it). |
 
 ![Collapsed view of a 200-line file](images/text-compare-collapsed.png)
 
@@ -287,15 +287,15 @@ Not every change matters. Collaterale can treat these as **unimportant**: they a
 | **Whitespace** (list) | Indentation, runs of spaces, trailing spaces — see the toolbar table above. |
 | **Line endings** | Always. `LF`, `CRLF` and old-Mac `CR` files compare equal when the text is the same; each pane's header still tells you its own style (for example `UTF-8 · CRLF · 120 lines`). |
 | **Aa** | Letter case. |
-| **💬 Comments** | Comments of the file's language. A line whose only change is its comment, a comment line that was added or removed, and a block comment turned into a line comment are all unimportant. Commenting out code **is** a difference (the code disappeared). The highlight inside a changed line covers the code only. |
-| **❝ Strings** | What a **string literal says**. `print("hello")` and `print("bonjour")` are the same; the quotes and the code around them still count, and so do comments (switch **💬 Comments** on too to ignore both). Text inside multi-line strings (docstrings, verbatim and raw strings) is ignored on every line. Same language rules as comments. |
-| **🕒 Dates** | Timestamps in lines: ISO 8601 (`2024-03-01T08:15:30Z`, `2024-03-01 08:15:30,123`), RFC 2822 (`Fri, 01 Mar 2024 08:15:30 GMT`), `March 1st, 2024`, `01/03/2024`, `31.12.2030`, clock times (`8:15 PM`, `12:34:56.789`). Two lines that differ only by such a value are equal. Version numbers and other digits are not touched. |
+| **Comments** | Comments of the file's language. A line whose only change is its comment, a comment line that was added or removed, and a block comment turned into a line comment are all unimportant. Commenting out code **is** a difference (the code disappeared). The highlight inside a changed line covers the code only. |
+| **❝ Strings** | What a **string literal says**. `print("hello")` and `print("bonjour")` are the same; the quotes and the code around them still count, and so do comments (switch **Comments** on too to ignore both). Text inside multi-line strings (docstrings, verbatim and raw strings) is ignored on every line. Same language rules as comments. |
+| **Dates** | Timestamps in lines: ISO 8601 (`2024-03-01T08:15:30Z`, `2024-03-01 08:15:30,123`), RFC 2822 (`Fri, 01 Mar 2024 08:15:30 GMT`), `March 1st, 2024`, `01/03/2024`, `31.12.2030`, clock times (`8:15 PM`, `12:34:56.789`). Two lines that differ only by such a value are equal. Version numbers and other digits are not touched. |
 | **✎ Rules → Ignore blank lines** | Empty or whitespace-only lines that were added or removed are not differences (a blank line replaced by text still is). These lines, like comment-only lines, take no part in matching, so they can never pull real lines into a bogus change. |
 | **✎ Rules** | Any regular expression you add (build numbers, `$Id: …$` keywords, generated markers). Regular-expression options work inside a rule, e.g. `(?i)build \d+` ignores that text whatever its letter case, so case can be handled rule by rule instead of for the whole file. |
 
-**Choosing which parts of the code matter.** Comments, string contents and the code itself are the *syntax elements* Collaterale tells apart. Turn on **💬 Comments** to say "comments are unimportant", **❝ Strings** to say "what strings say is unimportant", both to leave **only the code** as important, or neither to treat everything as important. A line that differs only in an unimportant element is shown in faint grey and is not a difference; a line whose code changed is a difference whatever its comments or strings say. The same two switches exist in a folder compare's content rules (see below) and on the command line (`--ignore-comments`, `--ignore-strings`).
+**Choosing which parts of the code matter.** Comments, string contents and the code itself are the *syntax elements* Collaterale tells apart. Turn on **Comments** to say "comments are unimportant", **❝ Strings** to say "what strings say is unimportant", both to leave **only the code** as important, or neither to treat everything as important. A line that differs only in an unimportant element is shown in faint grey and is not a difference; a line whose code changed is a difference whatever its comments or strings say. The same two switches exist in a folder compare's content rules (see below) and on the command line (`--ignore-comments`, `--ignore-strings`).
 
-**Comments by language.** The language is chosen from the file name, or from the list next to **💬 Comments**; Collaterale understands string literals, so a `//` inside a string is code, and comments and strings that span lines are tracked.
+**Comments by language.** The language is chosen from the file name, or from the list next to **Comments**; Collaterale understands string literals, so a `//` inside a string is code, and comments and strings that span lines are tracked.
 
 | Language | Comments recognised |
 |---|---|
@@ -309,7 +309,7 @@ Not every change matters. Collaterale can treat these as **unimportant**: they a
 | SQL | `-- …`, `/* … */`; `'it''s'` strings |
 | PHP, CSS/SCSS/Less, Lua, Haskell, INI/properties | their own comment forms |
 
-If you switch on **💬 Comments** for a file whose language Collaterale does not know, the status line asks you to pick one in the list. Comment rules apply to the two-file text compare and to `collaterale --diff --ignore-comments`; **three-way merge** deliberately does not ignore comments, because a merge result must never silently drop someone's edit.
+If you switch on **Comments** for a file whose language Collaterale does not know, the status line asks you to pick one in the list. Comment rules apply to the two-file text compare and to `collaterale --diff --ignore-comments`; **three-way merge** deliberately does not ignore comments, because a merge result must never silently drop someone's edit.
 
 **Structure (JSON and XML).** **{} Structure** rewrites both files into one canonical layout in a **new tab**: one value per line, two-space indentation, JSON object keys and XML attributes in alphabetical order, `<e></e>` written as `<e />`. The comparison there shows only changes of meaning — a re-formatted or re-ordered file compares equal — while array order, values and element order still count. Numbers keep their spelling (`1.50` stays `1.50`). That tab is a temporary view: it is not tied to a file, so nothing you do there changes your originals. A file that is not valid JSON/XML is reported instead of compared.
 
@@ -321,7 +321,7 @@ Text is **colored by language**, chosen from the file extension (C#, C/C++, Java
 
 ![Find and replace](images/text-compare-find.png)
 
-**Ctrl+F** (or **🔍 Find**) opens the find panel; **Ctrl+H** adds the replace line. If text is selected, or the cursor is on a word, that text fills the find box. Every match is highlighted in both panes while you type, and the status shows how many there are.
+**Ctrl+F** (or **Find**) opens the find panel; **Ctrl+H** adds the replace line. If text is selected, or the cursor is on a word, that text fills the find box. Every match is highlighted in both panes while you type, and the status shows how many there are.
 
 | Control | Meaning |
 |---|---|
@@ -395,7 +395,7 @@ Both panes are **editable**: click in either one and type, paste or delete lines
 * After a short pause (about half a second), or as soon as you click elsewhere, Collaterale **re-compares**: the rows realign, the colors and word highlights update, and the difference count changes. In the screenshot the `TaxRate` value was typed on the left to match the right, so that difference disappeared.
 * The grey **filler rows** are not real lines. If you type into one it becomes a real line; if you leave it alone it never ends up in the saved file.
 * The caret stays on the line you were editing when the view realigns.
-* A **●** next to the file name marks unsaved changes, and **💾 Left / 💾 Right** become available. Saving keeps the original encoding, BOM and line endings.
+* A **●** next to the file name marks unsaved changes, and **Left / Right** become available. Saving keeps the original encoding, BOM and line endings.
 * **Undo / redo** (**Ctrl+Z** / **Ctrl+Y**, or the **↶ ↷** buttons) work on the whole file: each undo step reverts one burst of typing or one copy operation, in the order you did them, whichever pane they were in. The editor's own character-level undo is not used, because the display is rebuilt after every pause.
 * **⟳** (F5) throws away unsaved edits by re-reading the files.
 
@@ -429,7 +429,7 @@ Open it from the **Folder compare** tile, **＋ Folders**, by dropping two folde
 | **⇄ Swap** | Exchange the left and right folders (and any alignments you made) and compare again. |
 | **■ Stop** | Stop a comparison that is running. |
 | **Filters:** box, **▾**, **⏷ Filters…** | The box takes file masks to include (`*.cs;*.md`; empty = all). **▾** lists your saved filter presets and saves the current filters as a new one. **⏷ Filters…** opens the full set of name and other filters. |
-| **👁 Peek** (**Space**) | A quick, read-only look at the selected file: the differences between a pair of text files, the start of a file that exists on one side only, or the counts inside a folder. Binary files say so. |
+| **Peek** (**Space**) | A quick, read-only look at the selected file: the differences between a pair of text files, the start of a file that exists on one side only, or the counts inside a folder. Binary files say so. |
 | **Criterion list** | *Size and date* (default), *Size only*, *Contents only*, or *Size and date, then contents* — see *Comparison settings* below. |
 | **⚙ Session settings…** | Everything that decides what is compared and how. |
 | **◐ Legend** | What the colors and symbols mean, in the colors you are actually using. |
@@ -622,7 +622,7 @@ Click in the **Result** pane and type. As soon as you do, the colored regions di
 
 ### Saving
 
-**💾 Save** (**Ctrl+S**) writes the result to the file chosen under *Merge to* (you are asked for a name if there is none). The file keeps the **encoding, BOM and line endings** of the inputs.
+**Save** (**Ctrl+S**) writes the result to the file chosen under *Merge to* (you are asked for a name if there is none). The file keeps the **encoding, BOM and line endings** of the inputs.
 
 If conflicts are still unresolved, Collaterale refuses by default; you can choose **Save with markers**, which writes the conflict markers into the file so you can finish elsewhere.
 
@@ -659,7 +659,7 @@ The status bar says how many bytes differ and in how many runs. Very large compa
 | **8 / 16 / 24 / 32** | Bytes per row. |
 | **Text** | Show or hide the character column. |
 | **Go to offset** | Type an offset and press **Enter**: `0x1A40`, `1A40h` or a decimal number like `6720`. |
-| **💾 Left / 💾 Right** | Save that file (enabled after you copy something into it). |
+| **Left / Right** | Save that file (enabled after you copy something into it). |
 
 You can also scroll with the wheel or the scroll bar, move the selection with the **arrow keys**, **Page Up / Page Down**, **Home / End** (and **Ctrl+Home / Ctrl+End** for the whole file).
 
@@ -789,7 +789,7 @@ The button at the top right cycles **System** (follows your operating system), *
 
 ![File formats page](images/options-file-formats.png)
 
-Comments and strings are recognised for the languages Collaterale knows (see [Smart rules](#smart-rules-what-counts-as-a-difference)). For anything else — a configuration language, an in-house format, a script dialect — describe it under **Options ▸ File formats** and the **💬 Comments** and **❝ Strings** switches work for it too. Press **New**, then fill in:
+Comments and strings are recognised for the languages Collaterale knows (see [Smart rules](#smart-rules-what-counts-as-a-difference)). For anything else — a configuration language, an in-house format, a script dialect — describe it under **Options ▸ File formats** and the **Comments** and **❝ Strings** switches work for it too. Press **New**, then fill in:
 
 | Field | Meaning |
 |---|---|
@@ -799,7 +799,7 @@ Comments and strings are recognised for the languages Collaterale knows (see [Sm
 | **Block comments** | An opener and a closer, then the next pair: `/* */ <!-- -->` is two styles. A comment may span lines. |
 | **String quotes** | The characters that open and close a string literal, with backslash escapes inside: `" '`. A comment marker inside a string is not a comment. |
 
-A format needs a name, at least one extension and at least one marker; an incomplete one is dropped when you press **OK**. Your definition **wins over a built-in one** for the same extension (handy to change how `.conf` files are read). The new language appears in the language list next to **💬 Comments** at once, and is picked automatically from the file name. Formats are stored with your other options and travel in a settings package.
+A format needs a name, at least one extension and at least one marker; an incomplete one is dropped when you press **OK**. Your definition **wins over a built-in one** for the same extension (handy to change how `.conf` files are read). The new language appears in the language list next to **Comments** at once, and is picked automatically from the file name. Formats are stored with your other options and travel in a settings package.
 
 **Updates.** With *Check for updates* on and the address of a small JSON file (`{"version": "1.2.3", "url": "https://…"}`) set, Collaterale asks it at most every *n* days and tells you when a newer version exists. With no address nothing is ever sent.
 
