@@ -26,7 +26,7 @@ public partial class TextCompareViewModel
         else { Status = "Select the lines to isolate first"; }
     }
 
-    private (Side Side, int Row)? _alignAnchor;
+    private (Side Side, int First, int Last)? _alignAnchor;
 
     /// <summary>True between choosing "Align with…" and clicking the line to align with on the other pane.</summary>
     public bool AlignPending => _alignAnchor is not null;
@@ -39,9 +39,10 @@ public partial class TextCompareViewModel
         if (sel is not { Length: 2 }) { return; }
         // the pane that holds the selection (or the cursor) is the one the line is taken from
         var (side, range) = sel[0] is { } l ? (Side.Left, l) : (Side.Right, sel[1]!.Value);
-        _alignAnchor = (side, range.First);
+        _alignAnchor = (side, range.First, range.Last);
         OnPropertyChanged(nameof(AlignPending));
-        Status = $"Align: now click the line of the {(side == Side.Left ? "right" : "left")} pane to put opposite it (Esc cancels)";
+        var n = range.Last - range.First + 1;
+        Status = $"Align: now click the first line of the {(side == Side.Left ? "right" : "left")} pane to put opposite {(n > 1 ? $"these {n} lines" : "it")} (Esc cancels)";
     }
 
     public void CancelAlign()
@@ -58,7 +59,8 @@ public partial class TextCompareViewModel
         if (_alignAnchor is not { } a || a.Side == side) { return; }
         _alignAnchor = null;
         OnPropertyChanged(nameof(AlignPending));
-        (int, int)? mine = (a.Row, a.Row), other = (row, row);
+        // the same number of rows as the chosen stretch, starting at the clicked one, face it
+        (int, int)? mine = (a.First, a.Last), other = (row, row + (a.Last - a.First));
         if (a.Side == Side.Left) { IsolateRows(mine, other); } else { IsolateRows(other, mine); }
     }
 
