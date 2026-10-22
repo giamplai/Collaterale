@@ -2,6 +2,8 @@
 
 ## Unreleased
 * **Align with…, whole stretches:** select several lines before choosing it and the whole stretch is aligned opposite the line you click (and the same number of lines below it).
+
+## 1.1.0 — 2026-10-22
 * **Text compare, Align with…:** choose it on a line (toolbar, Ctrl+Alt+A or right-click), then click the line of the other pane to put opposite it; Esc cancels.
 * **Text details, easier to read:** the two lines now touch, are tinted like the pane rows and have the changed words marked (spaces, tabs and line ends too with **· Whitespace**); still editable with Enter.
 
