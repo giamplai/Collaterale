@@ -86,4 +86,20 @@ public class DetailsFollowTests
         vm.CaretMoved(Side.Right, 1);
         Assert.False(vm.HasIsolations);
     }
+
+    [AvaloniaFact]
+    public void Align_with_a_selected_stretch_puts_the_whole_stretch_opposite_the_clicked_line()
+    {
+        var shell = TextCompareTests.NewShell();
+        var vm = shell.NewTextCompare();
+        vm.DetectMoves = false;
+        string[] left = ["a1", "x", "y", "a2", "a3"], right = ["a1", "a2", "a3", "x", "y"];
+        vm.OpenText("/work/a.txt", left, "/work/b.txt", right);
+        vm.SelectionRowsProvider = () => [(1, 2), null];            // "x", "y" of the left pane
+        vm.AlignWithCommand.Execute(null);
+        vm.CaretMoved(Side.Right, vm.RightRows.ToList().FindIndex(r => r.LineNumber == 4));   // the right "x"
+        var rows = vm.Comparison!.Rows;
+        Assert.Equal(3, rows.First(r => r.Left == 1).Right);         // x faces x
+        Assert.Equal(4, rows.First(r => r.Left == 2).Right);         // y faces y
+    }
 }

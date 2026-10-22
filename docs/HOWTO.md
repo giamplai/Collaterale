@@ -366,6 +366,8 @@ When you already know which line of one file belongs opposite which line of the 
 1. Put the cursor on the line (or select it) in one pane and choose **⇆ Align with…** in the toolbar, **Ctrl+Alt+A**, or right-click ▸ **Align with…**.
 2. **Click the line to align with** in the other pane. The status bar tells you what is expected; **Esc** cancels.
 
+If you **select several lines** before choosing **Align with…**, the whole stretch is placed opposite the clicked line and the same number of lines below it, so only those lines are aligned with each other.
+
 The two lines are then isolated as a pair (see above), so they face each other and the rows between are padded. The alignment is removed with **✕ Isolations** like any isolation.
 
 Everything around the isolated lines is compared normally, and each isolation is its own difference for navigation and copying. Isolations belong to the session: **✕ Isolations** (or the context menu's **Remove isolations**) brings back the automatic alignment. They also disappear when lines are added or removed (typing, copying a difference), because their line numbers would no longer be right. The shortcut can be changed in **Options → Commands**.
