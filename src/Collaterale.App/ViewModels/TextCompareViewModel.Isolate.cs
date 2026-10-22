@@ -26,6 +26,42 @@ public partial class TextCompareViewModel
         else { Status = "Select the lines to isolate first"; }
     }
 
+    private (Side Side, int Row)? _alignAnchor;
+
+    /// <summary>True between choosing "Align with…" and clicking the line to align with on the other pane.</summary>
+    public bool AlignPending => _alignAnchor is not null;
+
+    /// <summary>Align with…: remembers the current line, then the next line clicked on the other pane is placed opposite it.</summary>
+    [RelayCommand]
+    private void AlignWith()
+    {
+        var sel = SelectionRowsProvider?.Invoke();
+        if (sel is not { Length: 2 }) { return; }
+        // the pane that holds the selection (or the cursor) is the one the line is taken from
+        var (side, range) = sel[0] is { } l ? (Side.Left, l) : (Side.Right, sel[1]!.Value);
+        _alignAnchor = (side, range.First);
+        OnPropertyChanged(nameof(AlignPending));
+        Status = $"Align: now click the line of the {(side == Side.Left ? "right" : "left")} pane to put opposite it (Esc cancels)";
+    }
+
+    public void CancelAlign()
+    {
+        if (_alignAnchor is null) { return; }
+        _alignAnchor = null;
+        OnPropertyChanged(nameof(AlignPending));
+        Status = "Align cancelled";
+    }
+
+    /// <summary>Called when the cursor lands on a row: if an alignment is waiting for its second line and this is the other pane, finish it.</summary>
+    private void TryCompleteAlign(Side side, int row)
+    {
+        if (_alignAnchor is not { } a || a.Side == side) { return; }
+        _alignAnchor = null;
+        OnPropertyChanged(nameof(AlignPending));
+        (int, int)? mine = (a.Row, a.Row), other = (row, row);
+        if (a.Side == Side.Left) { IsolateRows(mine, other); } else { IsolateRows(other, mine); }
+    }
+
     [RelayCommand]
     private void ClearIsolations()
     {

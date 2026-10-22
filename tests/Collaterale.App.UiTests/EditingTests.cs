@@ -58,6 +58,24 @@ public class EditingTests
     }
 
     [AvaloniaFact]
+    public async Task Text_details_show_the_two_lines_touching_with_the_changed_words_marked()
+    {
+        var (vm, w, left, _) = Open(
+            ["<?php", "    if ($cartid && $shopcart->resellercode !== $reseller->ResellerCode) {", "}"],
+            ["<?php", "    if (!$cartid || ($shopcart->resellercode !== $reseller->ResellerCode)) {", "}"]);
+        vm.Details = DetailsMode.Text;
+        vm.ShowWhitespace = true;
+        await TextCompareTests.Settle();
+        left.TextArea.Caret.Line = 2;
+        await TextCompareTests.Settle();
+        var lines = w.GetVisualDescendants().OfType<DetailLine>().ToList();
+        Assert.Equal(2, lines.Count);
+        Assert.Contains("$cartid", lines[0].Text);
+        Assert.Contains("!$cartid", lines[1].Text);
+        TextCompareTests.Shot(w, "text-compare-text-details.png");
+    }
+
+    [AvaloniaFact]
     public async Task Edited_state_is_visible_with_unsaved_marker_and_enabled_save()
     {
         var root = Path.Combine(Path.GetTempPath(), "collaterale-edited-" + Guid.NewGuid().ToString("N")[..8]);

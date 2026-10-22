@@ -66,6 +66,7 @@
           <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={x:Static c:Converters.DetailsLabel}}" /></DataTemplate></ComboBox.ItemTemplate>
         </ComboBox>
         <Button Classes="tool" Content="⇋ Isolate" Command="{Binding IsolateCommand}" ToolTip.Tip="Realign the selected lines on their own: lines selected on one side stand alone with empty space opposite, lines selected on both sides are compared only with each other (Ctrl+Alt+I, or right-click)" />
+        <Button Classes="tool" Content="⇆ Align with…" Command="{Binding AlignWithCommand}" ToolTip.Tip="Force two lines to face each other: choose this on the line of one pane, then click the line of the other pane to put opposite it (Ctrl+Alt+A, or right-click; Esc cancels)" />
         <Button Classes="tool" Content="✕ Isolations" Command="{Binding ClearIsolationsCommand}" IsVisible="{Binding HasIsolations}" ToolTip.Tip="Remove every isolation and go back to the automatic alignment" />
         <Button Classes="tool" Content="{}{} Structure" Command="{Binding CompareStructureCommand}" ToolTip.Tip="JSON and XML: compare the structure — formatting and key/attribute order are ignored — in a new tab" />
         </WrapPanel>
@@ -102,18 +103,18 @@
 
     <!-- details of the current line -->
     <Border DockPanel.Dock="Bottom" IsVisible="{Binding ShowAnyDetails}" Padding="10,6" Background="{DynamicResource PanelAltBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}">
-      <!-- the two lines one above the other: characters that differ line up in a column, which the eye catches far better than side by side -->
-      <StackPanel Spacing="6">
-        <StackPanel>
-          <TextBlock Text="{Binding LeftDetailLabel}" Classes="section" />
-          <TextBox x:Name="LeftDetail" IsVisible="{Binding ShowTextDetails}" Text="{Binding LeftDetailText, Mode=OneWay}" FontFamily="monospace" LostFocus="OnDetailCommitted" KeyDown="OnDetailKeyDown" Tag="left" />
-          <TextBlock IsVisible="{Binding ShowHexDetails}" Text="{Binding LeftHexText}" FontFamily="monospace" FontSize="12" MinHeight="18" />
-        </StackPanel>
-        <StackPanel>
-          <TextBlock Text="{Binding RightDetailLabel}" Classes="section" />
-          <TextBox x:Name="RightDetail" IsVisible="{Binding ShowTextDetails}" Text="{Binding RightDetailText, Mode=OneWay}" FontFamily="monospace" LostFocus="OnDetailCommitted" KeyDown="OnDetailKeyDown" Tag="right" />
-          <TextBlock IsVisible="{Binding ShowHexDetails}" Text="{Binding RightHexText}" FontFamily="monospace" FontSize="12" MinHeight="18" />
-        </StackPanel>
+      <!-- the two lines one above the other and touching: characters that differ line up in a column, with the changed words marked -->
+      <StackPanel Spacing="0">
+        <Grid ColumnDefinitions="110,*">
+          <TextBlock Text="{Binding LeftDetailLabel}" Classes="section" VerticalAlignment="Center" />
+          <c:DetailLine x:Name="LeftDetail" Grid.Column="1" IsVisible="{Binding ShowTextDetails}" Tag="left" />
+          <TextBlock Grid.Column="1" IsVisible="{Binding ShowHexDetails}" Text="{Binding LeftHexText}" FontFamily="monospace" FontSize="12" MinHeight="18" />
+        </Grid>
+        <Grid ColumnDefinitions="110,*">
+          <TextBlock Text="{Binding RightDetailLabel}" Classes="section" VerticalAlignment="Center" />
+          <c:DetailLine x:Name="RightDetail" Grid.Column="1" IsVisible="{Binding ShowTextDetails}" Tag="right" />
+          <TextBlock Grid.Column="1" IsVisible="{Binding ShowHexDetails}" Text="{Binding RightHexText}" FontFamily="monospace" FontSize="12" MinHeight="18" />
+        </Grid>
       </StackPanel>
     </Border>
 
@@ -154,6 +155,7 @@
         <c:DiffPane x:Name="LeftPane">
           <c:DiffPane.ContextMenu>
             <ContextMenu>
+              <MenuItem Header="Align with…" Command="{Binding AlignWithCommand}" InputGesture="Ctrl+Alt+A" />
               <MenuItem Header="Isolate selected lines" Command="{Binding IsolateCommand}" InputGesture="Ctrl+Alt+I" />
               <MenuItem Header="Remove isolations" Command="{Binding ClearIsolationsCommand}" IsVisible="{Binding HasIsolations}" />
             </ContextMenu>
@@ -165,6 +167,7 @@
         <c:DiffPane x:Name="RightPane">
           <c:DiffPane.ContextMenu>
             <ContextMenu>
+              <MenuItem Header="Align with…" Command="{Binding AlignWithCommand}" InputGesture="Ctrl+Alt+A" />
               <MenuItem Header="Isolate selected lines" Command="{Binding IsolateCommand}" InputGesture="Ctrl+Alt+I" />
               <MenuItem Header="Remove isolations" Command="{Binding ClearIsolationsCommand}" IsVisible="{Binding HasIsolations}" />
             </ContextMenu>

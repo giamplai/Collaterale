@@ -39,4 +39,51 @@ public class DetailsFollowTests
         Assert.Equal("", vm.LeftDetailText);
         Assert.Equal("Left · (no line here)", vm.LeftDetailLabel);
     }
+
+    [AvaloniaFact]
+    public void The_details_panel_marks_the_words_that_differ_on_a_changed_row()
+    {
+        var shell = TextCompareTests.NewShell();
+        var vm = shell.NewTextCompare();
+        vm.OpenText("/work/a.txt", ["if ($cartid && $a !== $b)"], "/work/b.txt", ["if (!$cartid || $a !== $b)"]);
+        vm.CaretMoved(Side.Left, 0);
+        Assert.Equal(Collaterale.Core.Diff.RowKind.Changed, vm.DetailKind);
+        Assert.NotEmpty(vm.LeftDetailWords);
+        Assert.NotEmpty(vm.RightDetailWords);
+    }
+
+    [AvaloniaFact]
+    public void Align_with_puts_the_chosen_line_opposite_the_clicked_one()
+    {
+        var shell = TextCompareTests.NewShell();
+        var vm = shell.NewTextCompare();
+        vm.DetectMoves = false;
+        string[] left = ["a1", "a2", "x", "a3", "a4"], right = ["a1", "a2", "a3", "a4", "x"];
+        vm.OpenText("/work/a.txt", left, "/work/b.txt", right);
+        vm.SelectionRowsProvider = () => [(2, 2), null];            // the line "x" of the left pane
+        vm.AlignWithCommand.Execute(null);
+        Assert.True(vm.AlignPending);
+        vm.CaretMoved(Side.Left, 2);                                 // the same pane: still waiting
+        Assert.True(vm.AlignPending);
+        var row = vm.RightRows.ToList().FindIndex(r => r.LineNumber == 5);
+        vm.CaretMoved(Side.Right, row);                              // the right "x"
+        Assert.False(vm.AlignPending);
+        Assert.True(vm.HasIsolations);
+        var facing = vm.Comparison!.Rows.First(r => r.Left == 2);
+        Assert.Equal(4, facing.Right);
+    }
+
+    [AvaloniaFact]
+    public void Align_with_can_be_cancelled()
+    {
+        var shell = TextCompareTests.NewShell();
+        var vm = shell.NewTextCompare();
+        vm.OpenText("/work/a.txt", ["a", "b"], "/work/b.txt", ["a", "c"]);
+        vm.SelectionRowsProvider = () => [(0, 0), null];
+        vm.AlignWithCommand.Execute(null);
+        vm.CancelAlign();
+        Assert.False(vm.AlignPending);
+        vm.CaretMoved(Side.Right, 1);
+        Assert.False(vm.HasIsolations);
+    }
 }
