@@ -38,6 +38,7 @@ public sealed class DiffPane : TextEditor
     private string? _languageId;
     private readonly RowBackgroundRenderer _background;
     private readonly WordHighlightTransformer _words;
+    private readonly IVisualLineTransformer _plainOnDifference;
 
     public DiffPane()
     {
@@ -57,7 +58,8 @@ public sealed class DiffPane : TextEditor
         TextArea.TextView.BackgroundRenderers.Add(_background);
         TextArea.TextView.LineTransformers.Add(_words);
         TextArea.TextView.LineTransformers.Add(new SearchMarkTransformer(this));
-        TextArea.TextView.LineTransformers.Add(new PlainOnDifferenceTransformer(this));
+        _plainOnDifference = new PlainOnDifferenceTransformer(this);
+        TextArea.TextView.LineTransformers.Add(_plainOnDifference);
         TextArea.AddHandler(KeyDownEvent, OnBackspace, Avalonia.Interactivity.RoutingStrategies.Tunnel);
         TextArea.LeftMargins.Insert(0, new RowNumberMargin(this).Init());
         TextArea.TextView.AddHandler(PointerPressedEvent, (_, e) =>
@@ -408,6 +410,10 @@ public sealed class DiffPane : TextEditor
             }
 
             _textMate ??= this.InstallTextMate(_registry);
+            // the syntax colors are applied by a transformer added just now; the one that removes them on difference lines must run after it
+            var transformers = TextArea.TextView.LineTransformers;
+            transformers.Remove(_plainOnDifference);
+            transformers.Add(_plainOnDifference);
             if (_languageId != language.Id)
             {
                 _textMate.SetGrammar(_registry.GetScopeByLanguageId(language.Id));
