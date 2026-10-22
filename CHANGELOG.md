@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.2.0 — 2026-10-22
+
 ## 1.1.0 — 2026-10-22
 * **Text compare, Align with…:** choose it on a line (toolbar, Ctrl+Alt+A or right-click), then click the line of the other pane to put opposite it; Esc cancels.
 * **Text details, easier to read:** the two lines now touch, are tinted like the pane rows and have the changed words marked (spaces, tabs and line ends too with **· Whitespace**); still editable with Enter.
