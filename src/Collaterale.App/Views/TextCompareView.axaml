@@ -157,7 +157,8 @@
             <ContextMenu>
               <MenuItem Header="Align with…" Command="{Binding AlignWithCommand}" InputGesture="Ctrl+Alt+A" />
               <MenuItem Header="Isolate selected lines" Command="{Binding IsolateCommand}" InputGesture="Ctrl+Alt+I" />
-              <MenuItem Header="Remove isolations" Command="{Binding ClearIsolationsCommand}" IsVisible="{Binding HasIsolations}" />
+              <MenuItem Header="Clear alignment on this line" Command="{Binding ClearAlignmentHereCommand}" IsVisible="{Binding HasIsolations}" />
+              <MenuItem Header="Clear all manual alignments" Command="{Binding ClearIsolationsCommand}" IsVisible="{Binding HasIsolations}" />
             </ContextMenu>
           </c:DiffPane.ContextMenu>
         </c:DiffPane>
@@ -169,7 +170,8 @@
             <ContextMenu>
               <MenuItem Header="Align with…" Command="{Binding AlignWithCommand}" InputGesture="Ctrl+Alt+A" />
               <MenuItem Header="Isolate selected lines" Command="{Binding IsolateCommand}" InputGesture="Ctrl+Alt+I" />
-              <MenuItem Header="Remove isolations" Command="{Binding ClearIsolationsCommand}" IsVisible="{Binding HasIsolations}" />
+              <MenuItem Header="Clear alignment on this line" Command="{Binding ClearAlignmentHereCommand}" IsVisible="{Binding HasIsolations}" />
+              <MenuItem Header="Clear all manual alignments" Command="{Binding ClearIsolationsCommand}" IsVisible="{Binding HasIsolations}" />
             </ContextMenu>
           </c:DiffPane.ContextMenu>
         </c:DiffPane>

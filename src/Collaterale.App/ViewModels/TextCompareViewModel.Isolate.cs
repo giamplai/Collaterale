@@ -64,6 +64,30 @@ public partial class TextCompareViewModel
         if (a.Side == Side.Left) { IsolateRows(mine, other); } else { IsolateRows(other, mine); }
     }
 
+    /// <summary>Removes only the manual alignment (isolation or Align with…) that holds the line under the cursor or the selected lines.</summary>
+    [RelayCommand]
+    private void ClearAlignmentHere()
+    {
+        if (Comparison is not { } c || SelectionRowsProvider?.Invoke() is not { Length: 2 } sel) { return; }
+        var before = _isolations.Count;
+        foreach (var (range, leftSide) in new[] { (sel[0], true), (sel[1], false) })
+        {
+            if (range is not { } r) { continue; }
+            for (var d = Math.Max(0, r.First); d <= Math.Min(r.Last, DisplayMap.Count - 1); d++)
+            {
+                if (DisplayMap[d] < 0 || DisplayMap[d] >= c.Rows.Count) { continue; }
+                var line = leftSide ? c.Rows[DisplayMap[d]].Left : c.Rows[DisplayMap[d]].Right;
+                if (line < 0) { continue; }
+                _isolations.RemoveAll(o => leftSide ? line >= o.LeftStart && line < o.LeftEnd : line >= o.RightStart && line < o.RightEnd);
+            }
+        }
+
+        if (_isolations.Count == before) { Status = "No manual alignment on this line"; return; }
+        OnPropertyChanged(nameof(HasIsolations));
+        Recompare();
+        Status = "Manual alignment removed from this line";
+    }
+
     [RelayCommand]
     private void ClearIsolations()
     {
