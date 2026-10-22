@@ -1,4 +1,5 @@
 using System.Text;
+using Collaterale.Core.Diff;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Collaterale.App.ViewModels;
@@ -43,9 +44,28 @@ public partial class TextCompareViewModel
         OnPropertyChanged(nameof(RightHexText));
         OnPropertyChanged(nameof(LeftDetailLabel));
         OnPropertyChanged(nameof(RightDetailLabel));
+        OnPropertyChanged(nameof(DetailKind));
+        OnPropertyChanged(nameof(LeftDetailWords));
+        OnPropertyChanged(nameof(RightDetailWords));
     }
 
     private static string LineAt(TextSide s, int i) => i >= 0 && i < s.Lines.Count ? s.Lines[i] : "";
+
+    private int _detailRow = -1;
+
+    /// <summary>The kind of the row the details panel shows (colors both lines like the panes do); Same when there is no row.</summary>
+    public RowKind DetailKind => DetailComparisonRow() is { } r ? Comparison!.Rows[r].Kind : RowKind.Same;
+
+    /// <summary>The words that differ inside the two lines facing each other (only on a changed row).</summary>
+    public IReadOnlyList<Span> LeftDetailWords => DetailComparisonRow() is { } r ? Comparison!.IntraLine(r).Left : [];
+    public IReadOnlyList<Span> RightDetailWords => DetailComparisonRow() is { } r ? Comparison!.IntraLine(r).Right : [];
+
+    private int? DetailComparisonRow()
+    {
+        if (Comparison is not { } c || _detailRow < 0 || _detailRow >= DisplayMap.Count) { return null; }
+        var r = DisplayMap[_detailRow];
+        return r >= 0 && r < c.Rows.Count ? r : null;
+    }
 
     public string LeftDetailText => LineAt(Left, LeftCaretLine);
     public string RightDetailText => LineAt(Right, RightCaretLine);
@@ -81,8 +101,11 @@ public partial class TextCompareViewModel
     /// </summary>
     public void CaretMoved(Side side, int row)
     {
+        TryCompleteAlign(side, row);
+        _detailRow = row;
         LeftCaretLine = LineOnRow(LeftRows, row);
         RightCaretLine = LineOnRow(RightRows, row);
+        NotifyDetails(); // the lines may be the same ones while the row changed (and with it the highlighted words)
     }
 
     private static int LineOnRow(IReadOnlyList<Collaterale.App.Controls.PaneRow> rows, int row)

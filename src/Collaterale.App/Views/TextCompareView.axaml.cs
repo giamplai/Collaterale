@@ -17,6 +17,11 @@ public partial class TextCompareView : UserControl
     public TextCompareView()
     {
         InitializeComponent();
+        foreach (var d in new[] { LeftDetail, RightDetail })
+        {
+            d.Committed += OnDetailCommitted;
+            d.LostFocus += (_, _) => OnDetailCommitted(d, EventArgs.Empty);
+        }
         LeftPane.IsReadOnly = false;
         RightPane.IsReadOnly = false;
         Gutter.Attach(LeftPane.TextArea.TextView);
@@ -113,17 +118,27 @@ public partial class TextCompareView : UserControl
         LeftPane.ShowWhitespace = RightPane.ShowWhitespace = vm.ShowWhitespace;
         LeftPane.WordWrap = RightPane.WordWrap = vm.WordWrap;
         OnDisplayChanged(vm, EventArgs.Empty);
+        RefreshDetails();
     }
 
     private void OnVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         switch (e.PropertyName)
         {
+            case nameof(TextCompareViewModel.DetailKind):
+            case nameof(TextCompareViewModel.LeftDetailText):
+            case nameof(TextCompareViewModel.RightDetailText):
+            case nameof(TextCompareViewModel.LeftDetailWords):
+            case nameof(TextCompareViewModel.RightDetailWords):
+            case nameof(TextCompareViewModel.ShowTextDetails):
+                RefreshDetails();
+                break;
             case nameof(TextCompareViewModel.CurrentGroup):
                 ShowCurrentGroup(scroll: true);
                 break;
             case nameof(TextCompareViewModel.ShowWhitespace):
                 LeftPane.ShowWhitespace = RightPane.ShowWhitespace = _vm!.ShowWhitespace;
+                RefreshDetails();
                 break;
             case nameof(TextCompareViewModel.WordWrap):
                 LeftPane.WordWrap = RightPane.WordWrap = _vm!.WordWrap;
@@ -183,7 +198,7 @@ public partial class TextCompareView : UserControl
             ["text.copyright"] = (_vm.CopyToRightCommand, null), ["text.copyleft"] = (_vm.CopyToLeftCommand, null),
             ["text.undo"] = (_vm.UndoCommand, null), ["text.redo"] = (_vm.RedoCommand, null), ["text.reload"] = (_vm.ReloadCommand, null),
             ["text.goto"] = (_vm.GoToLineCommand, null), ["text.find"] = (_vm.ShowFindCommand, false), ["text.replace"] = (_vm.ShowReplaceCommand, null),
-            ["text.findnext"] = (_vm.FindNextCommand, null), ["text.findprev"] = (_vm.FindPreviousCommand, null), ["text.swap"] = (_vm.SwapCommand, null), ["text.isolate"] = (_vm.IsolateCommand, null),
+            ["text.findnext"] = (_vm.FindNextCommand, null), ["text.findprev"] = (_vm.FindPreviousCommand, null), ["text.swap"] = (_vm.SwapCommand, null), ["text.isolate"] = (_vm.IsolateCommand, null), ["text.align"] = (_vm.AlignWithCommand, null),
         };
         ShortcutBinder.Apply(this, _vm.Prefs, map, [("Escape", _vm.CloseFindCommand)]);
     }
@@ -304,26 +319,37 @@ public partial class TextCompareView : UserControl
         }
     }
 
-    private void OnDetailKeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
+    /// <summary>Puts the current lines, their tint and the changed words into the two detail lines.</summary>
+    private void RefreshDetails()
     {
-        if (e.Key == Avalonia.Input.Key.Enter && sender is TextBox box) { CommitDetail(box); e.Handled = true; }
+        if (_vm is null) { return; }
+        LeftDetail.ShowWhitespace = RightDetail.ShowWhitespace = _vm.ShowWhitespace;
+        LeftDetail.Show(_vm.LeftDetailText, _vm.LeftCaretLine >= 0, true, _vm.DetailKind, _vm.LeftDetailWords);
+        RightDetail.Show(_vm.RightDetailText, _vm.RightCaretLine >= 0, false, _vm.DetailKind, _vm.RightDetailWords);
     }
 
-    private void OnDetailCommitted(object? sender, RoutedEventArgs e)
+    private void OnDetailCommitted(object? sender, EventArgs e)
     {
-        if (sender is TextBox box) { CommitDetail(box); }
+        if (sender is DetailLine line) { CommitDetail(line); }
     }
 
     /// <summary>Applies what was typed in the details panel to its line.</summary>
-    private void CommitDetail(TextBox box)
+    private void CommitDetail(DetailLine box)
     {
         if (_vm is null) { return; }
         var left = (box.Tag as string) == "left";
-        _vm.SetLine(left ? Side.Left : Side.Right, left ? _vm.LeftCaretLine : _vm.RightCaretLine, box.Text ?? "");
+        _vm.SetLine(left ? Side.Left : Side.Right, left ? _vm.LeftCaretLine : _vm.RightCaretLine, box.Text?.Replace("\r", "").Replace("\n", "") ?? "");
     }
 
     private void OnPaneKeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
     {
+        if (e.Key == Avalonia.Input.Key.Escape && _vm is { AlignPending: true })
+        {
+            _vm.CancelAlign();
+            e.Handled = true;
+            return;
+        }
+
         if (_vm is null || !e.KeyModifiers.HasFlag(Avalonia.Input.KeyModifiers.Control))
         {
             return;

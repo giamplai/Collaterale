@@ -340,7 +340,9 @@ Earlier searches are offered in the drop-down of the find box.
 | **· Whitespace** | Shows spaces, tabs and line endings as symbols, so a difference that is only whitespace can be seen. |
 | **↩ Wrap** | Wraps long lines to the width of the pane. The two panes then scroll together only approximately, because a wrapped line is taller. |
 | **▤ Over-under** | Puts the left file above the right one instead of side by side (the copy buttons of the gutter are then replaced by **← Left** / **Right →** in the toolbar). |
-| **Text details / Hex details** | A panel under the panes with the **two lines that face each other on the cursor's row, in full, one above the other** — so the characters that differ line up in a column and stand out. It follows the cursor whichever pane it is in (also with **↩ Wrap** on); if one side has only padding on that row, its box says *no line here*. *Text details* is editable: type and press **Enter** (or leave the box) to change that line. *Hex details* shows its bytes, in the file's own encoding. |
+| **Text details / Hex details** | A panel under the panes with the **two lines that face each other on the cursor's row, in full, one above the other** — so the characters that differ line up in a column and stand out. The two lines touch and are tinted like the panes' rows, and **the words that differ are marked** inside each of them (with **· Whitespace** on, spaces, tabs and the line end are drawn as symbols too). It follows the cursor whichever pane it is in (also with **↩ Wrap** on); if one side has only padding on that row, its box says *no line here*. *Text details* is editable: type and press **Enter** (or leave the box) to change that line. *Hex details* shows its bytes, in the file's own encoding. |
+
+![Text details: the two lines touching, the changed words marked](images/text-compare-text-details.png)
 
 ![Over-under layout](images/text-compare-over-under.png)
 
@@ -357,6 +359,14 @@ The automatic alignment sometimes pairs the wrong lines, for example when a repe
 * Lines selected on **both sides** are compared **only with each other**, even if identical text exists elsewhere; the rows between are padded as needed.
 
 ![Isolate: beta now faces beta](images/text-compare-isolate.png)
+
+### Align with…: force two lines to face each other
+When you already know which line of one file belongs opposite which line of the other, you do not need to select both:
+
+1. Put the cursor on the line (or select it) in one pane and choose **⇆ Align with…** in the toolbar, **Ctrl+Alt+A**, or right-click ▸ **Align with…**.
+2. **Click the line to align with** in the other pane. The status bar tells you what is expected; **Esc** cancels.
+
+The two lines are then isolated as a pair (see above), so they face each other and the rows between are padded. The alignment is removed with **✕ Isolations** like any isolation.
 
 Everything around the isolated lines is compared normally, and each isolation is its own difference for navigation and copying. Isolations belong to the session: **✕ Isolations** (or the context menu's **Remove isolations**) brings back the automatic alignment. They also disappear when lines are added or removed (typing, copying a difference), because their line numbers would no longer be right. The shortcut can be changed in **Options → Commands**.
 
@@ -834,6 +844,7 @@ The whole script is checked before anything is done, so a typo late in the file 
 | **F5** | Reload both files |
 | **Ctrl+G** | Go to line (text compare) |
 | **Ctrl+Alt+I** | Isolate the selected lines (text compare) |
+| **Ctrl+Alt+A** | Align with… (text compare): pick a line, then click the one to put opposite it |
 | **Ctrl+F** | Find in the focused pane (text compare) |
 | **→ / ←** (folder compare) | Expand / collapse the selected folder |
 | **Enter** (folder compare) | Open the selected file pair, or expand the folder |
