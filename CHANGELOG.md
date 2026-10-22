@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Clearer, more compact toolbars:** the emoji on buttons (save, comments, dates, find, peek) are replaced by small line icons that look the same on every system and follow the theme; toolbar buttons are smaller, so the text compare toolbar fits in two rows instead of three.
 * **Clear a manual alignment, line by line:** right-click ▸ **Clear alignment on this line** removes only the alignment (Align with… / Isolate) that holds that line; **Clear all manual alignments** removes them all. Rules also accept regex options such as `(?i)` for rule-by-rule case handling (documented).
 
 ## 1.2.0 — 2026-10-22

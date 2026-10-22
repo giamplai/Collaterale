@@ -48,8 +48,9 @@
 
     <Style Selector="Button.tool, ToggleButton.tool">
       <Setter Property="Background" Value="Transparent" />
-      <Setter Property="Padding" Value="10,6" />
-      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="8,4" />
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="CornerRadius" Value="7" />
     </Style>
     <Style Selector="Button.tool:pointerover /template/ ContentPresenter, ToggleButton.tool:pointerover /template/ ContentPresenter"><Setter Property="Background" Value="{DynamicResource HoverBrush}" /></Style>
     <Style Selector="ToggleButton.tool:checked /template/ ContentPresenter"><Setter Property="Background" Value="{DynamicResource HoverBrush}" /><Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /><Setter Property="BorderThickness" Value="1" /></Style>

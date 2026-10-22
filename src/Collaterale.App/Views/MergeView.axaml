@@ -128,7 +128,7 @@
       <DockPanel Grid.Row="2">
       <Border DockPanel.Dock="Top" Margin="0,0,0,6" Padding="10,6" Classes="panel">
         <DockPanel>
-          <Button DockPanel.Dock="Right" Classes="accent" Content="💾 Save" Padding="14,5" Margin="8,0,0,0" Click="OnSave" ToolTip.Tip="Write the merged text to the chosen file (Ctrl+S)" />
+          <Button DockPanel.Dock="Right" Classes="accent" Padding="14,5" Margin="8,0,0,0" Click="OnSave" ToolTip.Tip="Write the merged text to the chosen file (Ctrl+S)" ><c:IconLabel Icon="save" Text="Save" /></Button>
           <Button DockPanel.Dock="Right" Classes="soft" Content="↺ Reset" Command="{Binding ResetResultCommand}" IsVisible="{Binding ResultEdited}" ToolTip.Tip="Throw away your typing and go back to the automatic merge" />
           <TextBlock DockPanel.Dock="Left" Text="Merge to:" VerticalAlignment="Center" Margin="0,0,10,0" />
           <RadioButton DockPanel.Dock="Left" Content="Left" GroupName="MergeTarget" Margin="0,0,6,0" Click="OnTargetLeft" IsChecked="{Binding Target, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:MergeTarget.Left}, Mode=OneWay}" />
