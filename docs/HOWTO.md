@@ -287,7 +287,7 @@ Not every change matters. Collaterale can treat these as **unimportant**: they a
 | **❝ Strings** | What a **string literal says**. `print("hello")` and `print("bonjour")` are the same; the quotes and the code around them still count, and so do comments (switch **💬 Comments** on too to ignore both). Text inside multi-line strings (docstrings, verbatim and raw strings) is ignored on every line. Same language rules as comments. |
 | **🕒 Dates** | Timestamps in lines: ISO 8601 (`2024-03-01T08:15:30Z`, `2024-03-01 08:15:30,123`), RFC 2822 (`Fri, 01 Mar 2024 08:15:30 GMT`), `March 1st, 2024`, `01/03/2024`, `31.12.2030`, clock times (`8:15 PM`, `12:34:56.789`). Two lines that differ only by such a value are equal. Version numbers and other digits are not touched. |
 | **✎ Rules → Ignore blank lines** | Empty or whitespace-only lines that were added or removed are not differences (a blank line replaced by text still is). These lines, like comment-only lines, take no part in matching, so they can never pull real lines into a bogus change. |
-| **✎ Rules** | Any regular expression you add (build numbers, `$Id: …$` keywords, generated markers). |
+| **✎ Rules** | Any regular expression you add (build numbers, `$Id: …$` keywords, generated markers). Regular-expression options work inside a rule, e.g. `(?i)build \d+` ignores that text whatever its letter case, so case can be handled rule by rule instead of for the whole file. |
 
 **Choosing which parts of the code matter.** Comments, string contents and the code itself are the *syntax elements* Collaterale tells apart. Turn on **💬 Comments** to say "comments are unimportant", **❝ Strings** to say "what strings say is unimportant", both to leave **only the code** as important, or neither to treat everything as important. A line that differs only in an unimportant element is shown in faint grey and is not a difference; a line whose code changed is a difference whatever its comments or strings say. The same two switches exist in a folder compare's content rules (see below) and on the command line (`--ignore-comments`, `--ignore-strings`).
 
@@ -367,6 +367,8 @@ When you already know which line of one file belongs opposite which line of the 
 2. **Click the line to align with** in the other pane. The status bar tells you what is expected; **Esc** cancels.
 
 If you **select several lines** before choosing **Align with…**, the whole stretch is placed opposite the clicked line and the same number of lines below it, so only those lines are aligned with each other.
+
+To undo, right-click a line and choose **Clear alignment on this line** (only the alignment holding that line goes away) or **Clear all manual alignments**.
 
 The two lines are then isolated as a pair (see above), so they face each other and the rows between are padded. The alignment is removed with **✕ Isolations** like any isolation.
 

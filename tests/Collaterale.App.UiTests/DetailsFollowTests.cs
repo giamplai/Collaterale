@@ -102,4 +102,22 @@ public class DetailsFollowTests
         Assert.Equal(3, rows.First(r => r.Left == 1).Right);         // x faces x
         Assert.Equal(4, rows.First(r => r.Left == 2).Right);         // y faces y
     }
+
+    [AvaloniaFact]
+    public void Clear_alignment_here_removes_only_the_alignment_holding_the_line()
+    {
+        var shell = TextCompareTests.NewShell();
+        var vm = shell.NewTextCompare();
+        vm.DetectMoves = false;
+        string[] left = ["a1", "x", "a2", "a3", "y", "a4"], right = ["a1", "a2", "x", "a3", "a4", "y"];
+        vm.OpenText("/work/a.txt", left, "/work/b.txt", right);
+        vm.IsolateRows((1, 1), (2, 2));                              // x with x
+        vm.IsolateRows((4, 4), (5, 5));                              // y with y
+        Assert.True(vm.HasIsolations);
+        vm.SelectionRowsProvider = () => [(vm.Comparison!.Rows.ToList().FindIndex(r => r.Left == 1), vm.Comparison.Rows.ToList().FindIndex(r => r.Left == 1)), null];
+        vm.ClearAlignmentHereCommand.Execute(null);
+        Assert.True(vm.HasIsolations);                               // the y alignment is still there
+        vm.ClearAlignmentHereCommand.Execute(null);
+        Assert.Equal("No manual alignment on this line", vm.Status);
+    }
 }

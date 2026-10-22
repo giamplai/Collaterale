@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* **Clear a manual alignment, line by line:** right-click ▸ **Clear alignment on this line** removes only the alignment (Align with… / Isolate) that holds that line; **Clear all manual alignments** removes them all. Rules also accept regex options such as `(?i)` for rule-by-rule case handling (documented).
 
 ## 1.2.0 — 2026-10-22
 * **Align with…, whole stretches:** select several lines before choosing it and the whole stretch is aligned opposite the line you click (and the same number of lines below it).
