@@ -50,11 +50,31 @@ public class IsolateTests
     }
 
     [AvaloniaFact]
-    public void Adding_or_removing_lines_drops_the_isolation_instead_of_misplacing_it()
+    public void Loading_other_text_drops_the_isolations()
     {
         var vm = Open(["one", "dup", "two"], ["one", "two", "dup"]);
         vm.IsolateRows((1, 1), null);
         vm.OpenText("/work/a.txt", ["one", "dup", "two", "three"], "/work/b.txt", ["one", "two", "dup"]);
+        Assert.False(vm.HasIsolations);
+    }
+
+    [AvaloniaFact]
+    public void Adding_lines_after_the_isolation_keeps_it()
+    {
+        var vm = Open(["one", "dup", "two"], ["one", "two", "dup"]);
+        vm.IsolateRows((1, 1), null);
+        vm.Left.Lines.Add("three");
+        vm.Recompare();
+        Assert.True(vm.HasIsolations);
+    }
+
+    [AvaloniaFact]
+    public void Editing_the_isolated_line_itself_drops_it()
+    {
+        var vm = Open(["one", "dup", "two"], ["one", "two", "dup"]);
+        vm.IsolateRows((1, 1), null);
+        vm.Left.Lines[1] = "other";
+        vm.Recompare();
         Assert.False(vm.HasIsolations);
     }
 

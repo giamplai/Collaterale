@@ -54,6 +54,13 @@ public partial class TextCompareView : UserControl
 
             _vm?.CopyGroup(group, from);
         };
+        Gutter.CopyRowsRequested += (from, first, last) =>
+        {
+            if (_pending.Count > 0) { FlushEdits(); return; }
+            _vm?.CopyRows(from, first, last);
+        };
+        LeftPane.TextArea.SelectionChanged += (_, _) => UpdateGutterSelection();
+        RightPane.TextArea.SelectionChanged += (_, _) => UpdateGutterSelection();
         Gutter.GroupSelected += g => { if (_vm is not null) { _vm.CurrentGroup = g; } };
         LeftPane.GotFocus += (_, _) => DimOther(RightPane, LeftPane);
         RightPane.GotFocus += (_, _) => DimOther(LeftPane, RightPane);
@@ -168,6 +175,7 @@ public partial class TextCompareView : UserControl
         LeftPane.SetContent(_vm.LeftText, _vm.LeftRows);
         RightPane.SetContent(_vm.RightText, _vm.RightRows);
         Gutter.Groups = _vm.DisplayGroups;
+        UpdateGutterSelection();
         Gutter.Rows = _vm.DisplayRows;
         Map.Rows = _vm.DisplayRows;
         // a collapsed view hides lines the typing logic would need, so it is read-only; expand to edit
@@ -327,6 +335,9 @@ public partial class TextCompareView : UserControl
         LeftDetail.Show(_vm.LeftDetailText, _vm.LeftCaretLine >= 0, true, _vm.DetailKind, _vm.LeftDetailWords);
         RightDetail.Show(_vm.RightDetailText, _vm.RightCaretLine >= 0, false, _vm.DetailKind, _vm.RightDetailWords);
     }
+
+    /// <summary>The gutter offers an arrow beside the selected lines to carry them over to the other side.</summary>
+    private void UpdateGutterSelection() => Gutter.SetSelections(LeftPane.SelectedRowRange(), RightPane.SelectedRowRange());
 
     private void OnDetailCommitted(object? sender, EventArgs e)
     {

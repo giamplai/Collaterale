@@ -213,7 +213,7 @@ public sealed class DiffPane : TextEditor
 
     private bool _crosshatch = true;
     private Color? _orphan;
-    private bool _syntaxOnDiff = true;
+    private bool _syntaxOnDiff;
     private bool _backspaceUnindents = true;
     private int _tabSize = 4;
 
@@ -475,9 +475,9 @@ public sealed class DiffPane : TextEditor
             ? (dark ? Color.FromArgb(0x66, 0x9A, 0x7B, 0xF0) : Color.FromArgb(0x55, 0xB0, 0x8A, 0xF2))
             : kind switch
         {
-            RowKind.Changed => dark ? Color.FromArgb(0x55, 0x6C, 0x7B, 0xE8) : Color.FromArgb(0x4A, 0x8A, 0x96, 0xF5),
-            RowKind.LeftOnly => dark ? Color.FromArgb(0x55, 0xE0, 0x5A, 0x5A) : Color.FromArgb(0x48, 0xF2, 0x7C, 0x7C),
-            RowKind.RightOnly => dark ? Color.FromArgb(0x55, 0x3F, 0xB9, 0x7C) : Color.FromArgb(0x48, 0x58, 0xCF, 0x95),
+            RowKind.Changed => dark ? Color.FromArgb(0x3A, 0x6C, 0x7B, 0xE8) : Color.FromArgb(0x30, 0x8A, 0x96, 0xF5),
+            RowKind.LeftOnly => dark ? Color.FromArgb(0x3C, 0xE0, 0x5A, 0x5A) : Color.FromArgb(0x32, 0xF2, 0x7C, 0x7C),
+            RowKind.RightOnly => dark ? Color.FromArgb(0x3C, 0x3F, 0xB9, 0x7C) : Color.FromArgb(0x32, 0x58, 0xCF, 0x95),
             RowKind.Conflict => dark ? Color.FromArgb(0x66, 0xF0, 0xA8, 0x3C) : Color.FromArgb(0x66, 0xF5, 0xB0, 0x42),
             RowKind.Unimportant => dark ? Color.FromArgb(0x30, 0x9A, 0xA4, 0xB4) : Color.FromArgb(0x30, 0x80, 0x8A, 0x9A),
             _ => Colors.Transparent,
@@ -604,7 +604,7 @@ public sealed class DiffPane : TextEditor
 
             var dark = pane.IsDark;
             var color = row.Kind == RowKind.Changed
-                ? (dark ? Color.FromArgb(0xA0, 0x7C, 0x8C, 0xFF) : Color.FromArgb(0x90, 0x6B, 0x7B, 0xF0))
+                ? (dark ? Color.FromArgb(0x90, 0x7C, 0x8C, 0xFF) : Color.FromArgb(0x70, 0x6B, 0x7B, 0xF0))
                 : Colors.Transparent;
             var brush = new SolidColorBrush(color);
             foreach (var w in row.Words)

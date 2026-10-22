@@ -191,7 +191,7 @@ public sealed class ScriptPreferences
 
 public sealed class EditorDisplayPreferences
 {
-    public bool SyntaxOnDifferenceLines { get; set; } = true;
+    public bool SyntaxOnDifferenceLines { get; set; }
     public bool CrosshatchBeyondEnd { get; set; } = true;
     public bool UseOrphanColor { get; set; }
 

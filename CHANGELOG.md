@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+* **Carry selected lines to the other file:** selecting lines shows a filled arrow in the gutter beside them; clicking it copies exactly those lines over what faces them on the other side (one undo step).
+* **Isolations survive edits:** typing or copying lines no longer removes every isolation; the ones after the edit move along with the text and only those overlapping the edit are dropped.
+* **Calmer colors:** row and gutter tints are lighter, the changed-word highlight is softer, and syntax colors are off on difference lines by default (Options ▸ Editor still turns them on).
 * **Clear a manual alignment, line by line:** right-click ▸ **Clear alignment on this line** removes only the alignment (Align with… / Isolate) that holds that line; **Clear all manual alignments** removes them all. Rules also accept regex options such as `(?i)` for rule-by-rule case handling (documented).
 
 ## 1.2.0 — 2026-10-22

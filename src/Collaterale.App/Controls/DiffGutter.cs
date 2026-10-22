@@ -31,6 +31,27 @@ public sealed class DiffGutter : Control
     public int CurrentGroup { get => GetValue(CurrentGroupProperty); set => SetValue(CurrentGroupProperty, value); }
 
     public event Action<int, Side>? CopyRequested;
+
+    /// <summary>The user chose to copy the selected rows: the side they are taken from and the display rows (0-based).</summary>
+    public event Action<Side, int, int>? CopyRowsRequested;
+
+    private (int First, int Last)? _leftSelection, _rightSelection;
+
+    /// <summary>The display rows selected in each pane (null when nothing is selected there); an arrow offers to carry them to the other side.</summary>
+    public void SetSelections((int First, int Last)? left, (int First, int Last)? right)
+    {
+        if (_leftSelection == left && _rightSelection == right) { return; }
+        (_leftSelection, _rightSelection) = (left, right);
+        InvalidateVisual();
+    }
+
+    private Rect? SelectionBand((int First, int Last)? sel)
+    {
+        if (sel is not { } s || _view is null || !_view.VisualLinesValid || _view.Document is null || s.First + 1 > _view.Document.LineCount) { return null; }
+        var top = _view.GetVisualTopByDocumentLine(s.First + 1) - _view.VerticalOffset;
+        var bottom = _view.GetVisualTopByDocumentLine(Math.Min(s.Last + 1, _view.Document.LineCount)) - _view.VerticalOffset + _view.DefaultLineHeight;
+        return bottom < 0 || top > Bounds.Height ? null : new Rect(0, top, Bounds.Width, Math.Max(bottom - top, 4));
+    }
     public event Action<int>? GroupSelected;
 
     /// <summary>The text view whose scroll position and line heights define where rows are drawn.</summary>
@@ -71,6 +92,13 @@ public sealed class DiffGutter : Control
 
     public override void Render(DrawingContext ctx)
     {
+        if (_view is null) { return; }
+        DrawDifferences(ctx);
+        DrawSelectionArrows(ctx);   // on top: the arrow for the selection wins where it meets a difference's own arrow
+    }
+
+    private void DrawDifferences(DrawingContext ctx)
+    {
         if (Groups is not { Count: > 0 } groups || Rows is not { } rows || _view is null)
         {
             return;
@@ -104,10 +132,34 @@ public sealed class DiffGutter : Control
         }
     }
 
+    private void DrawSelectionArrows(DrawingContext ctx)
+    {
+        var dark = ActualThemeVariant == Avalonia.Styling.ThemeVariant.Dark;
+        var accent = dark ? Color.FromRgb(0x6F, 0x8C, 0xFF) : Color.FromRgb(0x3D, 0x5A, 0xE0);
+        if (SelectionBand(_leftSelection) is { } l)
+        {
+            ctx.DrawRectangle(new SolidColorBrush(Color.FromArgb(0x1E, accent.R, accent.G, accent.B)), null, l);
+            DrawSelectionButton(ctx, ButtonRect(l, Side.Right), "›", accent);
+        }
+
+        if (SelectionBand(_rightSelection) is { } r)
+        {
+            ctx.DrawRectangle(new SolidColorBrush(Color.FromArgb(0x1E, accent.R, accent.G, accent.B)), null, r);
+            DrawSelectionButton(ctx, ButtonRect(r, Side.Left), "‹", accent);
+        }
+    }
+
+    private static void DrawSelectionButton(DrawingContext ctx, Rect r, string glyph, Color accent)
+    {
+        ctx.DrawRectangle(new SolidColorBrush(accent), null, r, 5, 5);
+        var ft = new FormattedText(glyph, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Inter"), 16, Brushes.White);
+        ctx.DrawText(ft, new Point(r.X + (r.Width - ft.Width) / 2, r.Y + (r.Height - ft.Height) / 2 - 1));
+    }
+
     private static Color PaneColor(RowKind kind, bool dark, bool moved)
     {
         var c = DiffPane.BackgroundFor(kind, true, dark, moved);
-        return Color.FromArgb((byte)Math.Min(255, c.A + 0x20), c.R, c.G, c.B);
+        return Color.FromArgb((byte)Math.Min(255, c.A + 0x10), c.R, c.G, c.B);
     }
 
     /// <summary>The "left" button copies the right side over to the left (arrow points left), and vice versa.</summary>
@@ -128,12 +180,23 @@ public sealed class DiffGutter : Control
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        if (Groups is not { Count: > 0 } groups || !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) { return; }
+        var p = e.GetPosition(this);
+        if (SelectionBand(_leftSelection) is { } lb && _leftSelection is { } ls && ButtonRect(lb, Side.Right).Contains(p))
         {
+            CopyRowsRequested?.Invoke(Side.Left, ls.First, ls.Last);
+            e.Handled = true;
             return;
         }
 
-        var p = e.GetPosition(this);
+        if (SelectionBand(_rightSelection) is { } rb && _rightSelection is { } rs && ButtonRect(rb, Side.Left).Contains(p))
+        {
+            CopyRowsRequested?.Invoke(Side.Right, rs.First, rs.Last);
+            e.Handled = true;
+            return;
+        }
+
+        if (Groups is not { Count: > 0 } groups) { return; }
         for (var gi = 0; gi < groups.Count; gi++)
         {
             if (Extent(groups[gi]) is not { } ext)

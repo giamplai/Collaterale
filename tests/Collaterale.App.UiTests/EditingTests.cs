@@ -76,6 +76,26 @@ public class EditingTests
     }
 
     [AvaloniaFact]
+    public async Task Selecting_lines_shows_an_arrow_in_the_gutter_that_carries_them_to_the_other_side()
+    {
+        var (vm, w, left, _) = Open(["alpha", "beta", "gamma", "delta"], ["alpha", "BETA", "gamma", "delta"]);
+        await TextCompareTests.Settle();
+        var margin = left.TextArea.LeftMargins.First(m => m.GetType().Name == "RowNumberMargin");
+        var lineH = left.TextArea.TextView.DefaultLineHeight;
+        w.MouseDown(margin.TranslatePoint(new Point(4, lineH * 1.5), w)!.Value, MouseButton.Left);   // the row of "beta"
+        w.MouseUp(margin.TranslatePoint(new Point(4, lineH * 1.5), w)!.Value, MouseButton.Left);
+        await TextCompareTests.Settle();
+        TextCompareTests.Shot(w, "text-compare-selection-arrow.png");
+
+        var gutter = w.GetVisualDescendants().OfType<DiffGutter>().First();
+        var arrow = gutter.TranslatePoint(new Point(gutter.Bounds.Width - DiffGutter.ButtonSize / 2 - 3, lineH * 1.5 + 2), w)!.Value;
+        w.MouseDown(arrow, MouseButton.Left);
+        w.MouseUp(arrow, MouseButton.Left);
+        await TextCompareTests.Settle();
+        Assert.Equal(["alpha", "beta", "gamma", "delta"], vm.Right.Lines);
+    }
+
+    [AvaloniaFact]
     public async Task Edited_state_is_visible_with_unsaved_marker_and_enabled_save()
     {
         var root = Path.Combine(Path.GetTempPath(), "collaterale-edited-" + Guid.NewGuid().ToString("N")[..8]);
