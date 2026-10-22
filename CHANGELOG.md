@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 1.2.0 — 2026-10-22
 * **Align with…, whole stretches:** select several lines before choosing it and the whole stretch is aligned opposite the line you click (and the same number of lines below it).
 
 ## 1.1.0 — 2026-10-22
