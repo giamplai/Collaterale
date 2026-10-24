@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 1.3.0 — 2026-10-24
 * **Carry selected lines to the other file:** selecting lines shows a filled arrow in the gutter beside them; clicking it copies exactly those lines over what faces them on the other side (one undo step).
 * **Isolations survive edits:** typing or copying lines no longer removes every isolation; the ones after the edit move along with the text and only those overlapping the edit are dropped.
 * **Calmer colors:** row and gutter tints are lighter, the changed-word highlight is softer, and syntax colors are off on difference lines by default (Options ▸ Editor turns them on); that option now really works, it used to be overridden by the syntax colorer.
