@@ -11,7 +11,7 @@ namespace Collaterale.App.ViewModels;
 public partial class TextCompareViewModel
 {
     private readonly List<Isolation> _isolations = [];
-    private (int Left, int Right) _isolatedLineCounts;
+    private List<string> _isoLeft = [], _isoRight = [];   // the lines as they were when the isolations were last in step with them
 
     public bool HasIsolations => _isolations.Count > 0;
 
@@ -163,19 +163,68 @@ public partial class TextCompareViewModel
         });
         _isolations.Add(added);
         _isolations.Sort((x, y) => x.LeftStart != y.LeftStart ? x.LeftStart.CompareTo(y.LeftStart) : x.RightStart.CompareTo(y.RightStart));
-        _isolatedLineCounts = (Left.Lines.Count, Right.Lines.Count);
+        SnapshotIsolatedLines();
         OnPropertyChanged(nameof(HasIsolations));
         Recompare();
         Status = $"Isolated {lcount} left and {rcount} right line{(lcount + rcount == 1 ? "" : "s")}";
     }
 
-    /// <summary>The line numbers of an isolation stay valid only while no line is added or removed; then the automatic alignment returns.</summary>
+    /// <summary>New text was loaded: isolations of the previous documents mean nothing for it.</summary>
+    private void ClearIsolationsSilently()
+    {
+        if (_isolations.Count == 0) { return; }
+        _isolations.Clear();
+        OnPropertyChanged(nameof(HasIsolations));
+    }
+
+    private void SnapshotIsolatedLines()
+    {
+        _isoLeft = [.. Left.Lines];
+        _isoRight = [.. Right.Lines];
+    }
+
+    /// <summary>
+    /// Isolations are line numbers, so an edit (typing, copying a difference or lines) would make them point at the wrong lines. The edit
+    /// is found by comparing the lines with how they were: isolations after it move along, the ones it touches are dropped, the others stay.
+    /// </summary>
     private void DropStaleIsolations()
     {
-        if (_isolations.Count > 0 && (Left.Lines.Count, Right.Lines.Count) != _isolatedLineCounts)
+        if (_isolations.Count == 0) { return; }
+        var left = Remap(_isoLeft, Left.Lines);
+        var right = Remap(_isoRight, Right.Lines);
+        if (left is null && right is null) { return; }
+
+        var kept = new List<Isolation>();
+        foreach (var o in _isolations)
         {
-            _isolations.Clear();
-            OnPropertyChanged(nameof(HasIsolations));
+            int ls = o.LeftStart, rs = o.RightStart;
+            if (left is { } l && !l(ref ls, o.LeftCount)) { continue; }
+            if (right is { } r && !r(ref rs, o.RightCount)) { continue; }
+            kept.Add(new Isolation(ls, o.LeftCount, rs, o.RightCount));
         }
+
+        _isolations.Clear();
+        _isolations.AddRange(kept);
+        SnapshotIsolatedLines();
+        OnPropertyChanged(nameof(HasIsolations));
+    }
+
+    private delegate bool Mover(ref int start, int count);
+
+    /// <summary>How the lines of one side moved between two versions of the text (null when they did not change).</summary>
+    private static Mover? Remap(IReadOnlyList<string> before, IReadOnlyList<string> after)
+    {
+        if (before.Count == after.Count && before.SequenceEqual(after)) { return null; }
+        int prefix = 0, max = Math.Min(before.Count, after.Count);
+        while (prefix < max && before[prefix] == after[prefix]) { prefix++; }
+        int suffix = 0;
+        while (suffix < max - prefix && before[before.Count - 1 - suffix] == after[after.Count - 1 - suffix]) { suffix++; }
+        var (changedEnd, delta) = (before.Count - suffix, after.Count - before.Count);
+        return (ref int start, int count) =>
+        {
+            if (count > 0 ? start + count <= prefix : start < prefix) { return true; }   // before the edit: untouched
+            if (start >= changedEnd) { start += delta; return true; }                      // after it: moves along
+            return false;                                                                  // inside it: no longer meaningful
+        };
     }
 }

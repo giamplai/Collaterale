@@ -239,6 +239,10 @@ Each difference has a band in the strip between the panes, with two buttons:
 
 Click anywhere else on the band to make that difference the current one.
 
+**Carrying selected lines over.** Select one or more lines (drag in the line-number margin, or select text over several lines): a **filled arrow** appears in the gutter beside them, pointing at the other file. Click it to copy exactly those lines over what faces them on the other side (inserted if nothing faces them). It is one undoable step, and the file is marked as changed.
+
+![A selected line with the arrow that carries it to the other side](images/text-compare-selection-arrow.png)
+
 ### Selecting whole lines (line-number margin)
 
 Move the pointer over the **line numbers** at the left edge of a pane: the arrow turns into a mirrored arrow pointing up-right. **Click** there to select the whole line (its line break included); **click and drag** up or down to select several consecutive lines. The selection can then be copied, or used by **⇋ Isolate** and the other commands that work on the selected lines.
@@ -372,7 +376,7 @@ To undo, right-click a line and choose **Clear alignment on this line** (only th
 
 The two lines are then isolated as a pair (see above), so they face each other and the rows between are padded. The alignment is removed with **✕ Isolations** like any isolation.
 
-Everything around the isolated lines is compared normally, and each isolation is its own difference for navigation and copying. Isolations belong to the session: **✕ Isolations** (or the context menu's **Remove isolations**) brings back the automatic alignment. They also disappear when lines are added or removed (typing, copying a difference), because their line numbers would no longer be right. The shortcut can be changed in **Options → Commands**.
+Everything around the isolated lines is compared normally, and each isolation is its own difference for navigation and copying. Isolations belong to the session: **✕ Isolations** (or the context menu's **Remove isolations**) brings back the automatic alignment. You can isolate as many places as you like. When you type or copy lines, the isolations after the edit move along with the text and the ones that overlap the edited lines are removed. The shortcut can be changed in **Options → Commands**.
 
 ### Go to line
 
@@ -774,7 +778,7 @@ The button at the top right cycles **System** (follows your operating system), *
 | **Commands** | Every command with its keyboard shortcut. Click the box and press the keys; **Remove** clears it, **Default** restores it. If the shortcut is used by another command you are asked whether to take it over. The search box filters by name or description. Shortcuts can be changed for the Text compare, Three-way merge and Folder compare views. |
 | **“Open with” applications** | Programs for the **Open with** submenu of the folder view's context menu. In the arguments `%1` is the file and `%2` the file on the other side. |
 | **File formats** | Your own file types: see [Your own file formats](#your-own-file-formats). |
-| **Tweaks** | *Updates* (see below); *editor display* (syntax colors on difference lines, hatching beyond the end of the text, a separate color for one-sided lines, dimming the pane that is not active, a font for the merge input panes, a column line at a chosen column); *file operations* (beep after a long operation, remove the read-only flag when copying from a CD or DVD, check for files changed on disk and reload them, comparison priority, buffer size of the binary compare); *interface* (hints on or off, Esc closes file views, sticky splitter and sticky Home tile). |
+| **Tweaks** | *Updates* (see below); *editor display* (syntax colors on difference lines — off by default so the changed words stand out —, hatching beyond the end of the text, a separate color for one-sided lines, dimming the pane that is not active, a font for the merge input panes, a column line at a chosen column); *file operations* (beep after a long operation, remove the read-only flag when copying from a CD or DVD, check for files changed on disk and reload them, comparison priority, buffer size of the binary compare); *interface* (hints on or off, Esc closes file views, sticky splitter and sticky Home tile). |
 | **Log panel** | Which messages the log of a folder session shows (summaries, details, warnings, debug), how many it keeps, and a file to append them to. |
 | **Metrics** | The number of automatically saved workspaces (0 turns the feature off), of recent items, the delay before a hint appears, and how long the type-ahead search waits before starting over. |
 | **Name filter presets** | The ready-made name filters of the folder view toolbar. |

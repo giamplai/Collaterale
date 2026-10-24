@@ -407,6 +407,7 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
             Error = null;
             Left.Load(leftPath);
             Right.Load(rightPath);
+            ClearIsolationsSilently();
             _undo.Clear();
             _redo.Clear();
             Recompare(goToFirst: true);
@@ -421,6 +422,7 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
     {
         Left.SetText(leftPath, left);
         Right.SetText(rightPath, right);
+        ClearIsolationsSilently();
         _undo.Clear();
         _redo.Clear();
         Recompare(goToFirst: true);
@@ -860,6 +862,45 @@ public partial class TextCompareViewModel : ObservableObject, ISessionContent
         Recompare();
         // the copied difference is gone, so the same number now names the next one; without the preference stay where we are
         if (!Prefs.NextDifference.GoToNextAfterCopy) { CurrentGroup = -1; }
+    }
+
+    /// <summary>
+    /// Copies the selected display rows of one side over what faces them on the other side: the other side's lines on those rows are
+    /// replaced by the selected ones (inserted when nothing faces them).
+    /// </summary>
+    public void CopyRows(Side from, int firstRow, int lastRow)
+    {
+        if (from == Side.Left ? RightLocked : LeftLocked) { return; }
+        FlushEdits?.Invoke();
+        if (Comparison is not { } c) { return; }
+
+        int first = -1, last = -1;
+        for (var d = Math.Max(0, firstRow); d <= Math.Min(lastRow, DisplayMap.Count - 1); d++)
+        {
+            if (DisplayMap[d] < 0) { continue; }
+            if (first < 0) { first = DisplayMap[d]; }
+            last = DisplayMap[d];
+        }
+
+        if (first < 0) { return; }
+        var fromLeft = from == Side.Left;
+        int Line(int row, bool left) => left ? c.Rows[row].Left : c.Rows[row].Right;
+        var source = Enumerable.Range(first, last - first + 1).Select(r => Line(r, fromLeft)).Where(l => l >= 0).ToList();
+        var target = Enumerable.Range(first, last - first + 1).Select(r => Line(r, !fromLeft)).Where(l => l >= 0).ToList();
+        var side = fromLeft ? Right : Left;
+        var other = fromLeft ? Left : Right;
+        var at = target.Count > 0 ? target[0] : side.Lines.Count;
+        if (target.Count == 0)
+        {
+            for (var r = first; r < c.Rows.Count; r++) { if (Line(r, !fromLeft) >= 0) { at = Line(r, !fromLeft); break; } }
+        }
+
+        PushUndo();
+        side.Lines.RemoveRange(at, target.Count);
+        side.Lines.InsertRange(at, source.Select(l => other.Lines[l]).ToList());
+        side.Dirty = true;
+        Recompare();
+        Status = $"Copied {source.Count} line{(source.Count == 1 ? "" : "s")} to the {(fromLeft ? "right" : "left")}";
     }
 
     /// <summary>Set by the view: ask for a line and scroll to it.</summary>

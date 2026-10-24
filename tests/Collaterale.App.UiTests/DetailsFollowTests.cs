@@ -120,4 +120,44 @@ public class DetailsFollowTests
         vm.ClearAlignmentHereCommand.Execute(null);
         Assert.Equal("No manual alignment on this line", vm.Status);
     }
+
+    [AvaloniaFact]
+    public void Isolations_follow_an_edit_instead_of_disappearing()
+    {
+        var shell = TextCompareTests.NewShell();
+        var vm = shell.NewTextCompare();
+        vm.DetectMoves = false;
+        string[] left = ["a1", "x", "a2", "a3", "y", "a4", "z1", "z2"], right = ["a1", "a2", "x", "a3", "a4", "y", "z1", "z2"];
+        vm.OpenText("/work/a.txt", left, "/work/b.txt", right);
+        int RowOf(string text, bool leftSide) => (leftSide ? vm.LeftRows : vm.RightRows).ToList().FindIndex(r => !r.IsFiller && (leftSide ? vm.Left.Lines : vm.Right.Lines)[r.LineNumber - 1] == text);
+        vm.IsolateRows((RowOf("x", true), RowOf("x", true)), (RowOf("x", false), RowOf("x", false)));
+        vm.IsolateRows((RowOf("y", true), RowOf("y", true)), (RowOf("y", false), RowOf("y", false)));
+        // an edit above both, on the left: a line is inserted
+        vm.Left.Lines.Insert(0, "new");
+        vm.Recompare();
+        Assert.True(vm.HasIsolations);
+        var rows = vm.Comparison!.Rows;
+        Assert.Equal(2, rows.First(r => r.Left == 2).Right);         // x (now line 2 on the left) still faces x
+        Assert.Equal(5, rows.First(r => r.Left == 5).Right);         // and y still faces y
+        // an edit that touches one of them drops only that one
+        vm.Left.Lines[1] = "changed";
+        vm.Recompare();
+        Assert.True(vm.HasIsolations);
+    }
+
+    [AvaloniaFact]
+    public void Selected_rows_can_be_copied_to_the_other_side()
+    {
+        var shell = TextCompareTests.NewShell();
+        var vm = shell.NewTextCompare();
+        vm.DetectMoves = false;
+        vm.OpenText("/work/a.txt", ["one", "two", "three"], "/work/b.txt", ["one", "TWO", "three"]);
+        vm.CopyRows(Side.Left, 1, 1);
+        Assert.Equal(["one", "two", "three"], vm.Right.Lines);
+        Assert.True(vm.Right.Dirty);
+        // copying a line that has nothing facing it inserts it
+        vm.OpenText("/work/a.txt", ["one", "extra", "three"], "/work/b.txt", ["one", "three"]);
+        vm.CopyRows(Side.Left, 1, 1);
+        Assert.Equal(["one", "extra", "three"], vm.Right.Lines);
+    }
 }
